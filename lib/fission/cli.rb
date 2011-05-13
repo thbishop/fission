@@ -2,7 +2,7 @@ module Fission
   class CLI
     def self.execute(args=ARGV)
       optparse = OptionParser.new do |opts|
-        opts.banner = "\nUsage: fission [options] source_vm target_vm\n\n"
+        opts.banner = "\nUsage: fission [options] COMMAND [parameters]\n\n"
 
         opts.on('-v', '--version', 'Output the version of fission') do
           puts Fission::VERSION
@@ -11,7 +11,13 @@ module Fission
 
       end
 
-      optparse.parse!(args)
+      optparse.parse! args
+
+      puts args.first
+      case args.first
+      when 'clone'
+        Fission::Command::Clone.execute args.drop 1
+      end
 
     end
 

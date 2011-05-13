@@ -3,6 +3,8 @@ require 'fileutils'
 require 'optparse'
 
 require 'fission/cli'
+require 'fission/command'
+require 'fission/command/clone'
 require 'fission/config'
 require 'fission/core_ext/object'
 require 'fission/vm'

@@ -17,10 +17,13 @@ module Fission
 
     private
     def self.rename_vm_files(from, to)
-      files_to_rename = Dir.entries(path(to)).select { |f| f.include?(from) }
-      files_to_rename.each do |file|
+      files_to_rename(from, to).each do |file|
         FileUtils.mv File.join(path(to), file), File.join(path(to), file.gsub(from, to))
       end
+    end
+
+    def self.files_to_rename(from, to)
+      Dir.entries(path(to)).select { |f| f.include?(from) }
     end
 
   end

@@ -34,5 +34,12 @@ describe Fission::CLI do
 
     end
 
+    describe 'clone' do
+      it "should try to clone the vm" do
+        Fission::Command::Clone.should_receive(:execute).with(['foo', 'bar'])
+        Fission::CLI.execute ['clone', 'foo', 'bar']
+      end
+    end
+
   end
 end
