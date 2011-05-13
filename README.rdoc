@@ -1,0 +1,7 @@
+By default will look in default Fusion directory
+Can override with an entry in ~.fissionrc or env var
+  FISSION_VM_DIR=/vm
+
+Provide source vm and new vm name on cmd line
+
+  fission lucid_64_template my_new_vm

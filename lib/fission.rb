@@ -1,3 +1,5 @@
+require 'fission/config'
+require 'fission/core_ext/object'
+
 module Fission
-  # Your code goes here...
 end
