@@ -1,9 +1,12 @@
 require 'yaml'
 require 'fileutils'
+require 'optparse'
 
+require 'fission/cli'
 require 'fission/config'
 require 'fission/core_ext/object'
 require 'fission/vm'
+require 'fission/version'
 
 module Fission
   extend self

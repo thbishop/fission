@@ -1,5 +1,4 @@
 require File.expand_path('../../spec_helper.rb', __FILE__)
-require 'yaml'
 
 describe Fission::Config do
   describe "init" do
