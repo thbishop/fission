@@ -6,4 +6,10 @@ describe Fission do
       Fission.config.should be_a Fission::Config
     end
   end
+
+  describe "ui" do
+    it "should load a ui object" do
+      Fission.ui.should be_a Fission::UI
+    end
+  end
 end
