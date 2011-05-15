@@ -1,5 +1,5 @@
 module Fission
-  class Vm
+  class VM
 
     def self.exists?(vm_name)
       File.directory? path(vm_name)
