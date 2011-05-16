@@ -14,7 +14,8 @@ module Fission
       FileUtils.cp_r path(source_vm), path(target_vm)
 
       Fission.ui.output "Configuring #{target_vm}"
-      rename_vm_files(source_vm, target_vm)
+      rename_vm_files source_vm, target_vm
+      update_config source_vm, target_vm
     end
 
     private
@@ -26,6 +27,15 @@ module Fission
 
     def self.files_to_rename(from, to)
       Dir.entries(path(to)).select { |f| f.include?(from) }
+    end
+
+    def self.update_config(from, to)
+      ['.vmdk', '.vmx', '.vmxf'].each do |ext|
+        file = File.join path(to), "#{to}#{ext}"
+        text = File.read file
+        text.gsub! from, to
+        File.open(file, 'w'){ |f| f.print text }
+      end
     end
 
   end

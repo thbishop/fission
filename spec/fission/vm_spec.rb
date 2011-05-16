@@ -51,6 +51,8 @@ describe Fission::VM do
           FileUtils.touch File.join(Fission::VM.path('foo'), "#{source_vm}#{file}")
         end
 
+        File.open(File.join(Fission::VM.path('foo'), 'foo.vmx'), 'w') { |f| f.write 'foo.vmdk'}
+
         Fission::VM.clone source_vm, target_vm
 
         File.directory?(Fission::VM.path('bar')).should == true
@@ -58,6 +60,9 @@ describe Fission::VM do
         vm_files.each do |file|
           File.file?(File.join(Fission::VM.path('bar'), "#{target_vm}#{file}")).should == true
         end
+
+        conf_file = File.read File.join(Fission::VM.path('bar'), 'bar.vmx')
+        conf_file.should == 'bar.vmdk'
       end
 
       @string_io.string.should match /Cloning #{source_vm} to #{target_vm}/
