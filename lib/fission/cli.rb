@@ -5,7 +5,7 @@ module Fission
         opts.banner = "\nUsage: fission [options] COMMAND [parameters]"
 
         opts.on_head('-v', '--version', 'Output the version of fission') do
-          puts Fission::VERSION
+          Fission.ui.output Fission::VERSION
           exit(0)
         end
 
@@ -23,7 +23,7 @@ module Fission
       begin
         optparse.parse! args
       rescue OptionParser::InvalidOption => e
-        puts e
+        Fission.ui.output e
         show_all_help(optparse)
         exit(1)
       end
@@ -47,8 +47,8 @@ module Fission
     end
 
     def self.show_all_help(options)
-      puts options
-      puts commands_banner
+      Fission.ui.output options
+      Fission.ui.output commands_banner
     end
 
   end

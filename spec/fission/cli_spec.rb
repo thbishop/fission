@@ -1,18 +1,24 @@
 require File.expand_path('../../spec_helper.rb', __FILE__)
 
 describe Fission::CLI do
+  before :all do
+    @string_io = StringIO.new
+  end
+
+  before :each do
+    Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
+  end
+
   describe 'execute' do
 
     describe '-v or --version' do
       ['-v', '--version'].each do |arg|
         it "should output the version with #{arg}" do
-          output = capturing_output do
-            lambda {
-              Fission::CLI.execute [arg]
-            }.should raise_error SystemExit
-          end
+          lambda {
+            Fission::CLI.execute [arg]
+          }.should raise_error SystemExit
 
-          output.strip.should == Fission::VERSION
+          @string_io.string.should match /#{Fission::VERSION}/
 
         end
       end
@@ -22,13 +28,11 @@ describe Fission::CLI do
     describe '-h or --help' do
       ['-h', '--help'].each do |arg|
         it "should output the usage info with #{arg}" do
-          output = capturing_output do
-            lambda {
-              Fission::CLI.execute [arg]
-            }.should raise_error SystemExit
-          end
+          lambda {
+            Fission::CLI.execute [arg]
+          }.should raise_error SystemExit
 
-          output.should match(/Usage/)
+          @string_io.string.should match /Usage/
         end
       end
 
