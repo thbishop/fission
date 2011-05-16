@@ -22,7 +22,7 @@ The config file needs to be in yaml format and live at '~/.fissionrc'
 
 ## Usage
 ### Clone
-    fission clone my_vm new_vm
+    fission clone existing_vm new_vm
 
 ### Help
     fission -h
@@ -32,8 +32,8 @@ or just
     fission
 
 
-## Other
-Notable Info As of now, VMware Fusion doesn't provide an easy, out of
+## Other Notable Info
+As of now, VMware Fusion doesn't provide an easy, out of
 the box, way to modify the personality (hostname, ip, etc.) of a VM.  Because of
 this, a clone created by fission is an _exact_ copy of the original (including
 hostname, ip address, etc.).  Most likely, this isn't what you want.
