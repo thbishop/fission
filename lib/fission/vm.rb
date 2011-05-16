@@ -6,7 +6,7 @@ module Fission
     end
 
     def self.path(vm_name)
-      File.join(Fission.config.attributes['vm_dir'], "#{vm_name}.vmwarevm").gsub '\\', ''
+      File.join Fission.config.attributes['vm_dir'], "#{vm_name}.vmwarevm"
     end
 
     def self.clone(source_vm, target_vm)
