@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.authors     = ['Tommy Bishop']
   s.email       = ['bishop.thomas@gmail.com']
-  s.homepage    = "http://github.com/thbishop/fission"
+  s.homepage    = "https://github.com/thbishop/fission"
   s.summary     = %q{Tool to clone VMware fusion VMs}
   s.description = %q{A simple utility to create VMware Fusion VM clones}
 
