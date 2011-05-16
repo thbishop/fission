@@ -9,7 +9,7 @@ module Fission
       load_from_file
 
       if @attributes['vm_dir'].blank?
-        @attributes['vm_dir'] = '~/Documents/Virtual\ Machines.localized/'
+        @attributes['vm_dir'] = File.expand_path('~/Documents/Virtual\ Machines.localized/')
       end
     end
 

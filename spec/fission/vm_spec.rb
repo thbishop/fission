@@ -1,6 +1,9 @@
 require File.expand_path('../../spec_helper.rb', __FILE__)
 
 describe Fission::VM do
+  before :all do
+    @string_io = StringIO.new
+  end
 
   describe "self.path" do
     it "should return the path of the vm" do
@@ -27,6 +30,10 @@ describe Fission::VM do
 
 
   describe "self.clone" do
+    before :each do
+      Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
+    end
+
     it 'should clone the vm to the target' do
       source_vm = 'foo'
       target_vm = 'bar'
@@ -36,6 +43,7 @@ describe Fission::VM do
                    '-s001.vmdk',
                    '-s002.vmdk',
                    '.vmsd' ]
+
       FakeFS do
         FileUtils.mkdir_p Fission::VM.path('foo')
 
@@ -51,6 +59,9 @@ describe Fission::VM do
           File.file?(File.join(Fission::VM.path('bar'), "#{target_vm}#{file}")).should == true
         end
       end
+
+      @string_io.string.should match /Cloning #{source_vm} to #{target_vm}/
+      @string_io.string.should match /Configuring #{target_vm}/
     end
 
   end

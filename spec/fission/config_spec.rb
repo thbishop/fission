@@ -4,7 +4,7 @@ describe Fission::Config do
   describe "init" do
     it "should use the fusion default dir for vm_dir" do
       @config = Fission::Config.new
-      @config.attributes['vm_dir'].should == '~/Documents/Virtual\ Machines.localized/'
+      @config.attributes['vm_dir'].should == File.expand_path('~/Documents/Virtual\ Machines.localized/')
     end
 
     it "should use the user specified dir in ~/.fissionrc" do

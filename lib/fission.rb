@@ -2,10 +2,13 @@ require 'yaml'
 require 'fileutils'
 require 'optparse'
 
+$:.unshift File.join(File.dirname(__FILE__), *%w[.. lib])
+
 require 'fission/cli'
 require 'fission/command'
 require 'fission/command/clone'
 require 'fission/config'
+require 'fission/core_ext/class'
 require 'fission/core_ext/object'
 require 'fission/ui'
 require 'fission/vm'
