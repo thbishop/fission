@@ -11,6 +11,16 @@ describe Fission::CLI do
 
   describe 'execute' do
 
+    describe 'with no arguments' do
+      it 'should output the usage info' do
+        lambda {
+          Fission::CLI.execute []
+        }.should raise_error SystemExit
+
+        @string_io.string.should match /Usage/
+      end
+    end
+
     describe '-v or --version' do
       ['-v', '--version'].each do |arg|
         it "should output the version with #{arg}" do

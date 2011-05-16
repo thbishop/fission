@@ -31,6 +31,9 @@ module Fission
       case args.first
       when 'clone'
         Fission::Command::Clone.execute args.drop 1
+      else
+        show_all_help(optparse)
+        exit(0)
       end
 
     end
