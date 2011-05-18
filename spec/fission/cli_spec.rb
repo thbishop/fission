@@ -1,11 +1,8 @@
 require File.expand_path('../../spec_helper.rb', __FILE__)
 
 describe Fission::CLI do
-  before :all do
-    @string_io = StringIO.new
-  end
-
   before :each do
+    @string_io = StringIO.new
     Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
   end
 
@@ -53,6 +50,7 @@ describe Fission::CLI do
         @clone_mock = mock('clone_mock')
         Fission::Command::Clone.stub!(:help).and_return('')
       end
+
       it "should try to clone the vm" do
         @clone_mock.should_receive(:execute)
         Fission::Command::Clone.should_receive(:new).with(['foo', 'bar']).and_return(@clone_mock)
