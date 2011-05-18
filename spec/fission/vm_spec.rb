@@ -1,13 +1,40 @@
 require File.expand_path('../../spec_helper.rb', __FILE__)
 
 describe Fission::VM do
-  before :all do
+  before :each do
     @string_io = StringIO.new
   end
 
   describe 'new' do
     it 'should set the vm name' do
       Fission::VM.new('foo').name.should == 'foo'
+    end
+  end
+
+  describe 'start' do
+    it 'should output that it was successful' do
+      Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
+      @vm = Fission::VM.new('foo')
+      @vm.should_receive(:`).with("#{Fission.config.attributes['vmrun_bin']} -T fusion start #{File.join(Fission::VM.path('foo'), 'foo.vmx')} gui 2>&1").and_return("it's all good")
+      @vm.start
+
+      @string_io.string.should match /VM started/
+    end
+
+    it 'it should output that it was unsuccessful' do
+      $?.should_receive(:exitstatus).and_return(1)
+      Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
+      @vm = Fission::VM.new('foo')
+      @vm.should_receive(:`).with("#{Fission.config.attributes['vmrun_bin']} -T fusion start #{File.join(Fission::VM.path('foo'), 'foo.vmx')} gui 2>&1").and_return("it blew up")
+      @vm.start
+
+      @string_io.string.should match /There was a problem starting the VM.+it blew up.+/m
+    end
+  end
+
+  describe 'conf_file' do
+    it 'should return the path to the conf file' do
+      Fission::VM.new('foo').conf_file.should == File.join(Fission.config.attributes['vm_dir'], 'foo.vmwarevm', 'foo.vmx')
     end
   end
 

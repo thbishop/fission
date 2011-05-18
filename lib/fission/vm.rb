@@ -7,7 +7,18 @@ module Fission
     end
 
     def start
-      
+      command = "#{Fission.config.attributes['vmrun_bin']} -T fusion start #{conf_file} gui 2>&1"
+      output = `#{command}`
+
+      if $?.exitstatus == 0
+        Fission.ui.output "VM started"
+      else
+        Fission.ui.output "There was a problem starting the VM.  The error was:\n#{output}"
+      end
+    end
+
+    def conf_file
+      File.join self.class.path(@name), "#{@name}.vmx"
     end
 
     def self.exists?(vm_name)
