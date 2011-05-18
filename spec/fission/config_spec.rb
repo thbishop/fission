@@ -9,6 +9,13 @@ describe Fission::Config do
       end
     end
 
+    it 'should use the fusion default for vmrun_bin' do
+      FakeFS do
+        @config = Fission::Config.new
+        @config.attributes['vmrun_bin'].should == '/Library/Application Support/VMware Fusion/vmrun'
+      end
+    end
+
     it "should use the user specified dir in ~/.fissionrc" do
       FakeFS do
         File.open('~/.fissionrc', 'w') { |f| f.puts YAML.dump({ 'vm_dir' => '/var/tmp/foo' })}

@@ -3,20 +3,21 @@ require File.expand_path('../../../spec_helper.rb', __FILE__)
 describe Fission::Command::Clone do
   before :all do
     @vm_info = ['foo', 'bar']
-    @string_io = StringIO.new
   end
 
   before :each do
+    @string_io = StringIO.new
     Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
   end
 
   describe 'execute' do
-    [ [], ['foo'], ['foo', 'bar', 'baz'] ].each do |args|
+    [ [], ['foo'] ].each do |args|
       it "should output an error and the help when #{args.count} arguments are passed in" do
         Fission::Command::Clone.should_receive(:help)
 
         lambda {
-          Fission::Command::Clone.execute args
+          command = Fission::Command::Clone.new args
+          command.execute
         }.should raise_error SystemExit
 
         @string_io.string.should match /Incorrect arguments for clone command/
@@ -28,7 +29,8 @@ describe Fission::Command::Clone do
       Fission::VM.should_not_receive(:exists?).with(@vm_info[1])
 
       lambda {
-        Fission::Command::Clone.execute @vm_info
+        command = Fission::Command::Clone.new @vm_info
+        command.execute
       }.should raise_error SystemExit
 
       @string_io.string.should match /Unable to find the source vm #{@vm_info.first}/
@@ -41,7 +43,8 @@ describe Fission::Command::Clone do
       end
 
       lambda {
-        Fission::Command::Clone.execute @vm_info
+        command = Fission::Command::Clone.new @vm_info
+        command.execute
       }.should raise_error SystemExit
 
       @string_io.string.should match /The target vm #{@vm_info[1]} already exists/
@@ -51,9 +54,25 @@ describe Fission::Command::Clone do
       Fission::VM.should_receive(:exists?).with(@vm_info.first).and_return(true)
       Fission::VM.should_receive(:exists?).with(@vm_info[1]).and_return(false)
       Fission::VM.should_receive(:clone).with(@vm_info.first, @vm_info[1])
-      Fission::Command::Clone.execute @vm_info
+      command = Fission::Command::Clone.new @vm_info
+      command.execute
 
       @string_io.string.should match /Clone complete/
+    end
+
+    describe 'with --start' do
+      it 'should try to clone the vm and start it' do
+        Fission::VM.should_receive(:exists?).with(@vm_info.first).and_return(true)
+        Fission::VM.should_receive(:exists?).with(@vm_info[1]).and_return(false)
+        Fission::VM.should_receive(:clone).with(@vm_info.first, @vm_info[1])
+        Fission::VM.should_receive(:start).with(@vm_info[1])
+
+        command = Fission::Command::Clone.new @vm_info << '--start'
+        command.execute
+
+        @string_io.string.should match /Clone complete/
+        @string_io.string.should match /Starting '#{@vm_info[1]}'/
+      end
     end
 
   end

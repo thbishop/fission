@@ -5,6 +5,12 @@ describe Fission::VM do
     @string_io = StringIO.new
   end
 
+  describe 'new' do
+    it 'should set the vm name' do
+      Fission::VM.new('foo').name.should == 'foo'
+    end
+  end
+
   describe "self.path" do
     it "should return the path of the vm" do
       vm_path = File.join(Fission.config.attributes['vm_dir'], 'foo.vmwarevm').gsub '\\', ''

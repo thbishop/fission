@@ -1,5 +1,14 @@
 module Fission
   class VM
+    attr_reader :name
+
+    def initialize(name)
+      @name = name
+    end
+
+    def start
+      
+    end
 
     def self.exists?(vm_name)
       File.directory? path(vm_name)

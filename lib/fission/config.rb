@@ -11,6 +11,8 @@ module Fission
       if @attributes['vm_dir'].blank?
         @attributes['vm_dir'] = File.expand_path('~/Documents/Virtual Machines.localized/')
       end
+
+      @attributes['vmrun_bin'] = '/Library/Application Support/VMware Fusion/vmrun'
     end
 
     private

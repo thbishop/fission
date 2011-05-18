@@ -49,8 +49,14 @@ describe Fission::CLI do
     end
 
     describe 'clone' do
+      before :each do
+        @clone_mock = mock('clone_mock')
+        Fission::Command::Clone.stub!(:help).and_return('')
+      end
       it "should try to clone the vm" do
-        Fission::Command::Clone.should_receive(:execute).with(['foo', 'bar'])
+        @clone_mock.should_receive(:execute)
+        Fission::Command::Clone.should_receive(:new).with(['foo', 'bar']).and_return(@clone_mock)
+
         Fission::CLI.execute ['clone', 'foo', 'bar']
       end
     end
