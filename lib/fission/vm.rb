@@ -7,7 +7,7 @@ module Fission
     end
 
     def start
-      command = "#{Fission.config.attributes['vmrun_bin']} -T fusion start #{conf_file} gui 2>&1"
+      command = "#{Fission.config.attributes['vmrun_bin'].gsub(' ', '\ ' )} -T fusion start #{conf_file.gsub ' ', '\ '} gui 2>&1"
       output = `#{command}`
 
       if $?.exitstatus == 0

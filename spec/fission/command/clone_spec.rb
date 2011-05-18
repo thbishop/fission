@@ -62,10 +62,13 @@ describe Fission::Command::Clone do
 
     describe 'with --start' do
       it 'should try to clone the vm and start it' do
+        @vm_mock = mock('vm_mock')
         Fission::VM.should_receive(:exists?).with(@vm_info.first).and_return(true)
         Fission::VM.should_receive(:exists?).with(@vm_info[1]).and_return(false)
         Fission::VM.should_receive(:clone).with(@vm_info.first, @vm_info[1])
-        Fission::VM.should_receive(:start).with(@vm_info[1])
+
+        @vm_mock.should_receive(:start)
+        Fission::VM.should_receive(:new).with(@vm_info[1]).and_return(@vm_mock)
 
         command = Fission::Command::Clone.new @vm_info << '--start'
         command.execute

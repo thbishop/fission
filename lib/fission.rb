@@ -1,6 +1,6 @@
-require 'yaml'
 require 'fileutils'
 require 'optparse'
+require 'yaml'
 
 $:.unshift File.join(File.dirname(__FILE__), *%w[.. lib])
 

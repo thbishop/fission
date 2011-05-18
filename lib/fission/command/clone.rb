@@ -37,7 +37,8 @@ module Fission
 
         if @options.start
           Fission.ui.output "Starting '#{target_vm}'"
-          Fission::VM.start target_vm
+          @vm = Fission::VM.new target_vm
+          @vm.start
         end
       end
 

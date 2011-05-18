@@ -15,7 +15,7 @@ describe Fission::VM do
     it 'should output that it was successful' do
       Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
       @vm = Fission::VM.new('foo')
-      @vm.should_receive(:`).with("#{Fission.config.attributes['vmrun_bin']} -T fusion start #{File.join(Fission::VM.path('foo'), 'foo.vmx')} gui 2>&1").and_return("it's all good")
+      @vm.should_receive(:`).with("#{Fission.config.attributes['vmrun_bin'].gsub ' ', '\ '} -T fusion start #{(File.join(Fission::VM.path('foo'), 'foo.vmx')).gsub ' ', '\ '} gui 2>&1").and_return("it's all good")
       @vm.start
 
       @string_io.string.should match /VM started/
@@ -25,7 +25,7 @@ describe Fission::VM do
       $?.should_receive(:exitstatus).and_return(1)
       Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
       @vm = Fission::VM.new('foo')
-      @vm.should_receive(:`).with("#{Fission.config.attributes['vmrun_bin']} -T fusion start #{File.join(Fission::VM.path('foo'), 'foo.vmx')} gui 2>&1").and_return("it blew up")
+      @vm.should_receive(:`).with("#{Fission.config.attributes['vmrun_bin'].gsub ' ', '\ '} -T fusion start #{(File.join(Fission::VM.path('foo'), 'foo.vmx')).gsub ' ', '\ '} gui 2>&1").and_return("it blew up")
       @vm.start
 
       @string_io.string.should match /There was a problem starting the VM.+it blew up.+/m
