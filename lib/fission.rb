@@ -1,5 +1,6 @@
 require 'fileutils'
 require 'optparse'
+require 'ostruct'
 require 'yaml'
 
 $:.unshift File.join(File.dirname(__FILE__), *%w[.. lib])

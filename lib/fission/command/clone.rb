@@ -1,5 +1,3 @@
-require 'ostruct'
-
 module Fission
   class Command
     class Clone < Command
