@@ -4,6 +4,24 @@
 Fission is a simple command line tool for cloning of VMware Fusion VMs.
 
 
+## Install
+    gem install fission
+
+
+## Usage
+### Clone
+    fission clone existing_vm new_vm [--start]
+
+If you provide '--start', then the new VM will be powered on after cloning
+
+### Help
+    fission -h
+
+or just
+
+    fission
+
+
 ## Config
 By default, fission will use the default VMware Fusion VM directory
 (~/Documents/Virtual Machines.localized/) when cloning.  If you want to use a
@@ -14,22 +32,6 @@ The config file needs to be in yaml format and live at '~/.fissionrc'
     $cat ~/.fissionrc
     ---
     vm_dir: "/vm"
-
-
-## Install
-    gem install fission
-
-
-## Usage
-### Clone
-    fission clone existing_vm new_vm
-
-### Help
-    fission -h
-
-or just
-
-    fission
 
 
 ## Other Notable Info
