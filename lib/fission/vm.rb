@@ -29,6 +29,28 @@ module Fission
       vm_dirs.map { |d| File.basename d, '.vmwarevm' }
     end
 
+    def self.all_running
+      command = "#{Fission.config.attributes['vmrun_bin'].gsub(' ', '\ ' )} list"
+
+      output = `#{command}`
+
+      vms = []
+
+      if $?.exitstatus == 0
+        output.split("\n").each do |vm|
+          if vm.include?('.vmx')
+            if File.exists?(vm) && (File.extname(vm) == '.vmx')
+              vms << File.basename(vm, '.vmx')
+            end
+          end
+        end
+      else
+        Fission.ui.output_and_exit "Unable to determine the list of running VMs", 1
+      end
+
+      vms
+    end
+
     def self.exists?(vm_name)
       File.directory? path(vm_name)
     end

@@ -64,6 +64,33 @@ describe Fission::VM do
     end
   end
 
+  describe 'self.all_running' do
+    it 'should list the running vms' do
+      list_output = "Total running VMs: 2\n/vm/foo.vmwarevm/foo.vmx
+\n/vm/bar.vmwarevm/bar.vmx\n/vm/baz.vmwarevm/baz.vmx\n"
+
+      $?.should_receive(:exitstatus).and_return(0)
+      Fission::VM.should_receive(:`).with("#{Fission.config.attributes['vmrun_bin'].gsub ' ', '\ '} list").and_return(list_output)
+      [ 'foo', 'bar', 'baz'].each do |vm|
+        File.should_receive(:exists?).with("/vm/#{vm}.vmwarevm/#{vm}.vmx").and_return(true)
+      end
+
+      Fission::VM.all_running.should == ['foo', 'bar', 'baz']
+    end
+
+    it 'should output an error and exit if unable to get the list of running vms' do
+      $?.should_receive(:exitstatus).and_return(1)
+      Fission::VM.should_receive(:`).with("#{Fission.config.attributes['vmrun_bin'].gsub ' ', '\ '} list").and_return("it blew up")
+      Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
+
+      lambda {
+        Fission::VM.all_running
+      }.should raise_error SystemExit
+
+      @string_io.string.should match /Unable to determine the list of running VMs/
+    end
+  end
+
   describe "self.path" do
     it "should return the path of the vm" do
       vm_path = File.join(Fission.config.attributes['vm_dir'], 'foo.vmwarevm').gsub '\\', ''
