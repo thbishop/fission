@@ -14,6 +14,11 @@ Fission is a simple command line tool for cloning of VMware Fusion VMs.
 
 If you provide '--start', then the new VM will be powered on after cloning
 
+### Status
+    fission status
+
+Displays the status (running or not) of all of the VMs found
+
 ### Help
     fission -h
 
