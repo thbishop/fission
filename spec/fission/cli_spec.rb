@@ -59,5 +59,19 @@ describe Fission::CLI do
       end
     end
 
+    describe 'status' do
+      before :each do
+        @status_mock = mock('status_mock')
+        Fission::Command::Status.stub!(:help).and_return('')
+      end
+
+      it "should try to get the status for all VMs" do
+        @status_mock.should_receive(:execute)
+        Fission::Command::Status.should_receive(:new).and_return(@status_mock)
+
+        Fission::CLI.execute ['status']
+      end
+    end
+
   end
 end

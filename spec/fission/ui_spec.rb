@@ -11,6 +11,14 @@ describe Fission::UI do
     end
   end
 
+  describe 'output_printf' do
+    it 'should pass the arguments to printf' do
+      @output = mock('output')
+      @output.should_receive(:printf).with('foo', 'bar', 'baz')
+      Fission::UI.new(@output).output_printf('foo', 'bar', 'baz')
+    end
+  end
+
   describe 'output_and_exit' do
     it 'should show the desired text and exit with the desired exit code' do
       Fission::UI.any_instance.should_receive(:exit).and_return(1)

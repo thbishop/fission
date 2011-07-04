@@ -10,6 +10,10 @@ module Fission
       @stdout.puts s
     end
 
+    def output_printf(string, key, value)
+      @stdout.send :printf, string, key, value
+    end
+
     def output_and_exit(s, exit_code)
       output s
       exit exit_code
