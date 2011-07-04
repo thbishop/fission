@@ -23,7 +23,7 @@ module Fission
 
     def self.all
       vm_dirs = Dir[File.join Fission.config.attributes['vm_dir'], '*.vmwarevm'].select do |d|
-        File.directory?("#{File.join Fission.config.attributes['vm_dir'], d}")
+        File.directory? d
       end
 
       vm_dirs.map { |d| File.basename d, '.vmwarevm' }
