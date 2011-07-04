@@ -21,6 +21,14 @@ module Fission
       File.join self.class.path(@name), "#{@name}.vmx"
     end
 
+    def self.all
+      vm_dirs = Dir[File.join Fission.config.attributes['vm_dir'], '*.vmwarevm'].select do |d|
+        File.directory?("#{File.join Fission.config.attributes['vm_dir'], d}")
+      end
+
+      vm_dirs.map { |d| File.basename d, '.vmwarevm' }
+    end
+
     def self.exists?(vm_name)
       File.directory? path(vm_name)
     end

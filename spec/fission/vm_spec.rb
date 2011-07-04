@@ -38,6 +38,32 @@ describe Fission::VM do
     end
   end
 
+  describe "self.all" do
+    it "should return the list of VMs" do
+      Dir.should_receive(:[]).and_return(['foo.vmwarevm', 'bar.vmwarevm'])
+
+      vm_root = Fission.config.attributes['vm_dir']
+      File.should_receive(:directory?).with("#{File.join vm_root, 'foo.vmwarevm'}").and_return(true)
+      File.should_receive(:directory?).with("#{File.join vm_root, 'bar.vmwarevm'}").and_return(true)
+      Fission::VM.all.should == ['foo', 'bar']
+    end
+
+    it "should not return an item in the list if it isn't a directory" do
+      vm_root = Fission.config.attributes['vm_dir']
+      Dir.should_receive(:[]).and_return(['foo.vmwarevm', 'bar.vmwarevm', 'baz.vmwarevm'])
+      File.should_receive(:directory?).with("#{File.join vm_root, 'foo.vmwarevm'}").and_return(true)
+      File.should_receive(:directory?).with("#{File.join vm_root, 'bar.vmwarevm'}").and_return(true)
+      File.should_receive(:directory?).with("#{File.join vm_root, 'baz.vmwarevm'}").and_return(false)
+      Fission::VM.all.should == ['foo', 'bar']
+    end
+
+    it "should only query for items with an extension of .vmwarevm" do
+      dir_arg = File.join Fission.config.attributes['vm_dir'], '*.vmwarevm'
+      Dir.should_receive(:[]).with(dir_arg).and_return(['foo.vmwarevm', 'bar.vmwarevm'])
+      Fission::VM.all
+    end
+  end
+
   describe "self.path" do
     it "should return the path of the vm" do
       vm_path = File.join(Fission.config.attributes['vm_dir'], 'foo.vmwarevm').gsub '\\', ''
