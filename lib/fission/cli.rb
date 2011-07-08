@@ -32,6 +32,9 @@ module Fission
       when 'clone'
         @command = Fission::Command::Clone.new args.drop 1
         @command.execute
+      when 'start'
+        @command = Fission::Command::Start.new args.drop 1
+        @command.execute
       when 'status'
         @command = Fission::Command::Status.new args.drop 1
         @command.execute

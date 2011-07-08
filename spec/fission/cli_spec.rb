@@ -59,6 +59,20 @@ describe Fission::CLI do
       end
     end
 
+    describe 'start' do
+      before :each do
+        @start_mock = mock('start_mock')
+        Fission::Command::Start.stub!(:help).and_return('')
+      end
+
+      it "should try to start the vm" do
+        @start_mock.should_receive(:execute)
+        Fission::Command::Start.should_receive(:new).with(['foo']).and_return(@start_mock)
+
+        Fission::CLI.execute ['start', 'foo']
+      end
+    end
+
     describe 'status' do
       before :each do
         @status_mock = mock('status_mock')
