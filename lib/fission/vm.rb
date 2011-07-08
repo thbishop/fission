@@ -17,6 +17,17 @@ module Fission
       end
     end
 
+    def stop
+      command = "#{Fission.config.attributes['vmrun_bin'].gsub(' ', '\ ' )} -T fusion stop #{conf_file.gsub ' ', '\ '} 2>&1"
+      output = `#{command}`
+
+      if $?.exitstatus == 0
+        Fission.ui.output "VM stopped"
+      else
+        Fission.ui.output "There was a problem stopping the VM.  The error was:\n#{output}"
+      end
+    end
+
     def conf_file
       File.join self.class.path(@name), "#{@name}.vmx"
     end

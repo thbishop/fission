@@ -24,6 +24,11 @@ Starts the VM
 
 Displays the status (running or not) of all of the VMs found
 
+### Stop
+    fission stop my_vm
+
+Stops the VM
+
 ### Help
     fission -h
 

@@ -13,6 +13,7 @@ describe Fission::VM do
 
   describe 'start' do
     it 'should output that it was successful' do
+      $?.should_receive(:exitstatus).and_return(0)
       Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
       @vm = Fission::VM.new('foo')
       @vm.should_receive(:`).with("#{Fission.config.attributes['vmrun_bin'].gsub ' ', '\ '} -T fusion start #{(File.join(Fission::VM.path('foo'), 'foo.vmx')).gsub ' ', '\ '} gui 2>&1").and_return("it's all good")
@@ -29,6 +30,28 @@ describe Fission::VM do
       @vm.start
 
       @string_io.string.should match /There was a problem starting the VM.+it blew up.+/m
+    end
+  end
+
+  describe 'stop' do
+    it 'should output that it was successful' do
+      $?.should_receive(:exitstatus).and_return(0)
+      Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
+      @vm = Fission::VM.new('foo')
+      @vm.should_receive(:`).with("#{Fission.config.attributes['vmrun_bin'].gsub ' ', '\ '} -T fusion stop #{(File.join(Fission::VM.path('foo'), 'foo.vmx')).gsub ' ', '\ '} 2>&1").and_return("it's all good")
+      @vm.stop
+
+      @string_io.string.should match /VM stopped/
+    end
+
+    it 'it should output that it was unsuccessful' do
+      $?.should_receive(:exitstatus).and_return(1)
+      Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
+      @vm = Fission::VM.new('foo')
+      @vm.should_receive(:`).with("#{Fission.config.attributes['vmrun_bin'].gsub ' ', '\ '} -T fusion stop #{(File.join(Fission::VM.path('foo'), 'foo.vmx')).gsub ' ', '\ '} 2>&1").and_return("it blew up")
+      @vm.stop
+
+      @string_io.string.should match /There was a problem stopping the VM.+it blew up.+/m
     end
   end
 

@@ -87,5 +87,19 @@ describe Fission::CLI do
       end
     end
 
+    describe 'stop' do
+      before :each do
+        @stop_mock = mock('stop_mock')
+        Fission::Command::Stop.stub!(:help).and_return('')
+      end
+
+      it "should try to stop the vm" do
+        @stop_mock.should_receive(:execute)
+        Fission::Command::Stop.should_receive(:new).with(['foo']).and_return(@stop_mock)
+
+        Fission::CLI.execute ['stop', 'foo']
+      end
+    end
+
   end
 end
