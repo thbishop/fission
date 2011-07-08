@@ -164,41 +164,57 @@ describe Fission::VM do
   describe "self.clone" do
     before :each do
       Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
-    end
+      @source_vm = 'foo'
+      @target_vm = 'bar'
+      @vm_files = ['.vmx', '.vmxf', '.vmdk', '-s001.vmdk', '-s002.vmdk', '.vmsd']
 
-    it 'should clone the vm to the target' do
-      source_vm = 'foo'
-      target_vm = 'bar'
-      vm_files = [ '.vmx',
-                   '.vmxf',
-                   '.vmdk',
-                   '-s001.vmdk',
-                   '-s002.vmdk',
-                   '.vmsd' ]
+      FakeFS.activate!
 
-      FakeFS do
-        FileUtils.mkdir_p Fission::VM.path('foo')
+      FileUtils.mkdir_p Fission::VM.path('foo')
 
-        vm_files.each do |file|
-          FileUtils.touch File.join(Fission::VM.path('foo'), "#{source_vm}#{file}")
-        end
-
-        File.open(File.join(Fission::VM.path('foo'), 'foo.vmx'), 'w') { |f| f.write 'foo.vmdk'}
-
-        Fission::VM.clone source_vm, target_vm
-
-        File.directory?(Fission::VM.path('bar')).should == true
-
-        vm_files.each do |file|
-          File.file?(File.join(Fission::VM.path('bar'), "#{target_vm}#{file}")).should == true
-        end
-
-        conf_file = File.read File.join(Fission::VM.path('bar'), 'bar.vmx')
-        conf_file.should == 'bar.vmdk'
+      @vm_files.each do |file|
+        FileUtils.touch File.join(Fission::VM.path('foo'), "#{@source_vm}#{file}")
       end
 
-      @string_io.string.should match /Cloning #{source_vm} to #{target_vm}/
-      @string_io.string.should match /Configuring #{target_vm}/
+      ['.vmx', '.vmxf', '.vmdk'].each do |ext|
+        File.open(File.join(Fission::VM.path('foo'), "foo#{ext}"), 'w') { |f| f.write 'foo.vmdk'}
+      end
+    end
+
+    after :each do
+      FakeFS.deactivate!
+    end
+
+    it 'should copy the vm files to the target' do
+      Fission::VM.clone @source_vm, @target_vm
+
+      File.directory?(Fission::VM.path('bar')).should == true
+
+      @vm_files.each do |file|
+        File.file?(File.join(Fission::VM.path('bar'), "#{@target_vm}#{file}")).should == true
+      end
+    end
+
+    it 'should update the target vm config files' do
+      Fission::VM.clone @source_vm, @target_vm
+
+      ['.vmx', '.vmxf'].each do |ext|
+        File.read(File.join(Fission::VM.path('bar'), "bar#{ext}")).should_not match /foo/
+          File.read(File.join(Fission::VM.path('bar'), "bar#{ext}")).should match /bar/
+      end
+    end
+
+    it 'should not try to update the vmdk file' do
+      Fission::VM.clone @source_vm, @target_vm
+
+      File.read(File.join(Fission::VM.path('bar'), 'bar.vmdk')).should match /foo/
+    end
+
+    it 'should output that the clone was successful' do
+      Fission::VM.clone @source_vm, @target_vm
+
+      @string_io.string.should match /Cloning #{@source_vm} to #{@target_vm}/
+        @string_io.string.should match /Configuring #{@target_vm}/
     end
 
   end

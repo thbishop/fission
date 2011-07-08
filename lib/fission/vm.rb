@@ -102,7 +102,7 @@ module Fission
     end
 
     def self.update_config(from, to)
-      ['.vmdk', '.vmx', '.vmxf'].each do |ext|
+      ['.vmx', '.vmxf'].each do |ext|
         file = File.join path(to), "#{to}#{ext}"
         text = File.read file
         text.gsub! from, to
