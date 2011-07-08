@@ -41,6 +41,9 @@ module Fission
       when 'stop'
         @command = Fission::Command::Stop.new args.drop 1
         @command.execute
+      when 'suspend'
+        @command = Fission::Command::Suspend.new args.drop 1
+        @command.execute
       else
         show_all_help(optparse)
         exit(0)

@@ -29,6 +29,11 @@ Displays the status (running or not) of all of the VMs found
 
 Stops the VM
 
+### Suspend
+    fission suspend my_vm
+
+Suspends the VM
+
 ### Help
     fission -h
 

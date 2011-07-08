@@ -101,5 +101,19 @@ describe Fission::CLI do
       end
     end
 
+    describe 'suspend' do
+      before :each do
+        @suspend_mock = mock('suspend_mock')
+        Fission::Command::Suspend.stub!(:help).and_return('')
+      end
+
+      it "should try to suspend the vm" do
+        @suspend_mock.should_receive(:execute)
+        Fission::Command::Suspend.should_receive(:new).with(['foo']).and_return(@suspend_mock)
+
+        Fission::CLI.execute ['suspend', 'foo']
+      end
+    end
+
   end
 end

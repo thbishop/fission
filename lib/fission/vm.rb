@@ -28,6 +28,17 @@ module Fission
       end
     end
 
+    def suspend
+      command = "#{Fission.config.attributes['vmrun_bin'].gsub(' ', '\ ' )} -T fusion suspend #{conf_file.gsub ' ', '\ '} 2>&1"
+      output = `#{command}`
+
+      if $?.exitstatus == 0
+        Fission.ui.output "VM suspended"
+      else
+        Fission.ui.output "There was a problem suspending the VM.  The error was:\n#{output}"
+      end
+    end
+
     def conf_file
       File.join self.class.path(@name), "#{@name}.vmx"
     end
