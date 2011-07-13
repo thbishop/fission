@@ -6,6 +6,12 @@ describe Fission::CLI do
     Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
   end
 
+  describe 'self.commands' do
+    it 'should return the list of commands' do
+      Fission::CLI.commands.should == ['clone', 'start', 'status', 'stop', 'suspend']
+    end
+  end
+
   describe 'execute' do
 
     describe 'with no arguments' do

@@ -28,27 +28,22 @@ module Fission
         exit(1)
       end
 
-      case args.first
-      when 'clone'
-        @command = Fission::Command::Clone.new args.drop 1
-        @command.execute
-      when 'start'
-        @command = Fission::Command::Start.new args.drop 1
-        @command.execute
-      when 'status'
-        @command = Fission::Command::Status.new args.drop 1
-        @command.execute
-      when 'stop'
-        @command = Fission::Command::Stop.new args.drop 1
-        @command.execute
-      when 'suspend'
-        @command = Fission::Command::Suspend.new args.drop 1
-        @command.execute
+      if commands.include?(args.first)
+        @cmd = Fission::Command.const_get(args.first.capitalize).new args.drop 1
+        @cmd.execute
       else
         show_all_help(optparse)
         exit(0)
       end
+    end
 
+    def self.commands
+      cmds = []
+      Dir.entries(File.join(File.dirname(__FILE__), 'command')).select do |file|
+        cmds << File.basename(file, '.rb') unless File.directory? file
+      end
+
+      cmds
     end
 
     private
