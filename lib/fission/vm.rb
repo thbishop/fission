@@ -102,11 +102,13 @@ module Fission
     end
 
     def self.update_config(from, to)
-      ['.vmx', '.vmxf'].each do |ext|
+      ['.vmx', '.vmxf', '.vmdk'].each do |ext|
         file = File.join path(to), "#{to}#{ext}"
-        text = File.read file
-        text.gsub! from, to
-        File.open(file, 'w'){ |f| f.print text }
+
+        unless File.binary?(file)
+          text = (File.read file).gsub from, to
+          File.open(file, 'w'){ |f| f.print text }
+        end
       end
     end
 

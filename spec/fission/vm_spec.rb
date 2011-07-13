@@ -160,7 +160,6 @@ describe Fission::VM do
     end
   end
 
-
   describe "self.clone" do
     before :each do
       Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
@@ -179,6 +178,10 @@ describe Fission::VM do
       ['.vmx', '.vmxf', '.vmdk'].each do |ext|
         File.open(File.join(Fission::VM.path('foo'), "foo#{ext}"), 'w') { |f| f.write 'foo.vmdk'}
       end
+
+      ['.vmx', '.vmxf'].each do |ext|
+        File.should_receive(:binary?).with(File.join(Fission::VM.path('bar'), "bar#{ext}")).and_return(false)
+      end
     end
 
     after :each do
@@ -186,6 +189,7 @@ describe Fission::VM do
     end
 
     it 'should copy the vm files to the target' do
+      File.should_receive(:binary?).with(File.join(Fission::VM.path('bar'), "bar.vmdk")).and_return(true)
       Fission::VM.clone @source_vm, @target_vm
 
       File.directory?(Fission::VM.path('bar')).should == true
@@ -196,21 +200,31 @@ describe Fission::VM do
     end
 
     it 'should update the target vm config files' do
+      File.should_receive(:binary?).with(File.join(Fission::VM.path('bar'), "bar.vmdk")).and_return(true)
       Fission::VM.clone @source_vm, @target_vm
 
       ['.vmx', '.vmxf'].each do |ext|
         File.read(File.join(Fission::VM.path('bar'), "bar#{ext}")).should_not match /foo/
-          File.read(File.join(Fission::VM.path('bar'), "bar#{ext}")).should match /bar/
+        File.read(File.join(Fission::VM.path('bar'), "bar#{ext}")).should match /bar/
       end
     end
 
-    it 'should not try to update the vmdk file' do
+    it "should not try to update the vmdk file if it's not a sparse disk" do
+      File.should_receive(:binary?).with(File.join(Fission::VM.path('bar'), "bar.vmdk")).and_return(true)
       Fission::VM.clone @source_vm, @target_vm
 
       File.read(File.join(Fission::VM.path('bar'), 'bar.vmdk')).should match /foo/
     end
 
+    it "should update the vmdk when a sparse disk is found" do
+      File.should_receive(:binary?).with(File.join(Fission::VM.path('bar'), "bar.vmdk")).and_return(false)
+      Fission::VM.clone @source_vm, @target_vm
+
+      File.read(File.join(Fission::VM.path('bar'), 'bar.vmdk')).should match /bar/
+    end
+
     it 'should output that the clone was successful' do
+      File.should_receive(:binary?).with(File.join(Fission::VM.path('bar'), "bar.vmdk")).and_return(true)
       Fission::VM.clone @source_vm, @target_vm
 
       @string_io.string.should match /Cloning #{@source_vm} to #{@target_vm}/
