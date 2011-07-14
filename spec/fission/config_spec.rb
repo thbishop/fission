@@ -25,6 +25,13 @@ describe Fission::Config do
       end
     end
 
+    it 'should set vmrun_cmd' do
+      FakeFS do
+        @config = Fission::Config.new
+        @config.attributes['vmrun_cmd'].should == '/Library/Application\ Support/VMware\ Fusion/vmrun -T fusion'
+      end
+    end
+
   end
 
 end

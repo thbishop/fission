@@ -13,6 +13,7 @@ module Fission
       end
 
       @attributes['vmrun_bin'] = '/Library/Application Support/VMware Fusion/vmrun'
+      @attributes['vmrun_cmd'] = "#{@attributes['vmrun_bin'].gsub(' ', '\ ')} -T fusion"
     end
 
     private

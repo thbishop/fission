@@ -7,7 +7,7 @@ module Fission
     end
 
     def start
-      command = "#{Fission.config.attributes['vmrun_bin'].gsub(' ', '\ ' )} -T fusion start #{conf_file.gsub ' ', '\ '} gui 2>&1"
+      command = "#{Fission.config.attributes['vmrun_cmd']} start #{conf_file.gsub ' ', '\ '} gui 2>&1"
       output = `#{command}`
 
       if $?.exitstatus == 0
@@ -18,7 +18,7 @@ module Fission
     end
 
     def stop
-      command = "#{Fission.config.attributes['vmrun_bin'].gsub(' ', '\ ' )} -T fusion stop #{conf_file.gsub ' ', '\ '} 2>&1"
+      command = "#{Fission.config.attributes['vmrun_cmd']} stop #{conf_file.gsub ' ', '\ '} 2>&1"
       output = `#{command}`
 
       if $?.exitstatus == 0
@@ -29,7 +29,7 @@ module Fission
     end
 
     def suspend
-      command = "#{Fission.config.attributes['vmrun_bin'].gsub(' ', '\ ' )} -T fusion suspend #{conf_file.gsub ' ', '\ '} 2>&1"
+      command = "#{Fission.config.attributes['vmrun_cmd']} suspend #{conf_file.gsub ' ', '\ '} 2>&1"
       output = `#{command}`
 
       if $?.exitstatus == 0
@@ -52,7 +52,7 @@ module Fission
     end
 
     def self.all_running
-      command = "#{Fission.config.attributes['vmrun_bin'].gsub(' ', '\ ' )} list"
+      command = "#{Fission.config.attributes['vmrun_cmd']} list"
 
       output = `#{command}`
 
