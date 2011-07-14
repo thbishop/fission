@@ -33,7 +33,7 @@ module Fission
         @cmd.execute
       else
         show_all_help(optparse)
-        exit(0)
+        exit(1)
       end
     end
 
