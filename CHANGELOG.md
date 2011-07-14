@@ -1,6 +1,8 @@
 # changes
 
 ## head
+
+## 0.2.0 (07/13/2011)
 * add 'status' command
 * add 'start' command
 * add 'stop' command
