@@ -59,6 +59,30 @@ describe Fission::Command::Suspend do
       @string_io.string.should match /suspending '#{@vm_info.first}'/
     end
 
+    describe 'with --all' do
+      it 'should suspend all running VMs' do
+        @vm_mock_1 = mock('vm_mock_1')
+        @vm_mock_2 = mock('vm_mock_2')
+
+        vm_items = {'vm_1' => @vm_mock_1,
+                    'vm_2' => @vm_mock_2
+        }
+
+        Fission::VM.should_receive(:all_running).and_return(vm_items.keys)
+
+        vm_items.each_pair do |name, mock|
+          Fission::VM.should_receive(:new).with(name).and_return(mock)
+          mock.should_receive(:suspend)
+        end
+
+        command = Fission::Command::Suspend.new ['--all']
+        command.execute
+
+        @string_io.string.should match /suspending 'vm_1'/
+        @string_io.string.should match /suspending 'vm_2'/
+      end
+    end
+
   end
 
   describe 'help' do
@@ -66,6 +90,7 @@ describe Fission::Command::Suspend do
       output = Fission::Command::Suspend.help
 
       output.should match /suspend vm/
+      output.should match /--all/
     end
   end
 end
