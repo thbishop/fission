@@ -17,7 +17,7 @@ module Fission
         end
 
         vms_to_suspend.each do |vm_name|
-          Fission.ui.output "suspending '#{vm_name}'"
+          Fission.ui.output "Suspending '#{vm_name}'"
           Fission::VM.new(vm_name).suspend
         end
       end
@@ -43,7 +43,7 @@ module Fission
 
       def option_parser
         optparse = OptionParser.new do |opts|
-          opts.banner = "\nsuspend usage: fission suspend vm"
+          opts.banner = "\nsuspend usage: fission suspend [vm | --all]"
 
           opts.on '--all', 'Suspend all running VMs' do
             @options.all = true

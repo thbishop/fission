@@ -56,7 +56,7 @@ describe Fission::Command::Suspend do
       command = Fission::Command::Suspend.new @vm_info
       command.execute
 
-      @string_io.string.should match /suspending '#{@vm_info.first}'/
+      @string_io.string.should match /Suspending '#{@vm_info.first}'/
     end
 
     describe 'with --all' do
@@ -78,8 +78,8 @@ describe Fission::Command::Suspend do
         command = Fission::Command::Suspend.new ['--all']
         command.execute
 
-        @string_io.string.should match /suspending 'vm_1'/
-        @string_io.string.should match /suspending 'vm_2'/
+        @string_io.string.should match /Suspending 'vm_1'/
+        @string_io.string.should match /Suspending 'vm_2'/
       end
     end
 
@@ -89,8 +89,7 @@ describe Fission::Command::Suspend do
     it 'should output info for this command' do
       output = Fission::Command::Suspend.help
 
-      output.should match /suspend vm/
-      output.should match /--all/
+      output.should match /suspend \[vm \| --all\]/
     end
   end
 end
