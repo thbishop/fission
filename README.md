@@ -30,9 +30,9 @@ Displays the status (running or not) of all of the VMs found
 Stops the VM
 
 ### Suspend
-    fission suspend my_vm
+    fission suspend [my_vm | --all]
 
-Suspends the VM
+Suspends the VM or all running VMs
 
 ### Help
     fission -h
