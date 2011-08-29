@@ -8,7 +8,7 @@ describe Fission::CLI do
 
   describe 'self.commands' do
     it 'should return the list of commands' do
-      Fission::CLI.commands.should == ['clone', 'start', 'status', 'stop', 'suspend']
+      Fission::CLI.commands.should == ['clone', 'delete', 'start', 'status', 'stop', 'suspend']
     end
   end
 
@@ -94,6 +94,14 @@ describe Fission::CLI do
           Fission::Command::Suspend.stub!(:help).and_return('')
           Fission::Command::Suspend.should_receive(:new).with(['foo']).and_return(@cmd_mock)
           Fission::CLI.execute ['suspend', 'foo']
+        end
+      end
+
+      describe 'delete' do
+        it "should try to delete the vm" do
+          Fission::Command::Delete.stub!(:help).and_return('')
+          Fission::Command::Delete.should_receive(:new).with(['foo']).and_return(@cmd_mock)
+          Fission::CLI.execute ['delete', 'foo']
         end
       end
     end
