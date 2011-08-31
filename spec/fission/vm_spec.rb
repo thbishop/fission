@@ -200,6 +200,21 @@ describe Fission::VM do
       Fission::VM.all_running.should == ['foo', 'bar', 'baz']
     end
 
+    it 'should output the VM dir name if it differs from the .vmx file name' do
+      vm_dir_file = { 'foo' => 'foo', 'bar' => 'diff', 'baz' => 'baz'}
+      list_output = "Total running VMs: 3\n"
+      vm_dir_file.each_pair do |dir, file|
+        list_output << "/vm/#{dir}.vmwarevm/#{file}.vmx\n"
+        File.should_receive(:exists?).with("/vm/#{dir}.vmwarevm/#{file}.vmx").
+                                      and_return(true)
+      end
+
+      $?.should_receive(:exitstatus).and_return(0)
+      Fission::VM.should_receive(:`).with("#{Fission.config.attributes['vmrun_cmd']} list").and_return(list_output)
+
+      Fission::VM.all_running.should == ['foo', 'bar', 'baz']
+    end
+
     it 'should output an error and exit if unable to get the list of running vms' do
       $?.should_receive(:exitstatus).and_return(1)
       Fission::VM.should_receive(:`).with("#{Fission.config.attributes['vmrun_cmd']} list").and_return("it blew up")
