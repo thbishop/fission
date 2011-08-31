@@ -321,7 +321,32 @@ describe Fission::VM do
       @string_io.string.should match /Cloning #{@source_vm} to #{@target_vm}/
         @string_io.string.should match /Configuring #{@target_vm}/
     end
-
   end
 
+  describe "self.delete" do
+    before :each do
+      Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
+      @target_vm = 'foo'
+      @vm_files = %w{ .vmx .vmxf .vmdk -s001.vmdk -s002.vmdk .vmsd }
+      FakeFS.activate!
+
+      FileUtils.mkdir_p Fission::VM.path(@target_vm)
+
+      @vm_files.each do |file|
+        FileUtils.touch File.join(Fission::VM.path(@target_vm), "#{@target_vm}#{file}")
+      end
+    end
+
+    after :each do
+      FakeFS.deactivate!
+    end
+
+    it "should delete the target vm" do
+      Fission::VM.delete @target_vm
+      @vm_files.each do |file|
+        File.exists?(File.join(Fission::VM.path(@target_vm), "#{@target_vm}#{file}")).should == false
+      end
+      @string_io.string.should match /Deleting vm #{@target_vm}/
+    end
+  end
 end

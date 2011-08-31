@@ -101,6 +101,11 @@ module Fission
       update_config source_vm, target_vm
     end
 
+    def self.delete(vm_name)
+      Fission.ui.output "Deleting vm #{vm_name}"
+      FileUtils.rm_rf path(vm_name)
+    end
+
     private
     def self.rename_vm_files(from, to)
       files_to_rename(from, to).each do |file|

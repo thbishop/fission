@@ -34,6 +34,11 @@ Stops the VM
 
 Suspends the VM or all running VMs
 
+### Delete
+    fission delete my_vm
+
+Deletes the VM. Doesn't yet check if its running, or support stopping it first (yet).
+
 ### Help
     fission -h
 
