@@ -12,10 +12,14 @@ describe Fission::VM do
   end
 
   describe 'start' do
+    before :each do
+      @vm = Fission::VM.new('foo')
+      @vm.stub!(:conf_file).and_return(File.join(Fission::VM.path('foo'), 'foo.vmx'))
+    end
+
     it 'should output that it was successful' do
       $?.should_receive(:exitstatus).and_return(0)
       Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
-      @vm = Fission::VM.new('foo')
       @vm.should_receive(:`).
           with("#{Fission.config.attributes['vmrun_cmd']} start #{@vm.conf_file.gsub(' ', '\ ')} gui 2>&1").
           and_return("it's all good")
@@ -27,7 +31,6 @@ describe Fission::VM do
     it 'it should output that it was unsuccessful' do
       $?.should_receive(:exitstatus).and_return(1)
       Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
-      @vm = Fission::VM.new('foo')
       @vm.should_receive(:`).
           with("#{Fission.config.attributes['vmrun_cmd']} start #{@vm.conf_file.gsub(' ', '\ ')} gui 2>&1").
           and_return("it blew up")
@@ -38,10 +41,14 @@ describe Fission::VM do
   end
 
   describe 'stop' do
+    before :each do
+      @vm = Fission::VM.new('foo')
+      @vm.stub!(:conf_file).and_return(File.join(Fission::VM.path('foo'), 'foo.vmx'))
+    end
+
     it 'should output that it was successful' do
       $?.should_receive(:exitstatus).and_return(0)
       Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
-      @vm = Fission::VM.new('foo')
       @vm.should_receive(:`).
           with("#{Fission.config.attributes['vmrun_cmd']} stop #{@vm.conf_file.gsub ' ', '\ '} 2>&1").
           and_return("it's all good")
@@ -53,7 +60,6 @@ describe Fission::VM do
     it 'it should output that it was unsuccessful' do
       $?.should_receive(:exitstatus).and_return(1)
       Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
-      @vm = Fission::VM.new('foo')
       @vm.should_receive(:`).
           with("#{Fission.config.attributes['vmrun_cmd']} stop #{@vm.conf_file.gsub ' ', '\ '} 2>&1").
           and_return("it blew up")
@@ -64,10 +70,14 @@ describe Fission::VM do
   end
 
   describe 'suspend' do
+    before :each do
+      @vm = Fission::VM.new('foo')
+      @vm.stub!(:conf_file).and_return(File.join(Fission::VM.path('foo'), 'foo.vmx'))
+    end
+
     it 'should output that it was successful' do
       $?.should_receive(:exitstatus).and_return(0)
       Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
-      @vm = Fission::VM.new('foo')
       @vm.should_receive(:`).
           with("#{Fission.config.attributes['vmrun_cmd']} suspend #{@vm.conf_file.gsub ' ', '\ '} 2>&1").
           and_return("it's all good")
@@ -79,7 +89,6 @@ describe Fission::VM do
     it 'it should output that it was unsuccessful' do
       $?.should_receive(:exitstatus).and_return(1)
       Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
-      @vm = Fission::VM.new('foo')
       @vm.should_receive(:`).
           with("#{Fission.config.attributes['vmrun_cmd']} suspend #{@vm.conf_file.gsub ' ', '\ '} 2>&1").
           and_return("it blew up")
@@ -90,9 +99,65 @@ describe Fission::VM do
   end
 
   describe 'conf_file' do
-    it 'should return the path to the conf file' do
-      Fission::VM.new('foo').conf_file.should == File.join(Fission.config.attributes['vm_dir'], 'foo.vmwarevm', 'foo.vmx')
+    before :each do
+      Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
+      FakeFS.activate!
+      @vm_root_dir = Fission::VM.path('foo')
+      FileUtils.mkdir_p(@vm_root_dir)
     end
+
+    after :each do
+      FakeFS.deactivate!
+      FakeFS::FileSystem.clear
+    end
+
+    it 'should return the path to the conf file' do
+      file_path = File.join(@vm_root_dir, 'foo.vmx')
+      FileUtils.touch(file_path)
+      Fission::VM.new('foo').conf_file.should == file_path
+    end
+
+    it 'should output an error and exit if no vmx file was found' do
+      lambda {
+        FileUtils.mkdir_p(@vm_root_dir)
+        Fission::VM.new('foo').conf_file
+      }.should raise_error SystemExit
+
+      @string_io.string.should match /Unable to find a config file for VM 'foo' \(in '#{File.join(@vm_root_dir, '\*\.vmx')}'\)/m
+    end
+
+    describe 'when the VM name and conf file name do not match' do
+      it 'should return the path to the conf file' do
+        file_path = File.join(@vm_root_dir, 'bar.vmx')
+        FileUtils.touch(file_path)
+        Fission::VM.new('foo').conf_file.should == file_path
+      end
+    end
+
+    describe 'if multiple vmx files are found' do
+      before :each do
+        FileUtils.mkdir_p(@vm_root_dir)
+      end
+
+      it 'should use the conf file which matches the VM name if it exists' do
+        ['foo.vmx', 'bar.vmx'].each do |file|
+          FileUtils.touch(File.join(@vm_root_dir, file))
+        end
+        Fission::VM.new('foo').conf_file.should == File.join(@vm_root_dir, 'foo.vmx')
+      end
+
+      it 'should output an error and exit' do
+        lambda {
+          ['bar.vmx', 'baz.vmx'].each do |file|
+            FileUtils.touch(File.join(@vm_root_dir, file))
+          end
+          Fission::VM.new('foo').conf_file
+        }.should raise_error SystemExit
+
+        @string_io.string.should match /Multiple config files found for VM 'foo' \('bar\.vmx', 'baz\.vmx' in '#{@vm_root_dir}'/m
+      end
+    end
+
   end
 
   describe "self.all" do

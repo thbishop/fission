@@ -40,7 +40,24 @@ module Fission
     end
 
     def conf_file
-      File.join self.class.path(@name), "#{@name}.vmx"
+      vmx_path = File.join(self.class.path(@name), "*.vmx")
+      conf_files = Dir.glob(vmx_path)
+
+      case conf_files.count
+      when 0
+        Fission.ui.output_and_exit "Unable to find a config file for VM '#{@name}' (in '#{vmx_path}')", 1
+      when 1
+        conf_files.first
+      else
+        if conf_files.include?(File.join(File.dirname(vmx_path), "#{@name}.vmx"))
+          File.join(File.dirname(vmx_path), "#{@name}.vmx")
+        else
+          output = "Multiple config files found for VM '#{@name}' ("
+          output << conf_files.sort.map { |f| "'#{File.basename(f)}'" }.join(', ')
+          output << " in '#{File.dirname(vmx_path)}')"
+          Fission.ui.output_and_exit output, 1
+        end
+      end
     end
 
     def self.all
