@@ -35,10 +35,78 @@ describe Fission::Command::Delete do
 
     it "should try to delete the vm if it exists" do
       Fission::VM.should_receive(:exists?).with(@target_vm.first).and_return(true)
+      Fission::Fusion.should_receive(:is_running?).and_return(false)
       Fission::VM.should_receive(:delete).with(@target_vm.first)
       command = Fission::Command::Delete.new @target_vm
       command.execute
       @string_io.string.should match /Deletion complete/
+    end
+
+    it 'should output an error and exit if the VM is running' do
+      Fission::VM.should_receive(:exists?).with(@target_vm.first).and_return(true)
+      Fission::VM.should_receive(:all_running).and_return(['foo', 'bar'])
+      lambda {
+        command = Fission::Command::Delete.new @target_vm
+        command.execute
+      }.should raise_error SystemExit
+
+      @string_io.string.should match /VM is currently running/
+      @string_io.string.should match /Either stop\/suspend the VM or use '--force' and try again/
+    end
+
+    it 'should output an error and exit if the fusion app is running' do
+      Fission::VM.should_receive(:exists?).with(@target_vm.first).and_return(true)
+      Fission::VM.should_receive(:all_running).and_return(['bar'])
+      Fission::Fusion.should_receive(:is_running?).and_return(true)
+
+      lambda {
+        command = Fission::Command::Delete.new @target_vm
+        command.execute
+      }.should raise_error SystemExit
+
+      @string_io.string.should match /Fusion GUI is currently running/
+      @string_io.string.should match /Either exit the Fusion GUI or use '--force' and try again/
+      @string_io.string.should match /NOTE: Forcing a VM deletion with the Fusion GUI running may not clean up all of the VM metadata/
+    end
+
+    describe 'with --force' do
+      before :each do
+        Fission::VM.should_receive(:exists?).with(@target_vm.first).and_return(true)
+      end
+
+      it "should stop the VM if it's running and then delete it" do
+        @stop_cmd_mock = mock('stop_cmd')
+        @stop_cmd_mock.should_receive(:execute)
+        Fission::VM.should_receive(:all_running).and_return(['foo', 'bar'])
+        Fission::Fusion.should_receive(:is_running?).and_return(false)
+        Fission::Command::Stop.should_receive(:new).with(@target_vm).
+                                                    and_return(@stop_cmd_mock)
+        command = Fission::Command::Delete.new @target_vm << '--force'
+        command.execute
+        @string_io.string.should match /VM is currently running/
+        @string_io.string.should match /Going to stop it/
+        @string_io.string.should match /Deletion complete/
+      end
+
+      it 'should output a warning about fusion metadata issue and then delete the VM' do
+        Fission::VM.should_receive(:all_running).and_return(['bar'])
+        Fission::Fusion.should_receive(:is_running?).and_return(true)
+        command = Fission::Command::Delete.new @target_vm << '--force'
+        command.execute
+        @string_io.string.should match /Fusion GUI is currently running/
+        @string_io.string.should match /metadata for the VM may not be removed completely/
+        @string_io.string.should match /Deletion complete/
+      end
+
+    end
+  end
+
+  describe 'help' do
+    it 'should output info for this command' do
+      output = Fission::Command::Delete.help
+
+      output.should match /delete target_vm \[--force\]/
+      output.should match /--force/
     end
   end
 end

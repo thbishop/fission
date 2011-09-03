@@ -16,6 +16,16 @@ describe Fission::Config do
       end
     end
 
+    it 'should use the fusion default for plist_file' do
+      @config = Fission::Config.new
+      @config.attributes['plist_file'].should == File.expand_path('~/Library/Preferences/com.vmware.fusion.plist')
+    end
+
+    it 'should use the fusion default for the gui bin' do
+      @config = Fission::Config.new
+      @config.attributes['gui_bin'].should == File.expand_path('/Applications/VMware Fusion.app/Contents/MacOS/vmware')
+    end
+
     it "should use the user specified dir in ~/.fissionrc" do
       FakeFS do
         File.open('~/.fissionrc', 'w') { |f| f.puts YAML.dump({ 'vm_dir' => '/var/tmp/foo' })}

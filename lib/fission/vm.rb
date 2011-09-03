@@ -104,6 +104,7 @@ module Fission
     def self.delete(vm_name)
       Fission.ui.output "Deleting vm #{vm_name}"
       FileUtils.rm_rf path(vm_name)
+      Fission::Metadata.delete_vm_info(path(vm_name))
     end
 
     private

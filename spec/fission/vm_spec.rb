@@ -341,12 +341,19 @@ describe Fission::VM do
       FakeFS.deactivate!
     end
 
-    it "should delete the target vm" do
+    it "should delete the target vm files" do
+      Fission::Metadata.stub!(:delete_vm_info)
       Fission::VM.delete @target_vm
       @vm_files.each do |file|
         File.exists?(File.join(Fission::VM.path(@target_vm), "#{@target_vm}#{file}")).should == false
       end
       @string_io.string.should match /Deleting vm #{@target_vm}/
     end
+
+    it 'should delete the target vm metadata' do
+      Fission::Metadata.should_receive(:delete_vm_info)
+      Fission::VM.delete @target_vm
+    end
+
   end
 end
