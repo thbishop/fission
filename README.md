@@ -35,9 +35,17 @@ Stops the VM
 Suspends the VM or all running VMs
 
 ### Delete
-    fission delete my_vm
+    fission delete my_vm [--force]
 
-Deletes the VM. Doesn't yet check if its running, or support stopping it first (yet).
+Deletes the VM.  This will delete the files from disk and remove the related metadata in Fusion.
+
+By default, the VM will not be deleted if:
+* the VM is running
+* the Fusion GUI is running (as the metadata cannot be cleanly removed)
+
+Providing '--force' will:
+* Stop the VM if it's running
+* Delete the VM even if the Fusion GUI is running
 
 ### Help
     fission -h

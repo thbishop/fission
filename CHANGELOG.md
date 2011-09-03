@@ -2,6 +2,7 @@
 
 ## head
 * add ability to suspend all running VMs ('--all')
+* add 'delete' command
 
 ## 0.2.0 (07/13/2011)
 * add 'status' command
