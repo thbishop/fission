@@ -98,6 +98,32 @@ describe Fission::VM do
     end
   end
 
+  describe 'snapshots' do
+    before :each do
+      @vm = Fission::VM.new('foo')
+      @vm.stub!(:conf_file).and_return(File.join(Fission::VM.path('foo'), 'foo.vmx'))
+      Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
+    end
+
+    it 'should return the list of snapshots' do
+      $?.should_receive(:exitstatus).and_return(0)
+      @vm.should_receive(:`).
+          with("#{Fission.config.attributes['vmrun_cmd']} listSnapshots #{@vm.conf_file.gsub ' ', '\ '} 2>&1").
+          and_return("Total snapshots: 3\nsnap foo\nsnap bar\nsnap baz\n")
+      @vm.snapshots.should == ['snap foo', 'snap bar', 'snap baz']
+    end
+
+    it 'should print an error and exit if there was a problem getting the list of snapshots' do
+      $?.should_receive(:exitstatus).and_return(1)
+      @vm.should_receive(:`).
+          with("#{Fission.config.attributes['vmrun_cmd']} listSnapshots #{@vm.conf_file.gsub ' ', '\ '} 2>&1").
+          and_return("it blew up\n")
+      lambda { @vm.snapshots }.should raise_error SystemExit
+      @string_io.string.should match /error getting the list of snapshots/
+      @string_io.string.should match /error was.+it blew up/m
+    end
+  end
+
   describe 'conf_file' do
     before :each do
       Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))

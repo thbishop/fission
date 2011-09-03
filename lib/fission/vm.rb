@@ -6,6 +6,19 @@ module Fission
       @name = name
     end
 
+    def snapshots
+      command = "#{Fission.config.attributes['vmrun_cmd']} listSnapshots #{conf_file.gsub ' ', '\ '} 2>&1"
+      output = `#{command}`
+
+      if $?.exitstatus == 0
+        snaps = output.split("\n").select { |s| !s.include? 'Total snapshots:' }
+        snaps.map { |s| s.strip }
+      else
+        Fission.ui.output "There was an error getting the list of snapshots."
+        Fission.ui.output_and_exit "The error was:\n#{output}", 1
+      end
+    end
+
     def start
       command = "#{Fission.config.attributes['vmrun_cmd']} start #{conf_file.gsub ' ', '\ '} gui 2>&1"
       output = `#{command}`

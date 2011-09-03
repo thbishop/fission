@@ -30,23 +30,30 @@ module Fission
 
       if commands.include?(args.first)
         @cmd = Fission::Command.const_get(args.first.capitalize).new args.drop 1
-        @cmd.execute
+      elsif is_snapshot_command?(args)
+        klass = args.take(2).map {|c| c.capitalize}.join('')
+        @cmd = Fission::Command.const_get(klass).new args.drop 2
       else
         show_all_help(optparse)
         exit(1)
       end
+
+      @cmd.execute
     end
 
     def self.commands
-      cmds = []
-      Dir.entries(File.join(File.dirname(__FILE__), 'command')).select do |file|
-        cmds << File.basename(file, '.rb') unless File.directory? file
+      cmds = Dir.entries(File.join(File.dirname(__FILE__), 'command')).select do |file|
+        !File.directory? file
       end
 
-      cmds
+      cmds.map { |cmd| File.basename(cmd, '.rb').gsub '_', ' ' }
     end
 
     private
+    def self.is_snapshot_command?(args)
+      args.first == 'snapshot' && args.count > 1 && commands.include?(args.take(2).join(' '))
+    end
+
     def self.commands_banner
       text = "\nCommands:\n"
       Fission::Command.descendants.each do |command_klass|
