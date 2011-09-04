@@ -6,6 +6,18 @@ module Fission
       @name = name
     end
 
+    def create_snapshot(name)
+      command = "#{Fission.config.attributes['vmrun_cmd']} snapshot #{conf_file.gsub ' ', '\ '} #{name} 2>&1"
+      output = `#{command}`
+
+      if $?.exitstatus == 0
+        Fission.ui.output "Snapshot '#{name}' created"
+      else
+        Fission.ui.output "There was an error creating the snapshot."
+        Fission.ui.output_and_exit "The error was:\n#{output}", 1
+      end
+    end
+
     def snapshots
       command = "#{Fission.config.attributes['vmrun_cmd']} listSnapshots #{conf_file.gsub ' ', '\ '} 2>&1"
       output = `#{command}`

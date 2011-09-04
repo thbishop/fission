@@ -124,6 +124,33 @@ describe Fission::VM do
     end
   end
 
+  describe 'create_snapshot' do
+    before :each do
+      @vm = Fission::VM.new('foo')
+      @vm.stub!(:conf_file).and_return(File.join(Fission::VM.path('foo'), 'foo.vmx'))
+      Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
+    end
+
+    it 'should create a snapshot' do
+      $?.should_receive(:exitstatus).and_return(0)
+      @vm.should_receive(:`).
+          with("#{Fission.config.attributes['vmrun_cmd']} snapshot #{@vm.conf_file.gsub ' ', '\ '} bar 2>&1").
+          and_return("")
+      @vm.create_snapshot('bar')
+      @string_io.string.should match /Snapshot 'bar' created/
+    end
+
+    it 'should print an error and exit if there was a problem creating the snapshot' do
+      $?.should_receive(:exitstatus).and_return(1)
+      @vm.should_receive(:`).
+          with("#{Fission.config.attributes['vmrun_cmd']} snapshot #{@vm.conf_file.gsub ' ', '\ '} bar 2>&1").
+          and_return("it blew up")
+      lambda { @vm.create_snapshot('bar') }.should raise_error SystemExit
+      @string_io.string.should match /error creating the snapshot/
+      @string_io.string.should match /error was.+it blew up/m
+    end
+  end
+
   describe 'conf_file' do
     before :each do
       Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
