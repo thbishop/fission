@@ -1,7 +1,7 @@
 require File.expand_path('../../../spec_helper.rb', __FILE__)
 
 describe Fission::Command::SnapshotRevert do
-  before :each do
+  before do
     @target_vm = ['foo']
     @vm_mock = mock('vm_mock')
     Fission::VM.stub!(:new).and_return(@vm_mock)

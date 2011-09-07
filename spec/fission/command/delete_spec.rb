@@ -1,11 +1,8 @@
 require File.expand_path('../../../spec_helper.rb', __FILE__)
 
 describe Fission::Command::Delete do
-  before :all do
+  before do
     @target_vm = ['foo']
-  end
-
-  before :each do
     @string_io = StringIO.new
     Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
   end
@@ -70,7 +67,7 @@ describe Fission::Command::Delete do
     end
 
     describe 'with --force' do
-      before :each do
+      before do
         Fission::VM.should_receive(:exists?).with(@target_vm.first).and_return(true)
       end
 

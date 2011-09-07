@@ -1,8 +1,12 @@
 require File.expand_path('../../spec_helper.rb', __FILE__)
 
 describe Fission::VM do
-  before :each do
+  before do
     @string_io = StringIO.new
+    Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
+    @vm = Fission::VM.new('foo')
+    @vm.stub!(:conf_file).and_return(File.join(Fission::VM.path('foo'), 'foo.vmx'))
+    @vmrun_cmd = Fission.config.attributes['vmrun_cmd']
   end
 
   describe 'new' do
@@ -12,16 +16,10 @@ describe Fission::VM do
   end
 
   describe 'start' do
-    before :each do
-      @vm = Fission::VM.new('foo')
-      @vm.stub!(:conf_file).and_return(File.join(Fission::VM.path('foo'), 'foo.vmx'))
-    end
-
     it 'should output that it was successful' do
       $?.should_receive(:exitstatus).and_return(0)
-      Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
       @vm.should_receive(:`).
-          with("#{Fission.config.attributes['vmrun_cmd']} start #{@vm.conf_file.gsub(' ', '\ ')} gui 2>&1").
+          with("#{@vmrun_cmd} start #{@vm.conf_file.gsub(' ', '\ ')} gui 2>&1").
           and_return("it's all good")
       @vm.start
 
@@ -30,9 +28,8 @@ describe Fission::VM do
 
     it 'it should output that it was unsuccessful' do
       $?.should_receive(:exitstatus).and_return(1)
-      Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
       @vm.should_receive(:`).
-          with("#{Fission.config.attributes['vmrun_cmd']} start #{@vm.conf_file.gsub(' ', '\ ')} gui 2>&1").
+          with("#{@vmrun_cmd} start #{@vm.conf_file.gsub(' ', '\ ')} gui 2>&1").
           and_return("it blew up")
       @vm.start
 
@@ -41,16 +38,10 @@ describe Fission::VM do
   end
 
   describe 'stop' do
-    before :each do
-      @vm = Fission::VM.new('foo')
-      @vm.stub!(:conf_file).and_return(File.join(Fission::VM.path('foo'), 'foo.vmx'))
-    end
-
     it 'should output that it was successful' do
       $?.should_receive(:exitstatus).and_return(0)
-      Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
       @vm.should_receive(:`).
-          with("#{Fission.config.attributes['vmrun_cmd']} stop #{@vm.conf_file.gsub ' ', '\ '} 2>&1").
+          with("#{@vmrun_cmd} stop #{@vm.conf_file.gsub ' ', '\ '} 2>&1").
           and_return("it's all good")
       @vm.stop
 
@@ -59,9 +50,8 @@ describe Fission::VM do
 
     it 'it should output that it was unsuccessful' do
       $?.should_receive(:exitstatus).and_return(1)
-      Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
       @vm.should_receive(:`).
-          with("#{Fission.config.attributes['vmrun_cmd']} stop #{@vm.conf_file.gsub ' ', '\ '} 2>&1").
+          with("#{@vmrun_cmd} stop #{@vm.conf_file.gsub ' ', '\ '} 2>&1").
           and_return("it blew up")
       @vm.stop
 
@@ -70,16 +60,10 @@ describe Fission::VM do
   end
 
   describe 'suspend' do
-    before :each do
-      @vm = Fission::VM.new('foo')
-      @vm.stub!(:conf_file).and_return(File.join(Fission::VM.path('foo'), 'foo.vmx'))
-    end
-
     it 'should output that it was successful' do
       $?.should_receive(:exitstatus).and_return(0)
-      Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
       @vm.should_receive(:`).
-          with("#{Fission.config.attributes['vmrun_cmd']} suspend #{@vm.conf_file.gsub ' ', '\ '} 2>&1").
+          with("#{@vmrun_cmd} suspend #{@vm.conf_file.gsub ' ', '\ '} 2>&1").
           and_return("it's all good")
       @vm.suspend
 
@@ -88,9 +72,8 @@ describe Fission::VM do
 
     it 'it should output that it was unsuccessful' do
       $?.should_receive(:exitstatus).and_return(1)
-      Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
       @vm.should_receive(:`).
-          with("#{Fission.config.attributes['vmrun_cmd']} suspend #{@vm.conf_file.gsub ' ', '\ '} 2>&1").
+          with("#{@vmrun_cmd} suspend #{@vm.conf_file.gsub ' ', '\ '} 2>&1").
           and_return("it blew up")
       @vm.suspend
 
@@ -99,16 +82,10 @@ describe Fission::VM do
   end
 
   describe 'snapshots' do
-    before :each do
-      @vm = Fission::VM.new('foo')
-      @vm.stub!(:conf_file).and_return(File.join(Fission::VM.path('foo'), 'foo.vmx'))
-      Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
-    end
-
     it 'should return the list of snapshots' do
       $?.should_receive(:exitstatus).and_return(0)
       @vm.should_receive(:`).
-          with("#{Fission.config.attributes['vmrun_cmd']} listSnapshots #{@vm.conf_file.gsub ' ', '\ '} 2>&1").
+          with("#{@vmrun_cmd} listSnapshots #{@vm.conf_file.gsub ' ', '\ '} 2>&1").
           and_return("Total snapshots: 3\nsnap foo\nsnap bar\nsnap baz\n")
       @vm.snapshots.should == ['snap foo', 'snap bar', 'snap baz']
     end
@@ -116,7 +93,7 @@ describe Fission::VM do
     it 'should print an error and exit if there was a problem getting the list of snapshots' do
       $?.should_receive(:exitstatus).and_return(1)
       @vm.should_receive(:`).
-          with("#{Fission.config.attributes['vmrun_cmd']} listSnapshots #{@vm.conf_file.gsub ' ', '\ '} 2>&1").
+          with("#{@vmrun_cmd} listSnapshots #{@vm.conf_file.gsub ' ', '\ '} 2>&1").
           and_return("it blew up\n")
       lambda { @vm.snapshots }.should raise_error SystemExit
       @string_io.string.should match /error getting the list of snapshots/
@@ -125,16 +102,10 @@ describe Fission::VM do
   end
 
   describe 'create_snapshot' do
-    before :each do
-      @vm = Fission::VM.new('foo')
-      @vm.stub!(:conf_file).and_return(File.join(Fission::VM.path('foo'), 'foo.vmx'))
-      Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
-    end
-
     it 'should create a snapshot' do
       $?.should_receive(:exitstatus).and_return(0)
       @vm.should_receive(:`).
-          with("#{Fission.config.attributes['vmrun_cmd']} snapshot #{@vm.conf_file.gsub ' ', '\ '} \"bar\" 2>&1").
+          with("#{@vmrun_cmd} snapshot #{@vm.conf_file.gsub ' ', '\ '} \"bar\" 2>&1").
           and_return("")
       @vm.create_snapshot('bar')
       @string_io.string.should match /Snapshot 'bar' created/
@@ -143,7 +114,7 @@ describe Fission::VM do
     it 'should print an error and exit if there was a problem creating the snapshot' do
       $?.should_receive(:exitstatus).and_return(1)
       @vm.should_receive(:`).
-          with("#{Fission.config.attributes['vmrun_cmd']} snapshot #{@vm.conf_file.gsub ' ', '\ '} \"bar\" 2>&1").
+          with("#{@vmrun_cmd} snapshot #{@vm.conf_file.gsub ' ', '\ '} \"bar\" 2>&1").
           and_return("it blew up")
       lambda { @vm.create_snapshot('bar') }.should raise_error SystemExit
       @string_io.string.should match /error creating the snapshot/
@@ -152,16 +123,10 @@ describe Fission::VM do
   end
 
   describe 'revert_to_snapshot' do
-    before :each do
-      @vm = Fission::VM.new('foo')
-      @vm.stub!(:conf_file).and_return(File.join(Fission::VM.path('foo'), 'foo.vmx'))
-      Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
-    end
-
     it 'should revert to the provided snapshot' do
       $?.should_receive(:exitstatus).and_return(0)
       @vm.should_receive(:`).
-          with("#{Fission.config.attributes['vmrun_cmd']} revertToSnapshot #{@vm.conf_file.gsub ' ', '\ '} \"bar\" 2>&1").
+          with("#{@vmrun_cmd} revertToSnapshot #{@vm.conf_file.gsub ' ', '\ '} \"bar\" 2>&1").
           and_return("")
       @vm.revert_to_snapshot('bar')
       @string_io.string.should match /Reverted to snapshot 'bar'/
@@ -170,7 +135,7 @@ describe Fission::VM do
     it "should print an error and exit if the snapshot doesn't exist" do
       $?.should_receive(:exitstatus).and_return(1)
       @vm.should_receive(:`).
-          with("#{Fission.config.attributes['vmrun_cmd']} revertToSnapshot #{@vm.conf_file.gsub ' ', '\ '} \"bar\" 2>&1").
+          with("#{@vmrun_cmd} revertToSnapshot #{@vm.conf_file.gsub ' ', '\ '} \"bar\" 2>&1").
           and_return("it blew up")
       lambda { @vm.revert_to_snapshot('bar') }.should raise_error SystemExit
       @string_io.string.should match /error reverting to the snapshot/
@@ -179,8 +144,7 @@ describe Fission::VM do
   end
 
   describe 'conf_file' do
-    before :each do
-      Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
+    before do
       FakeFS.activate!
       @vm_root_dir = Fission::VM.path('foo')
       FileUtils.mkdir_p(@vm_root_dir)
@@ -215,7 +179,7 @@ describe Fission::VM do
     end
 
     describe 'if multiple vmx files are found' do
-      before :each do
+      before do
         FileUtils.mkdir_p(@vm_root_dir)
       end
 
@@ -243,38 +207,50 @@ describe Fission::VM do
   describe "self.all" do
     it "should return the list of VMs" do
       vm_root = Fission.config.attributes['vm_dir']
-      Dir.should_receive(:[]).and_return(["#{File.join vm_root, 'foo.vmwarevm' }", "#{File.join vm_root, 'bar.vmwarevm' }"])
+      Dir.should_receive(:[]).
+          and_return(["#{File.join vm_root, 'foo.vmwarevm' }", "#{File.join vm_root, 'bar.vmwarevm' }"])
 
       vm_root = Fission.config.attributes['vm_dir']
-      File.should_receive(:directory?).with("#{File.join vm_root, 'foo.vmwarevm'}").and_return(true)
-      File.should_receive(:directory?).with("#{File.join vm_root, 'bar.vmwarevm'}").and_return(true)
+      File.should_receive(:directory?).with("#{File.join vm_root, 'foo.vmwarevm'}").
+                                       and_return(true)
+      File.should_receive(:directory?).with("#{File.join vm_root, 'bar.vmwarevm'}").
+                                       and_return(true)
       Fission::VM.all.should == ['foo', 'bar']
     end
 
     it "should not return an item in the list if it isn't a directory" do
       vm_root = Fission.config.attributes['vm_dir']
-      Dir.should_receive(:[]).and_return((['foo', 'bar', 'baz'].map { |i| File.join vm_root, "#{i}.vmwarevm"}))
-      File.should_receive(:directory?).with("#{File.join vm_root, 'foo.vmwarevm'}").and_return(true)
-      File.should_receive(:directory?).with("#{File.join vm_root, 'bar.vmwarevm'}").and_return(true)
-      File.should_receive(:directory?).with("#{File.join vm_root, 'baz.vmwarevm'}").and_return(false)
+      Dir.should_receive(:[]).
+          and_return((['foo', 'bar', 'baz'].map { |i| File.join vm_root, "#{i}.vmwarevm"}))
+      File.should_receive(:directory?).
+           with("#{File.join vm_root, 'foo.vmwarevm'}").and_return(true)
+      File.should_receive(:directory?).
+           with("#{File.join vm_root, 'bar.vmwarevm'}").and_return(true)
+      File.should_receive(:directory?).
+           with("#{File.join vm_root, 'baz.vmwarevm'}").and_return(false)
       Fission::VM.all.should == ['foo', 'bar']
     end
 
     it "should only query for items with an extension of .vmwarevm" do
       dir_arg = File.join Fission.config.attributes['vm_dir'], '*.vmwarevm'
-      Dir.should_receive(:[]).with(dir_arg).and_return(['foo.vmwarevm', 'bar.vmwarevm'])
+      Dir.should_receive(:[]).with(dir_arg).
+                              and_return(['foo.vmwarevm', 'bar.vmwarevm'])
       Fission::VM.all
     end
   end
 
   describe 'self.all_running' do
     it 'should list the running vms' do
-      list_output = "Total running VMs: 2\n/vm/foo.vmwarevm/foo.vmx\n/vm/bar.vmwarevm/bar.vmx\n/vm/baz.vmwarevm/baz.vmx\n"
+      list_output = "Total running VMs: 2\n/vm/foo.vmwarevm/foo.vmx\n"
+      list_output << "/vm/bar.vmwarevm/bar.vmx\n/vm/baz.vmwarevm/baz.vmx\n"
 
       $?.should_receive(:exitstatus).and_return(0)
-      Fission::VM.should_receive(:`).with("#{Fission.config.attributes['vmrun_cmd']} list").and_return(list_output)
+      Fission::VM.should_receive(:`).
+                  with("#{@vmrun_cmd} list").
+                  and_return(list_output)
       [ 'foo', 'bar', 'baz'].each do |vm|
-        File.should_receive(:exists?).with("/vm/#{vm}.vmwarevm/#{vm}.vmx").and_return(true)
+        File.should_receive(:exists?).with("/vm/#{vm}.vmwarevm/#{vm}.vmx").
+                                      and_return(true)
       end
 
       Fission::VM.all_running.should == ['foo', 'bar', 'baz']
@@ -290,14 +266,18 @@ describe Fission::VM do
       end
 
       $?.should_receive(:exitstatus).and_return(0)
-      Fission::VM.should_receive(:`).with("#{Fission.config.attributes['vmrun_cmd']} list").and_return(list_output)
+      Fission::VM.should_receive(:`).
+                  with("#{@vmrun_cmd} list").
+                  and_return(list_output)
 
       Fission::VM.all_running.should == ['foo', 'bar', 'baz']
     end
 
     it 'should output an error and exit if unable to get the list of running vms' do
       $?.should_receive(:exitstatus).and_return(1)
-      Fission::VM.should_receive(:`).with("#{Fission.config.attributes['vmrun_cmd']} list").and_return("it blew up")
+      Fission::VM.should_receive(:`).
+                  with("#{@vmrun_cmd} list").
+                  and_return("it blew up")
       Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
 
       lambda {
@@ -332,8 +312,7 @@ describe Fission::VM do
   end
 
   describe "self.clone" do
-    before :each do
-      Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
+    before do
       @source_vm = 'foo'
       @target_vm = 'bar'
       @vm_files = ['.vmx', '.vmxf', '.vmdk', '-s001.vmdk', '-s002.vmdk', '.vmsd']
@@ -351,7 +330,9 @@ describe Fission::VM do
       end
 
       ['.vmx', '.vmxf'].each do |ext|
-        File.should_receive(:binary?).with(File.join(Fission::VM.path('bar'), "bar#{ext}")).and_return(false)
+        File.should_receive(:binary?).
+             with(File.join(Fission::VM.path('bar'), "bar#{ext}")).
+             and_return(false)
       end
     end
 
@@ -360,7 +341,9 @@ describe Fission::VM do
     end
 
     it 'should copy the vm files to the target' do
-      File.should_receive(:binary?).with(File.join(Fission::VM.path('bar'), "bar.vmdk")).and_return(true)
+      File.should_receive(:binary?).
+           with(File.join(Fission::VM.path('bar'), "bar.vmdk")).
+           and_return(true)
       Fission::VM.clone @source_vm, @target_vm
 
       File.directory?(Fission::VM.path('bar')).should == true
@@ -371,7 +354,9 @@ describe Fission::VM do
     end
 
     it 'should update the target vm config files' do
-      File.should_receive(:binary?).with(File.join(Fission::VM.path('bar'), "bar.vmdk")).and_return(true)
+      File.should_receive(:binary?).
+           with(File.join(Fission::VM.path('bar'), "bar.vmdk")).
+           and_return(true)
       Fission::VM.clone @source_vm, @target_vm
 
       ['.vmx', '.vmxf'].each do |ext|
@@ -381,31 +366,33 @@ describe Fission::VM do
     end
 
     it "should not try to update the vmdk file if it's not a sparse disk" do
-      File.should_receive(:binary?).with(File.join(Fission::VM.path('bar'), "bar.vmdk")).and_return(true)
+      File.should_receive(:binary?).
+           with(File.join(Fission::VM.path('bar'), "bar.vmdk")).and_return(true)
       Fission::VM.clone @source_vm, @target_vm
 
       File.read(File.join(Fission::VM.path('bar'), 'bar.vmdk')).should match /foo/
     end
 
     it "should update the vmdk when a sparse disk is found" do
-      File.should_receive(:binary?).with(File.join(Fission::VM.path('bar'), "bar.vmdk")).and_return(false)
+      File.should_receive(:binary?).
+           with(File.join(Fission::VM.path('bar'), "bar.vmdk")).and_return(false)
       Fission::VM.clone @source_vm, @target_vm
 
       File.read(File.join(Fission::VM.path('bar'), 'bar.vmdk')).should match /bar/
     end
 
     it 'should output that the clone was successful' do
-      File.should_receive(:binary?).with(File.join(Fission::VM.path('bar'), "bar.vmdk")).and_return(true)
+      File.should_receive(:binary?).
+           with(File.join(Fission::VM.path('bar'), "bar.vmdk")).and_return(true)
       Fission::VM.clone @source_vm, @target_vm
 
       @string_io.string.should match /Cloning #{@source_vm} to #{@target_vm}/
-        @string_io.string.should match /Configuring #{@target_vm}/
+      @string_io.string.should match /Configuring #{@target_vm}/
     end
   end
 
   describe "self.delete" do
-    before :each do
-      Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
+    before do
       @target_vm = 'foo'
       @vm_files = %w{ .vmx .vmxf .vmdk -s001.vmdk -s002.vmdk .vmsd }
       FakeFS.activate!

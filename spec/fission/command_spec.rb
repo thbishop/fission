@@ -1,7 +1,6 @@
 require File.expand_path('../../spec_helper.rb', __FILE__)
 
 describe Fission::Command do
-
   describe 'new' do
     it 'should set options variable as an open struct' do
       @command = Fission::Command.new

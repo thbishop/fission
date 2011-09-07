@@ -1,13 +1,13 @@
 require File.expand_path('../../../spec_helper.rb', __FILE__)
 
 describe Fission::Command::Status do
-  before :each do
+  before do
     @string_io = StringIO.new
     Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
   end
 
   describe 'execute' do
-    before :each do
+    before do
       Fission::VM.stub!(:all).and_return(['foo', 'bar', 'baz'])
       Fission::VM.stub!(:all_running).and_return(['foo', 'baz'])
     end

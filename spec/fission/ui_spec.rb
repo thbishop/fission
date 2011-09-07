@@ -1,13 +1,14 @@
 require File.expand_path('../../spec_helper.rb', __FILE__)
 
 describe Fission::UI do
+  before do
+    @string_io = StringIO.new
+  end
+
   describe 'output' do
     it 'should show the desired text' do
-      output = capturing_output do
-        Fission::UI.new.output "foo bar\nbaz blah"
-      end
-
-      output.should == "foo bar\nbaz blah\n"
+      Fission::UI.new(@string_io).output "foo bar\nbaz blah"
+      @string_io.string.should == "foo bar\nbaz blah\n"
     end
   end
 
@@ -22,13 +23,8 @@ describe Fission::UI do
   describe 'output_and_exit' do
     it 'should show the desired text and exit with the desired exit code' do
       Fission::UI.any_instance.should_receive(:exit).and_return(1)
-
-      output = capturing_output do
-        Fission::UI.new.output_and_exit "foo bar\nbaz blah", 1
-      end
-
-      output.should == "foo bar\nbaz blah\n"
+      Fission::UI.new(@string_io).output_and_exit "foo bar\nbaz blah", 1
+      @string_io.string.should == "foo bar\nbaz blah\n"
     end
-
   end
 end

@@ -1,11 +1,8 @@
 require File.expand_path('../../../spec_helper.rb', __FILE__)
 
 describe Fission::Command::Clone do
-  before :all do
+  before do
     @vm_info = ['foo', 'bar']
-  end
-
-  before :each do
     @string_io = StringIO.new
     Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
   end

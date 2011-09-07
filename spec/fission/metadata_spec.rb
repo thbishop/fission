@@ -1,7 +1,7 @@
 require File.expand_path('../../spec_helper.rb', __FILE__)
 
 describe Fission::Metadata do
-  before :each do
+  before do
     @plist_mock = mock('plist_mock')
     @plist_file_path = Fission.config.attributes['plist_file']
     @metadata = Fission::Metadata.new
@@ -22,7 +22,7 @@ describe Fission::Metadata do
   end
 
   describe 'delete_vm_restart_document' do
-    before :each do
+    before do
       @data = { 'PLRestartDocumentPaths' => ['/vm/foo.vmwarevm', '/vm/bar.vmwarevm']}
       @metadata.content = @data
     end
@@ -46,7 +46,7 @@ describe Fission::Metadata do
   end
 
   describe 'delete_vm_favorite_entry' do
-    before :each do
+    before do
       @data = { 'VMFavoritesListDefaults2' => [{'path' => '/vm/foo.vmwarevm'}] }
       @metadata.content = @data
     end
@@ -63,7 +63,7 @@ describe Fission::Metadata do
   end
 
   describe 'self.delete_vm_info' do
-    before :each do
+    before do
       @md_mock = mock('metadata_mock')
       @md_mock.should_receive(:load)
       @md_mock.should_receive(:save)
