@@ -74,6 +74,7 @@ describe Fission::Command::SnapshotCreate do
       @vm_mock.should_receive(:create_snapshot).with('snap_1')
       command = Fission::Command::SnapshotCreate.new @target_vm << 'snap_1'
       command.execute
+      @string_io.string.should match /Creating snapshot/
     end
   end
 

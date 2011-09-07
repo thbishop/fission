@@ -7,7 +7,7 @@ module Fission
     end
 
     def create_snapshot(name)
-      command = "#{Fission.config.attributes['vmrun_cmd']} snapshot #{conf_file.gsub ' ', '\ '} #{name} 2>&1"
+      command = "#{Fission.config.attributes['vmrun_cmd']} snapshot #{conf_file.gsub ' ', '\ '} \"#{name}\" 2>&1"
       output = `#{command}`
 
       if $?.exitstatus == 0

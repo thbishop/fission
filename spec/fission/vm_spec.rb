@@ -134,7 +134,7 @@ describe Fission::VM do
     it 'should create a snapshot' do
       $?.should_receive(:exitstatus).and_return(0)
       @vm.should_receive(:`).
-          with("#{Fission.config.attributes['vmrun_cmd']} snapshot #{@vm.conf_file.gsub ' ', '\ '} bar 2>&1").
+          with("#{Fission.config.attributes['vmrun_cmd']} snapshot #{@vm.conf_file.gsub ' ', '\ '} \"bar\" 2>&1").
           and_return("")
       @vm.create_snapshot('bar')
       @string_io.string.should match /Snapshot 'bar' created/
@@ -143,7 +143,7 @@ describe Fission::VM do
     it 'should print an error and exit if there was a problem creating the snapshot' do
       $?.should_receive(:exitstatus).and_return(1)
       @vm.should_receive(:`).
-          with("#{Fission.config.attributes['vmrun_cmd']} snapshot #{@vm.conf_file.gsub ' ', '\ '} bar 2>&1").
+          with("#{Fission.config.attributes['vmrun_cmd']} snapshot #{@vm.conf_file.gsub ' ', '\ '} \"bar\" 2>&1").
           and_return("it blew up")
       lambda { @vm.create_snapshot('bar') }.should raise_error SystemExit
       @string_io.string.should match /error creating the snapshot/
