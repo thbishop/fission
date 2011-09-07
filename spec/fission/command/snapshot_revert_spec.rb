@@ -71,6 +71,7 @@ describe Fission::Command::SnapshotRevert do
 
     it 'should revert to the snapshot with the provided name' do
       Fission::VM.should_receive(:exists?).with(@target_vm.first).and_return(true)
+      Fission::Fusion.should_receive(:is_running?).and_return(false)
       @vm_mock.should_receive(:snapshots).and_return(['snap_1', 'snap_2'])
       @vm_mock.should_receive(:revert_to_snapshot).with('snap_1')
       command = Fission::Command::SnapshotRevert.new @target_vm << 'snap_1'
