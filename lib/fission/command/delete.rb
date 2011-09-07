@@ -8,16 +8,15 @@ module Fission
       end
 
       def execute
-        if args.count < 1
+        option_parser.parse! @args
+
+        if @args.count < 1
           Fission.ui.output self.class.help
           Fission.ui.output ""
           Fission.ui.output_and_exit "Incorrect arguments for delete command", 1
         end
 
         target_vm = @args.first
-
-        delete_options = option_parser
-        delete_options.parse! @args
 
         unless Fission::VM.exists? target_vm
           Fission.ui.output_and_exit "Unable to find target vm #{target_vm} (#{Fission::VM.path(target_vm)})", 1

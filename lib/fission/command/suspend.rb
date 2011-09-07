@@ -10,7 +10,7 @@ module Fission
       def execute
         option_parser.parse! @args
 
-        if args.count != 1 && !@options.all
+        if @args.count != 1 && !@options.all
           Fission.ui.output self.class.help
           Fission.ui.output ""
           Fission.ui.output_and_exit "Incorrect arguments for suspend command", 1
@@ -26,7 +26,7 @@ module Fission
         if @options.all
           vms_to_suspend = VM.all_running
         else
-          vm_name = args.first
+          vm_name = @args.first
           unless Fission::VM.exists? vm_name
             Fission.ui.output ''
             Fission.ui.output_and_exit "Unable to find the VM #{vm_name} (#{Fission::VM.path(vm_name)})", 1

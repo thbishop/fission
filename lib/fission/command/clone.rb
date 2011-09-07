@@ -8,7 +8,9 @@ module Fission
       end
 
       def execute
-        unless args.count > 1
+        option_parser.parse! @args
+
+        unless @args.count > 1
           Fission.ui.output self.class.help
           Fission.ui.output ""
           Fission.ui.output_and_exit "Incorrect arguments for clone command", 1
@@ -24,9 +26,6 @@ module Fission
         if Fission::VM.exists? target_vm
           Fission::ui.output_and_exit "The target vm #{target_vm} already exists", 1
         end
-
-        clone_options = option_parser
-        clone_options.parse! @args
 
         Fission::VM.clone source_vm, target_vm
 
