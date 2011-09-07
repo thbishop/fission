@@ -8,7 +8,9 @@ describe Fission::CLI do
 
   describe 'self.commands' do
     it 'should return the list of commands' do
-      Fission::CLI.commands.should == ['clone', 'delete', 'snapshot create', 'snapshot list', 'start', 'status', 'stop', 'suspend']
+      Fission::CLI.commands.should == ['clone', 'delete', 'snapshot create',
+                                       'snapshot list', 'snapshot revert',
+                                       'start', 'status', 'stop', 'suspend']
     end
   end
 
@@ -78,6 +80,14 @@ describe Fission::CLI do
           Fission::Command::SnapshotList.stub!(:help).and_return('')
           Fission::Command::SnapshotList.should_receive(:new).and_return(@cmd_mock)
           Fission::CLI.execute ['snapshot', 'list']
+        end
+      end
+
+      describe 'snapshot revert' do
+        it "should revert to the snapshots" do
+          Fission::Command::SnapshotRevert.stub!(:help).and_return('')
+          Fission::Command::SnapshotRevert.should_receive(:new).and_return(@cmd_mock)
+          Fission::CLI.execute ['snapshot', 'revert', 'foo', 'snap1']
         end
       end
 

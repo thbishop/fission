@@ -151,6 +151,33 @@ describe Fission::VM do
     end
   end
 
+  describe 'revert_to_snapshot' do
+    before :each do
+      @vm = Fission::VM.new('foo')
+      @vm.stub!(:conf_file).and_return(File.join(Fission::VM.path('foo'), 'foo.vmx'))
+      Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
+    end
+
+    it 'should revert to the provided snapshot' do
+      $?.should_receive(:exitstatus).and_return(0)
+      @vm.should_receive(:`).
+          with("#{Fission.config.attributes['vmrun_cmd']} revertToSnapshot #{@vm.conf_file.gsub ' ', '\ '} \"bar\" 2>&1").
+          and_return("")
+      @vm.revert_to_snapshot('bar')
+      @string_io.string.should match /Reverted to snapshot 'bar'/
+    end
+
+    it "should print an error and exit if the snapshot doesn't exist" do
+      $?.should_receive(:exitstatus).and_return(1)
+      @vm.should_receive(:`).
+          with("#{Fission.config.attributes['vmrun_cmd']} revertToSnapshot #{@vm.conf_file.gsub ' ', '\ '} \"bar\" 2>&1").
+          and_return("it blew up")
+      lambda { @vm.revert_to_snapshot('bar') }.should raise_error SystemExit
+      @string_io.string.should match /error reverting to the snapshot/
+      @string_io.string.should match /error was.+it blew up/m
+    end
+  end
+
   describe 'conf_file' do
     before :each do
       Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))

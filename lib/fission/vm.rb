@@ -18,6 +18,18 @@ module Fission
       end
     end
 
+    def revert_to_snapshot(name)
+      command = "#{Fission.config.attributes['vmrun_cmd']} revertToSnapshot #{conf_file.gsub ' ', '\ '} \"#{name}\" 2>&1"
+      output = `#{command}`
+
+      if $?.exitstatus == 0
+        Fission.ui.output "Reverted to snapshot '#{name}'"
+      else
+        Fission.ui.output "There was an error reverting to the snapshot."
+        Fission.ui.output_and_exit "The error was:\n#{output}", 1
+      end
+    end
+
     def snapshots
       command = "#{Fission.config.attributes['vmrun_cmd']} listSnapshots #{conf_file.gsub ' ', '\ '} 2>&1"
       output = `#{command}`
