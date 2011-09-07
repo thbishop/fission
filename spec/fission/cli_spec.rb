@@ -63,6 +63,13 @@ describe Fission::CLI do
                                                        and_return(@cmd_mock)
           Fission::CLI.execute ['clone', 'foo', 'bar']
         end
+
+        it 'should try to clone the vm and start it' do
+          Fission::Command::Clone.stub!(:help).and_return('')
+          Fission::Command::Clone.should_receive(:new).with(['foo', 'bar', '--start']).
+                                                       and_return(@cmd_mock)
+          Fission::CLI.execute ['clone', 'foo', 'bar', '--start']
+        end
       end
 
       describe 'snapshot create' do
@@ -78,7 +85,9 @@ describe Fission::CLI do
       describe 'snapshot list' do
         it "should list the snapshots" do
           Fission::Command::SnapshotList.stub!(:help).and_return('')
-          Fission::Command::SnapshotList.should_receive(:new).and_return(@cmd_mock)
+          Fission::Command::SnapshotList.should_receive(:new).
+                                         with([]).
+                                         and_return(@cmd_mock)
           Fission::CLI.execute ['snapshot', 'list']
         end
       end
@@ -86,7 +95,9 @@ describe Fission::CLI do
       describe 'snapshot revert' do
         it "should revert to the snapshots" do
           Fission::Command::SnapshotRevert.stub!(:help).and_return('')
-          Fission::Command::SnapshotRevert.should_receive(:new).and_return(@cmd_mock)
+          Fission::Command::SnapshotRevert.should_receive(:new).
+                                           with(['foo', 'snap1']).
+                                           and_return(@cmd_mock)
           Fission::CLI.execute ['snapshot', 'revert', 'foo', 'snap1']
         end
       end
@@ -94,8 +105,9 @@ describe Fission::CLI do
       describe 'start' do
         it "should try to start the vm" do
           Fission::Command::Start.stub!(:help).and_return('')
-          Fission::Command::Start.should_receive(:new).with(['foo']).
-                                                       and_return(@cmd_mock)
+          Fission::Command::Start.should_receive(:new).
+                                  with(['foo']).
+                                  and_return(@cmd_mock)
           Fission::CLI.execute ['start', 'foo']
         end
       end
@@ -103,7 +115,9 @@ describe Fission::CLI do
       describe 'status' do
         it "should try to get the status for all VMs" do
           Fission::Command::Status.stub!(:help).and_return('')
-          Fission::Command::Status.should_receive(:new).and_return(@cmd_mock)
+          Fission::Command::Status.should_receive(:new).
+                                   with([]).
+                                   and_return(@cmd_mock)
           Fission::CLI.execute ['status']
         end
       end
@@ -111,8 +125,9 @@ describe Fission::CLI do
       describe 'stop' do
         it "should try to stop the vm" do
           Fission::Command::Stop.stub!(:help).and_return('')
-          Fission::Command::Stop.should_receive(:new).with(['foo']).
-                                                      and_return(@cmd_mock)
+          Fission::Command::Stop.should_receive(:new).
+                                 with(['foo']).
+                                 and_return(@cmd_mock)
           Fission::CLI.execute ['stop', 'foo']
         end
       end
@@ -120,18 +135,36 @@ describe Fission::CLI do
       describe 'suspend' do
         it "should try to suspend the vm" do
           Fission::Command::Suspend.stub!(:help).and_return('')
-          Fission::Command::Suspend.should_receive(:new).with(['foo']).
-                                                         and_return(@cmd_mock)
+          Fission::Command::Suspend.should_receive(:new).
+                                    with(['foo']).
+                                    and_return(@cmd_mock)
           Fission::CLI.execute ['suspend', 'foo']
+        end
+
+        it 'should try to suspend all of vms' do
+          Fission::Command::Suspend.stub!(:help).and_return('')
+          Fission::Command::Suspend.should_receive(:new).
+                                    with(['--all']).
+                                    and_return(@cmd_mock)
+          Fission::CLI.execute ['suspend', '--all']
         end
       end
 
       describe 'delete' do
         it "should try to delete the vm" do
           Fission::Command::Delete.stub!(:help).and_return('')
-          Fission::Command::Delete.should_receive(:new).with(['foo']).
-                                                        and_return(@cmd_mock)
+          Fission::Command::Delete.should_receive(:new).
+                                   with(['foo']).
+                                   and_return(@cmd_mock)
           Fission::CLI.execute ['delete', 'foo']
+        end
+
+        it 'should try to force delete the vm' do
+          Fission::Command::Delete.stub!(:help).and_return('')
+          Fission::Command::Delete.should_receive(:new).
+                                   with(['foo', '--force']).
+                                   and_return(@cmd_mock)
+          Fission::CLI.execute ['delete', 'foo', '--force']
         end
       end
     end

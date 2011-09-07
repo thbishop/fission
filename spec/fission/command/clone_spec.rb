@@ -33,7 +33,6 @@ describe Fission::Command::Clone do
       @string_io.string.should match /Unable to find the source vm #{@vm_info.first}/
     end
 
-
     it "should output an error and exit if the target vm already exists" do
       @vm_info.each do |vm|
         Fission::VM.should_receive(:exists?).with(vm).and_return(true)
@@ -81,7 +80,7 @@ describe Fission::Command::Clone do
     it 'should output info for this command' do
       output = Fission::Command::Clone.help
 
-      output.should match /clone source_vm target_vm/
+      output.should match /clone source_vm target_vm.+--start/m
     end
   end
 end
