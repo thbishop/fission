@@ -14,19 +14,23 @@ Fission is a simple command line tool for managing VMware Fusion VMs.
 
 If you provide '--start', then the new VM will be powered on after cloning
 
+
 ### Snapshot Create
     fission snapshot create my_vm snapshot_name
 
 Creates a snapshot for the VM
 
 In order to create the snapshot:
+
 * The VM must be running
 * The snapshot name must be unique
+
 
 ### Snapshot List
     fission snapshot list my_vm
 
 Lists the snapshots for the VM
+
 
 ### Snapshot Revert
     fission snapshot revert my_vm existing_snapshot
@@ -34,7 +38,9 @@ Lists the snapshots for the VM
 Reverts a VM to an existing snapshot
 
 In order to revert to the snapshot:
+
 * The Fusion GUI cannot be running
+
 
 ### Start
     fission start my_vm [--headless]
@@ -42,22 +48,27 @@ In order to revert to the snapshot:
 Starts the VM
 
 Providng '--headless' will start the VM without a Fusion GUI console
+
 Note that the Fusion GUI cannot be running to start a VM with '--headless'
+
 
 ### Status
     fission status
 
 Displays the status (running or not) of all of the VMs found
 
+
 ### Stop
     fission stop my_vm
 
 Stops the VM
 
+
 ### Suspend
     fission suspend [my_vm | --all]
 
 Suspends the VM or all running VMs
+
 
 ### Delete
     fission delete my_vm [--force]
@@ -65,12 +76,15 @@ Suspends the VM or all running VMs
 Deletes the VM.  This will delete the files from disk and remove the related metadata in Fusion.
 
 By default, the VM will not be deleted if:
+
 * The VM is running
 * The Fusion GUI is running (as the metadata cannot be cleanly removed)
 
 Providing '--force' will:
+
 * Stop the VM if it's running
 * Delete the VM even if the Fusion GUI is running
+
 
 ### Help
     fission -h
