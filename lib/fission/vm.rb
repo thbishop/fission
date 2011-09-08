@@ -147,12 +147,36 @@ module Fission
     private
     def self.rename_vm_files(from, to)
       files_to_rename(from, to).each do |file|
-        FileUtils.mv File.join(path(to), file), File.join(path(to), file.gsub(from, to))
+        text_to_replace = File.basename(file, File.extname(file))
+
+        if File.extname(file) == '.vmdk'
+          if file.match /\-s\d+\.vmdk/
+            text_to_replace = file.partition(/\-s\d+.vmdk/).first
+          end
+        end
+
+        unless File.exists?(File.join(path(to), file.gsub(text_to_replace, to)))
+          FileUtils.mv File.join(path(to), file),
+                       File.join(path(to), file.gsub(text_to_replace, to))
+        end
       end
     end
 
     def self.files_to_rename(from, to)
-      Dir.entries(path(to)).select { |f| f.include?(from) }
+      files_which_match_source_vm = []
+      other_files = []
+
+      Dir.entries(path(to)).each do |f|
+        unless f == '.' || f == '..'
+          f.include?(from) ? files_which_match_source_vm << f : other_files << f
+        end
+      end
+
+      files_which_match_source_vm + other_files
+    end
+
+    def self.vm_file_extensions
+      ['.nvram', '.vmdk', '.vmem', '.vmsd', '.vmss', '.vmx', '.vmxf']
     end
 
     def self.update_config(from, to)

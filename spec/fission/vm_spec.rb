@@ -150,7 +150,7 @@ describe Fission::VM do
       FileUtils.mkdir_p(@vm_root_dir)
     end
 
-    after :each do
+    after do
       FakeFS.deactivate!
       FakeFS::FileSystem.clear
     end
@@ -336,8 +336,9 @@ describe Fission::VM do
       end
     end
 
-    after :each do
+    after do
       FakeFS.deactivate!
+      FakeFS::FileSystem.clear
     end
 
     it 'should copy the vm files to the target' do
@@ -351,6 +352,39 @@ describe Fission::VM do
       @vm_files.each do |file|
         File.file?(File.join(Fission::VM.path('bar'), "#{@target_vm}#{file}")).should == true
       end
+    end
+
+    it "should copy the vm files to the target if a file name doesn't match the directory" do
+      FileUtils.touch File.join(Fission::VM.path('foo'), 'other_name.nvram')
+      File.should_receive(:binary?).
+           with(File.join(Fission::VM.path('bar'), "bar.vmdk")).
+           and_return(true)
+      Fission::VM.clone @source_vm, @target_vm
+
+      File.directory?(Fission::VM.path('bar')).should == true
+
+      @vm_files.each do |file|
+        File.file?(File.join(Fission::VM.path('bar'), "#{@target_vm}#{file}")).should == true
+      end
+
+      File.file?(File.join(Fission::VM.path('bar'), "bar.nvram")).should == true
+    end
+
+
+    it "should copy the vm files to the target if a sparse disk file name doesn't match the directory" do
+      FileUtils.touch File.join(Fission::VM.path('foo'), 'other_name-s003.vmdk')
+      File.should_receive(:binary?).
+           with(File.join(Fission::VM.path('bar'), "bar.vmdk")).
+           and_return(true)
+      Fission::VM.clone @source_vm, @target_vm
+
+      File.directory?(Fission::VM.path('bar')).should == true
+
+      @vm_files.each do |file|
+        File.file?(File.join(Fission::VM.path('bar'), "#{@target_vm}#{file}")).should == true
+      end
+
+      File.file?(File.join(Fission::VM.path('bar'), "bar-s003.vmdk")).should == true
     end
 
     it 'should update the target vm config files' do
@@ -404,7 +438,7 @@ describe Fission::VM do
       end
     end
 
-    after :each do
+    after do
       FakeFS.deactivate!
     end
 
