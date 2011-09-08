@@ -58,7 +58,6 @@ module Fission
       text = "\nCommands:\n"
       Fission::Command.descendants.each do |command_klass|
         text << (command_klass.send :help)
-        text << "\n\n"
       end
 
       text
