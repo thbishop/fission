@@ -107,6 +107,9 @@ the desired install method (ideally with easy install) and settings, but do not
 power on the VM.  You can then create clones from this VM 'template'.  When you 
 power on the clone, it will start the OS install process (and assign a new ip, etc.).
 
+## Fission with RVM
+Please see the following gist for a walkthrough of making fission available 
+regardless of ruby environment when using RVM https://gist.github.com/1203167
 
 ## Contribute
 * Fork the project
