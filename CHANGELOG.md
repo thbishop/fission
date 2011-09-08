@@ -6,6 +6,7 @@
 * add 'snapshot create' command
 * add 'snapshot list' command
 * add 'snapshot revert' command
+* add '--headless' option to start
 
 ## 0.2.0 (07/13/2011)
 * add 'status' command

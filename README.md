@@ -37,9 +37,12 @@ In order to revert to the snapshot:
 * The Fusion GUI cannot be running
 
 ### Start
-    fission start my_vm
+    fission start my_vm [--headless]
 
 Starts the VM
+
+Providng '--headless' will start the VM without a Fusion GUI console
+Note that the Fusion GUI cannot be running to start a VM with '--headless'
 
 ### Status
     fission status
