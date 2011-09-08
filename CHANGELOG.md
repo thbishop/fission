@@ -1,12 +1,15 @@
 # changes
 
 ## head
+
+## 0.3.0 (09/08/2011)
 * add ability to suspend all running VMs ('--all')
 * add 'delete' command
 * add 'snapshot create' command
 * add 'snapshot list' command
 * add 'snapshot revert' command
 * add '--headless' option to start
+* fix issue #2
 
 ## 0.2.0 (07/13/2011)
 * add 'status' command
