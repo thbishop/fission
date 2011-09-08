@@ -9,8 +9,8 @@ Gem::Specification.new do |s|
   s.authors     = ['Tommy Bishop']
   s.email       = ['bishop.thomas@gmail.com']
   s.homepage    = "https://github.com/thbishop/fission"
-  s.summary     = %q{Tool to clone VMware fusion VMs}
-  s.description = %q{A simple utility to create VMware Fusion VM clones}
+  s.summary     = %q{Command line tool to manage VMware Fusion VMs}
+  s.description = %q{A simple utility to manage VMware Fusion VMs from the command line}
 
   s.rubyforge_project = "fission"
 
