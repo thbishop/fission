@@ -110,6 +110,15 @@ describe Fission::CLI do
                                   and_return(@cmd_mock)
           Fission::CLI.execute ['start', 'foo']
         end
+
+        it 'should try to start the vm headless' do
+          Fission::Command::Start.stub!(:help).and_return('')
+          Fission::Command::Start.should_receive(:new).
+                                  with(['foo', '--headless']).
+                                  and_return(@cmd_mock)
+          Fission::CLI.execute ['start', 'foo', '--headless']
+
+        end
       end
 
       describe 'status' do

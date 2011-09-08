@@ -5,6 +5,7 @@ describe Fission::Command::Start do
     @vm_info = ['foo']
     @string_io = StringIO.new
     Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
+    @vm_mock = mock('vm_mock')
   end
 
   describe 'execute' do
@@ -44,7 +45,6 @@ describe Fission::Command::Start do
     end
 
     it 'should try to start the vm if it is not running' do
-      @vm_mock = mock('vm_mock')
       Fission::VM.should_receive(:exists?).with(@vm_info.first).and_return(true)
       Fission::VM.should_receive(:all_running).and_return([])
       Fission::VM.should_receive(:new).with(@vm_info.first).and_return(@vm_mock)
@@ -56,13 +56,45 @@ describe Fission::Command::Start do
       @string_io.string.should match /Starting '#{@vm_info.first}'/
     end
 
+    describe 'with --headless' do
+      it 'should start the vm headless' do
+        Fission::Fusion.should_receive(:is_running?).and_return(false)
+        Fission::VM.should_receive(:exists?).with(@vm_info.first).and_return(true)
+        Fission::VM.should_receive(:all_running).and_return([])
+        Fission::VM.should_receive(:new).with(@vm_info.first).and_return(@vm_mock)
+        @vm_mock.should_receive(:start).with(:headless => true)
+
+        command = Fission::Command::Start.new @vm_info << '--headless'
+        command.execute
+
+        @string_io.string.should match /Starting '#{@vm_info.first}'/
+      end
+
+      it 'should output an error and exit if the fusion app is running' do
+        Fission::Fusion.should_receive(:is_running?).and_return(true)
+        Fission::VM.should_receive(:exists?).with(@vm_info.first).and_return(true)
+        Fission::VM.should_receive(:all_running).and_return([])
+        Fission::VM.should_receive(:new).with(@vm_info.first).and_return(@vm_mock)
+        @vm_mock.should_not_receive(:start)
+
+        lambda {
+          command = Fission::Command::Start.new @vm_info << '--headless'
+          command.execute
+        }.should raise_error SystemExit
+
+        @string_io.string.should match /Fusion GUI is currently running/
+        @string_io.string.should match /A VM cannot be started in headless mode when the Fusion GUI is running/
+        @string_io.string.should match /Exit the Fusion GUI and try again/
+      end
+    end
   end
 
   describe 'help' do
     it 'should output info for this command' do
       output = Fission::Command::Start.help
 
-      output.should match /start vm/
+      output.should match /start vm \[options\]/
+      output.should match /--headless/
     end
   end
 end

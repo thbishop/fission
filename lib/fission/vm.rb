@@ -43,8 +43,15 @@ module Fission
       end
     end
 
-    def start
-      command = "#{Fission.config.attributes['vmrun_cmd']} start #{conf_file.gsub ' ', '\ '} gui 2>&1"
+    def start(args={})
+      command = "#{Fission.config.attributes['vmrun_cmd']} start #{conf_file.gsub ' ', '\ '} "
+
+      if !args[:headless].blank? && args[:headless]
+        command << "nogui 2>&1"
+      else
+        command << "gui 2>&1"
+      end
+
       output = `#{command}`
 
       if $?.exitstatus == 0

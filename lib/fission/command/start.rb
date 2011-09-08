@@ -4,10 +4,13 @@ module Fission
 
       def initialize(args=[])
         super
+        @options.headless = false
       end
 
       def execute
-        unless @args.count == 1
+        option_parser.parse! @args
+
+        if @args.empty?
           Fission.ui.output self.class.help
           Fission.ui.output ""
           Fission.ui.output_and_exit "Incorrect arguments for start command", 1
@@ -26,12 +29,27 @@ module Fission
 
         Fission.ui.output "Starting '#{vm_name}'"
         @vm = Fission::VM.new vm_name
-        @vm.start
+
+        if @options.headless
+          if Fission::Fusion.is_running?
+            Fission.ui.output 'It looks like the Fusion GUI is currently running'
+            Fission.ui.output 'A VM cannot be started in headless mode when the Fusion GUI is running'
+            Fission.ui.output_and_exit "Exit the Fusion GUI and try again", 1
+          else
+            @vm.start :headless => true
+          end
+        else
+          @vm.start
+        end
       end
 
       def option_parser
         optparse = OptionParser.new do |opts|
-          opts.banner = "\nstart usage: fission start vm"
+          opts.banner = "\nstart usage: fission start vm [options]"
+
+          opts.on '--headless', 'Start the VM in headless mode (i.e. no Fusion GUI console)' do
+            @options.headless = true
+          end
         end
 
         optparse

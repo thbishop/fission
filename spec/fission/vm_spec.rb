@@ -26,7 +26,17 @@ describe Fission::VM do
       @string_io.string.should match /VM started/
     end
 
-    it 'it should output that it was unsuccessful' do
+    it 'should start the vm headless' do
+      $?.should_receive(:exitstatus).and_return(0)
+      @vm.should_receive(:`).
+          with("#{@vmrun_cmd} start #{@vm.conf_file.gsub(' ', '\ ')} nogui 2>&1").
+          and_return("it's all good")
+      @vm.start(:headless => true)
+
+      @string_io.string.should match /VM started/
+    end
+
+    it 'should output that it was unsuccessful' do
       $?.should_receive(:exitstatus).and_return(1)
       @vm.should_receive(:`).
           with("#{@vmrun_cmd} start #{@vm.conf_file.gsub(' ', '\ ')} gui 2>&1").
@@ -35,6 +45,7 @@ describe Fission::VM do
 
       @string_io.string.should match /There was a problem starting the VM.+it blew up.+/m
     end
+
   end
 
   describe 'stop' do
