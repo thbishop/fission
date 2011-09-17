@@ -1,7 +1,7 @@
 # Fission
 
 ## Intro
-Fission is a simple command line tool for managing VMware Fusion VMs.
+Fission is a simple command line tool for managing VMware Fusion VMs.  Only Fusion 3.x is currently supported.
 
 
 ## Install
