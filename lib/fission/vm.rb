@@ -28,13 +28,17 @@ module Fission
       command = "#{Fission.config.attributes['vmrun_cmd']} listSnapshots #{conf_file.gsub ' ', '\ '} 2>&1"
       output = `#{command}`
 
-      if $?.exitstatus == 0
+
+      response = Fission::Response.new :code => $?.exitstatus
+
+      if response.successful?
         snaps = output.split("\n").select { |s| !s.include? 'Total snapshots:' }
-        snaps.map { |s| s.strip }
+        response.data = snaps.map { |s| s.strip }
       else
-        Fission.ui.output "There was an error getting the list of snapshots."
-        Fission.ui.output_and_exit "The error was:\n#{output}", 1
+        response.output = output
       end
+
+      response
     end
 
     def start(args={})

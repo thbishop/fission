@@ -101,17 +101,24 @@ describe Fission::VM do
       @vm.should_receive(:`).
           with("#{@vmrun_cmd} listSnapshots #{@vm.conf_file.gsub ' ', '\ '} 2>&1").
           and_return("Total snapshots: 3\nsnap foo\nsnap bar\nsnap baz\n")
-      @vm.snapshots.should == ['snap foo', 'snap bar', 'snap baz']
+
+      response = @vm.snapshots
+      response.successful?.should == true
+      response.output.should == ''
+      response.data.should == ['snap foo', 'snap bar', 'snap baz']
     end
 
     it 'should print an error and exit if there was a problem getting the list of snapshots' do
       $?.should_receive(:exitstatus).and_return(1)
       @vm.should_receive(:`).
           with("#{@vmrun_cmd} listSnapshots #{@vm.conf_file.gsub ' ', '\ '} 2>&1").
-          and_return("it blew up\n")
-      lambda { @vm.snapshots }.should raise_error SystemExit
-      @string_io.string.should match /error getting the list of snapshots/
-      @string_io.string.should match /error was.+it blew up/m
+          and_return("it blew up")
+
+      response = @vm.snapshots
+      response.successful?.should == false
+      response.code.should == 1
+      response.output.should == 'it blew up'
+      response.data.should be_nil
     end
   end
 

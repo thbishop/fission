@@ -7,6 +7,7 @@ describe Fission::Command::SnapshotList do
     Fission::VM.stub!(:new).and_return(@vm_mock)
     @string_io = StringIO.new
     Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
+    @response_mock = mock('response')
   end
 
   describe 'execute' do
@@ -34,7 +35,9 @@ describe Fission::Command::SnapshotList do
 
     it 'should output the list of snapshots if any exist' do
       Fission::VM.should_receive(:exists?).with(@target_vm.first).and_return(true)
-      @vm_mock.should_receive(:snapshots).and_return(['snap 1', 'snap 2', 'snap 3'])
+      @response_mock.should_receive(:successful?).and_return(true)
+      @response_mock.should_receive(:data).and_return(['snap 1', 'snap 2', 'snap 3'])
+      @vm_mock.should_receive(:snapshots).and_return(@response_mock)
       command = Fission::Command::SnapshotList.new @target_vm
       command.execute
 
@@ -43,12 +46,27 @@ describe Fission::Command::SnapshotList do
 
     it 'should output that it could not find any snapshots if none exist' do
       Fission::VM.should_receive(:exists?).with(@target_vm.first).and_return(true)
-      @vm_mock.should_receive(:snapshots).and_return([])
+      @response_mock.should_receive(:successful?).and_return(true)
+      @response_mock.should_receive(:data).and_return([])
+      @vm_mock.should_receive(:snapshots).and_return(@response_mock)
       command = Fission::Command::SnapshotList.new @target_vm
       command.execute
 
       @string_io.string.should match /No snapshots found for VM '#{@target_vm.first}'/
     end
+
+    it 'should output an error and exit if there was an error getting the list of snapshots' do
+      Fission::VM.should_receive(:exists?).with(@target_vm.first).and_return(true)
+      @response_mock.should_receive(:successful?).and_return(false)
+      @response_mock.should_receive(:code).and_return(1)
+      @response_mock.should_receive(:output).and_return('it blew up')
+      @vm_mock.should_receive(:snapshots).and_return(@response_mock)
+      command = Fission::Command::SnapshotList.new @target_vm
+      lambda { command.execute }.should raise_error SystemExit
+
+      @string_io.string.should match /There was an error listing the snapshots.+it blew up.+/m
+    end
+
   end
 
   describe 'help' do

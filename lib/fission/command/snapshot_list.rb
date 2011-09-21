@@ -20,12 +20,18 @@ module Fission
         end
 
         @vm = Fission::VM.new vm_name
-        snaps = @vm.snapshots
+        response = @vm.snapshots
 
-        if snaps.any?
-          Fission.ui.output snaps.join("\n")
+        if response.successful?
+          snaps = response.data
+
+          if snaps.any?
+            Fission.ui.output snaps.join("\n")
+          else
+            Fission.ui.output "No snapshots found for VM '#{vm_name}'"
+          end
         else
-          Fission.ui.output "No snapshots found for VM '#{vm_name}'"
+          Fission.ui.output_and_exit "There was an error listing the snapshots.  The error was:\n#{response.output}", response.code
         end
       end
 
