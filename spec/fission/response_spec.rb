@@ -18,6 +18,10 @@ describe Fission::Response do
       Fission::Response.new.output.should == ''
     end
 
+    it 'should set the data to nil if not provided' do
+      Fission::Response.new.data.should be_nil
+    end
+
   end
 
   describe 'code' do
@@ -43,6 +47,14 @@ describe Fission::Response do
       @response = Fission::Response.new
       @response.output = 'foobar'
       @response.output.should == 'foobar'
+    end
+  end
+
+  describe 'data' do
+    it 'should allow you to set the data' do
+      @response = Fission::Response.new
+      @response.data = [1, 2, 3]
+      @response.data.should == [1, 2, 3]
     end
   end
 end
