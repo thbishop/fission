@@ -18,7 +18,13 @@ module Fission
 
         vms_to_suspend.each do |vm_name|
           Fission.ui.output "Suspending '#{vm_name}'"
-          Fission::VM.new(vm_name).suspend
+          response = Fission::VM.new(vm_name).suspend
+
+          if response.successful?
+            Fission.ui.output "VM '#{vm_name}' suspended"
+          else
+            Fission.ui.output_and_exit "There was an error suspending the VM.  The error was:\n#{response.output}", response.code
+          end
         end
       end
 

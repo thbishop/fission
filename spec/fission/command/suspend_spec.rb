@@ -5,6 +5,7 @@ describe Fission::Command::Suspend do
     @vm_info = ['foo']
     @string_io = StringIO.new
     Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
+    @response_mock = mock('response')
   end
 
   describe 'execute' do
@@ -48,12 +49,14 @@ describe Fission::Command::Suspend do
       Fission::VM.should_receive(:exists?).with(@vm_info.first).and_return(true)
       Fission::VM.should_receive(:all_running).and_return([@vm_info.first])
       Fission::VM.should_receive(:new).with(@vm_info.first).and_return(@vm_mock)
-      @vm_mock.should_receive(:suspend)
+      @response_mock.should_receive(:successful?).and_return(true)
+      @vm_mock.should_receive(:suspend).and_return(@response_mock)
 
       command = Fission::Command::Suspend.new @vm_info
       command.execute
 
       @string_io.string.should match /Suspending '#{@vm_info.first}'/
+      @string_io.string.should match /VM '#{@vm_info.first}' suspended/
     end
 
     describe 'with --all' do
@@ -69,14 +72,17 @@ describe Fission::Command::Suspend do
 
         vm_items.each_pair do |name, mock|
           Fission::VM.should_receive(:new).with(name).and_return(mock)
-          mock.should_receive(:suspend)
+          @response_mock.should_receive(:successful?).and_return(true)
+          mock.should_receive(:suspend).and_return(@response_mock)
         end
 
         command = Fission::Command::Suspend.new ['--all']
         command.execute
 
-        @string_io.string.should match /Suspending 'vm_1'/
-        @string_io.string.should match /Suspending 'vm_2'/
+        vm_items.keys.each do |vm|
+          @string_io.string.should match /Suspending '#{vm}'/
+          @string_io.string.should match /VM '#{vm}' suspended/
+        end
       end
     end
 

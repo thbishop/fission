@@ -82,9 +82,10 @@ describe Fission::VM do
       @vm.should_receive(:`).
           with("#{@vmrun_cmd} suspend #{@vm.conf_file.gsub ' ', '\ '} 2>&1").
           and_return("it's all good")
-      @vm.suspend
 
-      @string_io.string.should match /VM suspended/
+      response = @vm.suspend
+      response.successful?.should == true
+      response.output.should == ''
     end
 
     it 'it should output that it was unsuccessful' do
@@ -92,9 +93,11 @@ describe Fission::VM do
       @vm.should_receive(:`).
           with("#{@vmrun_cmd} suspend #{@vm.conf_file.gsub ' ', '\ '} 2>&1").
           and_return("it blew up")
-      @vm.suspend
 
-      @string_io.string.should match /There was a problem suspending the VM.+it blew up.+/m
+      response = @vm.suspend
+      response.successful?.should == false
+      response.code.should == 1
+      response.output.should == 'it blew up'
     end
   end
 
