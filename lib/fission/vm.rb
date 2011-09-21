@@ -19,12 +19,9 @@ module Fission
       command = "#{Fission.config.attributes['vmrun_cmd']} revertToSnapshot #{conf_file.gsub ' ', '\ '} \"#{name}\" 2>&1"
       output = `#{command}`
 
-      if $?.exitstatus == 0
-        Fission.ui.output "Reverted to snapshot '#{name}'"
-      else
-        Fission.ui.output "There was an error reverting to the snapshot."
-        Fission.ui.output_and_exit "The error was:\n#{output}", 1
-      end
+      response = Fission::Response.new :code => $?.exitstatus
+      response.output = output unless response.successful?
+      response
     end
 
     def snapshots

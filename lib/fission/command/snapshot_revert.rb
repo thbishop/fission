@@ -31,7 +31,13 @@ module Fission
         end
 
         Fission.ui.output "Reverting to snapshot '#{snap_name}'"
-        @vm.revert_to_snapshot(snap_name)
+        response = @vm.revert_to_snapshot snap_name
+
+        if response.successful?
+          Fission.ui.output "Reverted to snapshot '#{snap_name}'"
+        else
+          Fission.ui.output_and_exit "There was an error reverting to the snapshot.  The error was:\n#{response.output}", response.code
+        end
       end
 
       def option_parser

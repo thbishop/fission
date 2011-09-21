@@ -7,6 +7,7 @@ describe Fission::Command::SnapshotRevert do
     Fission::VM.stub!(:new).and_return(@vm_mock)
     @string_io = StringIO.new
     Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
+    @response_mock = mock('response')
   end
 
   describe 'execute' do
@@ -72,11 +73,29 @@ describe Fission::Command::SnapshotRevert do
     it 'should revert to the snapshot with the provided name' do
       Fission::VM.should_receive(:exists?).with(@target_vm.first).and_return(true)
       Fission::Fusion.should_receive(:is_running?).and_return(false)
+      @response_mock.should_receive(:successful?).and_return(true)
       @vm_mock.should_receive(:snapshots).and_return(['snap_1', 'snap_2'])
-      @vm_mock.should_receive(:revert_to_snapshot).with('snap_1')
+      @vm_mock.should_receive(:revert_to_snapshot).with('snap_1').and_return(@response_mock)
       command = Fission::Command::SnapshotRevert.new @target_vm << 'snap_1'
       command.execute
+
       @string_io.string.should match /Reverting to snapshot 'snap_1'/
+      @string_io.string.should match /Reverted to snapshot 'snap_1'/
+    end
+
+    it 'should output an error and exit if there was an error reverting to the snapshot' do
+      Fission::VM.should_receive(:exists?).with(@target_vm.first).and_return(true)
+      Fission::Fusion.should_receive(:is_running?).and_return(false)
+      @response_mock.should_receive(:successful?).and_return(false)
+      @response_mock.should_receive(:code).and_return(1)
+      @response_mock.should_receive(:output).and_return('it blew up')
+      @vm_mock.should_receive(:snapshots).and_return(['snap_1', 'snap_2'])
+      @vm_mock.should_receive(:revert_to_snapshot).with('snap_1').and_return(@response_mock)
+      command = Fission::Command::SnapshotRevert.new @target_vm << 'snap_1'
+      lambda { command.execute }.should raise_error SystemExit
+
+      @string_io.string.should match /Reverting to snapshot 'snap_1'/
+      @string_io.string.should match /There was an error reverting to the snapshot.+it blew up.+/m
     end
   end
 

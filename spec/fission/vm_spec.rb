@@ -146,8 +146,10 @@ describe Fission::VM do
       @vm.should_receive(:`).
           with("#{@vmrun_cmd} revertToSnapshot #{@vm.conf_file.gsub ' ', '\ '} \"bar\" 2>&1").
           and_return("")
-      @vm.revert_to_snapshot('bar')
-      @string_io.string.should match /Reverted to snapshot 'bar'/
+
+      response = @vm.revert_to_snapshot 'bar'
+      response.successful?.should == true
+      response.output.should == ''
     end
 
     it "should print an error and exit if the snapshot doesn't exist" do
@@ -155,9 +157,11 @@ describe Fission::VM do
       @vm.should_receive(:`).
           with("#{@vmrun_cmd} revertToSnapshot #{@vm.conf_file.gsub ' ', '\ '} \"bar\" 2>&1").
           and_return("it blew up")
-      lambda { @vm.revert_to_snapshot('bar') }.should raise_error SystemExit
-      @string_io.string.should match /error reverting to the snapshot/
-      @string_io.string.should match /error was.+it blew up/m
+
+      response = @vm.revert_to_snapshot 'bar'
+      response.successful?.should == false
+      response.code.should == 1
+      response.output.should == 'it blew up'
     end
   end
 
