@@ -26,7 +26,13 @@ module Fission
 
         Fission.ui.output "Stopping '#{vm_name}'"
         @vm = Fission::VM.new vm_name
-        @vm.stop
+        response = @vm.stop
+
+        if response.successful?
+          Fission.ui.output "VM '#{vm_name}' stopped"
+        else
+          Fission.ui.output_and_exit "There was an error stopping the VM.  The error was:\n#{response.output}", response.code
+        end
       end
 
       def option_parser

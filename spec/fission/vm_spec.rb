@@ -52,24 +52,27 @@ describe Fission::VM do
   end
 
   describe 'stop' do
-    it 'should output that it was successful' do
+    it 'should return a successul response object' do
       $?.should_receive(:exitstatus).and_return(0)
       @vm.should_receive(:`).
           with("#{@vmrun_cmd} stop #{@vm.conf_file.gsub ' ', '\ '} 2>&1").
           and_return("it's all good")
-      @vm.stop
 
-      @string_io.string.should match /VM stopped/
+      response = @vm.stop
+      response.successful?.should == true
+      response.output.should == ''
     end
 
-    it 'it should output that it was unsuccessful' do
+    it 'it should return unsuccessful response' do
       $?.should_receive(:exitstatus).and_return(1)
       @vm.should_receive(:`).
           with("#{@vmrun_cmd} stop #{@vm.conf_file.gsub ' ', '\ '} 2>&1").
           and_return("it blew up")
-      @vm.stop
 
-      @string_io.string.should match /There was a problem stopping the VM.+it blew up.+/m
+      response = @vm.stop
+      response.successful?.should == false
+      response.code.should == 1
+      response.output.should == 'it blew up'
     end
   end
 

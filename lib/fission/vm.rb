@@ -61,11 +61,9 @@ module Fission
       command = "#{Fission.config.attributes['vmrun_cmd']} stop #{conf_file.gsub ' ', '\ '} 2>&1"
       output = `#{command}`
 
-      if $?.exitstatus == 0
-        Fission.ui.output "VM stopped"
-      else
-        Fission.ui.output "There was a problem stopping the VM.  The error was:\n#{output}"
-      end
+      response = Fission::Response.new :code => $?.exitstatus
+      response.output = output unless response.successful?
+      response
     end
 
     def suspend
