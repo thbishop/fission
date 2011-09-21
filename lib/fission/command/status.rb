@@ -7,12 +7,21 @@ module Fission
       end
 
       def execute
-        all_vms = VM.all
-        all_running_vms = VM.all_running
+        response = Fission::VM.all
+        if response.successful?
+          all_vms = response.data
+        end
+
+        response = Fission::VM.all_running
+        if response.successful?
+          all_running_vms = response.data
+        else
+          Fission.ui.output_and_exit "There was an error getting the list of running VMs.  The error was:\n#{response.output}", response.code
+        end
 
         longest_vm_name = all_vms.max { |a,b| a.length <=> b.length }
 
-        VM.all.each do |vm|
+        all_vms.each do |vm|
           status = all_running_vms.include?(vm) ? '[running]' : '[not running]'
           Fission.ui.output_printf "%-#{longest_vm_name.length}s   %s\n", vm, status
         end

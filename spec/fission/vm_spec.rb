@@ -240,7 +240,7 @@ describe Fission::VM do
   end
 
   describe "self.all" do
-    it "should return the list of VMs" do
+    it "should return a successful object with the list of VMs" do
       vm_root = Fission.config.attributes['vm_dir']
       Dir.should_receive(:[]).
           and_return(["#{File.join vm_root, 'foo.vmwarevm' }", "#{File.join vm_root, 'bar.vmwarevm' }"])
@@ -250,10 +250,14 @@ describe Fission::VM do
                                        and_return(true)
       File.should_receive(:directory?).with("#{File.join vm_root, 'bar.vmwarevm'}").
                                        and_return(true)
-      Fission::VM.all.should == ['foo', 'bar']
+
+      response = Fission::VM.all
+      response.successful?.should == true
+      response.output.should == ''
+      response.data.should == ['foo', 'bar']
     end
 
-    it "should not return an item in the list if it isn't a directory" do
+    it "should return a successful object and not return an item in the list if it isn't a directory" do
       vm_root = Fission.config.attributes['vm_dir']
       Dir.should_receive(:[]).
           and_return((['foo', 'bar', 'baz'].map { |i| File.join vm_root, "#{i}.vmwarevm"}))
@@ -263,7 +267,11 @@ describe Fission::VM do
            with("#{File.join vm_root, 'bar.vmwarevm'}").and_return(true)
       File.should_receive(:directory?).
            with("#{File.join vm_root, 'baz.vmwarevm'}").and_return(false)
-      Fission::VM.all.should == ['foo', 'bar']
+
+      response = Fission::VM.all
+      response.successful?.should == true
+      response.output.should == ''
+      response.data.should == ['foo', 'bar']
     end
 
     it "should only query for items with an extension of .vmwarevm" do

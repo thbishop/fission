@@ -100,7 +100,10 @@ module Fission
         File.directory? d
       end
 
-      vm_dirs.map { |d| File.basename d, '.vmwarevm' }
+      response = Fission::Response.new :code => 0
+      response.data = vm_dirs.map { |d| File.basename d, '.vmwarevm' }
+
+      response
     end
 
     def self.all_running
