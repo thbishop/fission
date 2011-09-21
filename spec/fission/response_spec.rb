@@ -21,9 +21,10 @@ describe Fission::Response do
   end
 
   describe 'code' do
-    it 'should not allow you to set the code' do
+    it 'should allow you to set the code' do
       @response = Fission::Response.new
-      lambda { @response.code = 4 }.should raise_error NoMethodError
+      @response.code = 4
+      @response.code.should == 4
     end
   end
 
@@ -38,9 +39,10 @@ describe Fission::Response do
   end
 
   describe 'output' do
-    it 'should not allow you to set the output' do
+    it 'should allow you to set the output' do
       @response = Fission::Response.new
-      lambda { @response.output = 'foobar' }.should raise_error NoMethodError
+      @response.output = 'foobar'
+      @response.output.should == 'foobar'
     end
   end
 end

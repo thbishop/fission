@@ -1,6 +1,6 @@
 module Fission
   class Response
-    attr_reader :code, :output
+    attr_accessor :code, :output
 
     def initialize(args={})
       @code = args.fetch :code, 1
