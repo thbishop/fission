@@ -22,13 +22,17 @@ module Fission
           Fission.ui.output_and_exit "Unable to find target vm #{target_vm} (#{Fission::VM.path(target_vm)})", 1
         end
 
-        if Fission::VM.all_running.include? target_vm
-          Fission.ui.output 'VM is currently running'
-          if @options.force
-            Fission.ui.output 'Going to stop it'
-            Fission::Command::Stop.new([target_vm]).execute
-          else
-            Fission.ui.output_and_exit "Either stop/suspend the VM or use '--force' and try again.", 1
+        response = Fission::VM.all_running
+
+        if response.successful?
+          if response.data.include? target_vm
+            Fission.ui.output 'VM is currently running'
+            if @options.force
+              Fission.ui.output 'Going to stop it'
+              Fission::Command::Stop.new([target_vm]).execute
+            else
+              Fission.ui.output_and_exit "Either stop/suspend the VM or use '--force' and try again.", 1
+            end
           end
         end
 

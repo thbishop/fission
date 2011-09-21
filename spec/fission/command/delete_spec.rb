@@ -5,6 +5,7 @@ describe Fission::Command::Delete do
     @target_vm = ['foo']
     @string_io = StringIO.new
     Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
+    @response_mock = mock('response')
   end
 
   describe "execute" do
@@ -31,8 +32,11 @@ describe Fission::Command::Delete do
     end
 
     it "should try to delete the vm if it exists" do
+      @response_mock.should_receive(:successful?).and_return(true)
+      @response_mock.should_receive(:data).and_return([])
       Fission::VM.should_receive(:exists?).with(@target_vm.first).and_return(true)
       Fission::Fusion.should_receive(:is_running?).and_return(false)
+      Fission::VM.should_receive(:all_running).and_return(@response_mock)
       Fission::VM.should_receive(:delete).with(@target_vm.first)
       command = Fission::Command::Delete.new @target_vm
       command.execute
@@ -40,8 +44,10 @@ describe Fission::Command::Delete do
     end
 
     it 'should output an error and exit if the VM is running' do
+      @response_mock.should_receive(:successful?).and_return(true)
+      @response_mock.should_receive(:data).and_return(['foo', 'bar'])
       Fission::VM.should_receive(:exists?).with(@target_vm.first).and_return(true)
-      Fission::VM.should_receive(:all_running).and_return(['foo', 'bar'])
+      Fission::VM.should_receive(:all_running).and_return(@response_mock)
       lambda {
         command = Fission::Command::Delete.new @target_vm
         command.execute
@@ -52,8 +58,10 @@ describe Fission::Command::Delete do
     end
 
     it 'should output an error and exit if the fusion app is running' do
+      @response_mock.should_receive(:successful?).and_return(true)
+      @response_mock.should_receive(:data).and_return([])
       Fission::VM.should_receive(:exists?).with(@target_vm.first).and_return(true)
-      Fission::VM.should_receive(:all_running).and_return(['bar'])
+      Fission::VM.should_receive(:all_running).and_return(@response_mock)
       Fission::Fusion.should_receive(:is_running?).and_return(true)
 
       lambda {
@@ -74,8 +82,9 @@ describe Fission::Command::Delete do
       it "should stop the VM if it's running and then delete it" do
         @stop_cmd_mock = mock('stop_cmd')
         @stop_cmd_mock.should_receive(:execute)
-        Fission::VM.should_receive(:all_running).and_return(['foo', 'bar'])
-        Fission::Fusion.should_receive(:is_running?).and_return(false)
+        @response_mock.should_receive(:successful?).and_return(true)
+        @response_mock.should_receive(:data).and_return(['foo', 'bar'])
+        Fission::VM.should_receive(:all_running).and_return(@response_mock)
         Fission::Command::Stop.should_receive(:new).with(@target_vm).
                                                     and_return(@stop_cmd_mock)
         command = Fission::Command::Delete.new @target_vm << '--force'
@@ -86,7 +95,9 @@ describe Fission::Command::Delete do
       end
 
       it 'should output a warning about fusion metadata issue and then delete the VM' do
-        Fission::VM.should_receive(:all_running).and_return(['bar'])
+        @response_mock.should_receive(:successful?).and_return(true)
+        @response_mock.should_receive(:data).and_return(['bar'])
+        Fission::VM.should_receive(:all_running).and_return(@response_mock)
         Fission::Fusion.should_receive(:is_running?).and_return(true)
         command = Fission::Command::Delete.new @target_vm << '--force'
         command.execute

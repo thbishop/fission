@@ -28,7 +28,6 @@ module Fission
       command = "#{Fission.config.attributes['vmrun_cmd']} listSnapshots #{conf_file.gsub ' ', '\ '} 2>&1"
       output = `#{command}`
 
-
       response = Fission::Response.new :code => $?.exitstatus
 
       if response.successful?
@@ -109,15 +108,19 @@ module Fission
 
       output = `#{command}`
 
-      if $?.exitstatus == 0
+      response = Fission::Response.new :code => $?.exitstatus
+
+      if response.successful?
         vms = output.split("\n").select do |vm|
           vm.include?('.vmx') && File.exists?(vm) && File.extname(vm) == '.vmx'
         end
 
-        vms.map { |vm| File.basename(File.dirname(vm), '.vmwarevm') }
+        response.data = vms.map { |vm| File.basename(File.dirname(vm), '.vmwarevm') }
       else
-        Fission.ui.output_and_exit "Unable to determine the list of running VMs", 1
+        response.output = output
       end
+
+      response
     end
 
     def self.exists?(vm_name)

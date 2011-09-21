@@ -275,7 +275,7 @@ describe Fission::VM do
   end
 
   describe 'self.all_running' do
-    it 'should list the running vms' do
+    it 'should return a successful response object with the list of running vms' do
       list_output = "Total running VMs: 2\n/vm/foo.vmwarevm/foo.vmx\n"
       list_output << "/vm/bar.vmwarevm/bar.vmx\n/vm/baz.vmwarevm/baz.vmx\n"
 
@@ -288,10 +288,13 @@ describe Fission::VM do
                                       and_return(true)
       end
 
-      Fission::VM.all_running.should == ['foo', 'bar', 'baz']
+      response = Fission::VM.all_running
+      response.successful?.should == true
+      response.output.should == ''
+      response.data.should == ['foo', 'bar', 'baz']
     end
 
-    it 'should output the VM dir name if it differs from the .vmx file name' do
+    it 'should return a successful response object with the VM dir name if it differs from the .vmx file name' do
       vm_dir_file = { 'foo' => 'foo', 'bar' => 'diff', 'baz' => 'baz'}
       list_output = "Total running VMs: 3\n"
       vm_dir_file.each_pair do |dir, file|
@@ -305,21 +308,24 @@ describe Fission::VM do
                   with("#{@vmrun_cmd} list").
                   and_return(list_output)
 
-      Fission::VM.all_running.should == ['foo', 'bar', 'baz']
+      response = Fission::VM.all_running
+      response.successful?.should == true
+      response.output.should == ''
+      response.data.should == ['foo', 'bar', 'baz']
     end
 
-    it 'should output an error and exit if unable to get the list of running vms' do
+    it 'should return an unsuccessful response object if unable to get the list of running vms' do
       $?.should_receive(:exitstatus).and_return(1)
       Fission::VM.should_receive(:`).
                   with("#{@vmrun_cmd} list").
                   and_return("it blew up")
       Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
 
-      lambda {
-        Fission::VM.all_running
-      }.should raise_error SystemExit
-
-      @string_io.string.should match /Unable to determine the list of running VMs/
+      response = Fission::VM.all_running
+      response.successful?.should == false
+      response.code.should == 1
+      response.output.should == 'it blew up'
+      response.data.should be_nil
     end
   end
 
