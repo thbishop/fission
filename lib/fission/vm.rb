@@ -54,11 +54,9 @@ module Fission
 
       output = `#{command}`
 
-      if $?.exitstatus == 0
-        Fission.ui.output "VM started"
-      else
-        Fission.ui.output "There was a problem starting the VM.  The error was:\n#{output}"
-      end
+      response = Fission::Response.new :code => $?.exitstatus
+      response.output = output unless response.successful?
+      response
     end
 
     def stop

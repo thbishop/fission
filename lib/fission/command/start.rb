@@ -29,6 +29,7 @@ module Fission
 
         Fission.ui.output "Starting '#{vm_name}'"
         @vm = Fission::VM.new vm_name
+        start_args = {}
 
         if @options.headless
           if Fission::Fusion.is_running?
@@ -36,10 +37,16 @@ module Fission
             Fission.ui.output 'A VM cannot be started in headless mode when the Fusion GUI is running'
             Fission.ui.output_and_exit "Exit the Fusion GUI and try again", 1
           else
-            @vm.start :headless => true
+            start_args[:headless] = true
           end
+        end
+
+        response = @vm.start start_args
+
+        if response.successful?
+          Fission.ui.output "VM '#{vm_name}' started"
         else
-          @vm.start
+          Fission.ui.output_and_exit "There was a problem starting the VM.  The error was:\n#{response.output}", response.code
         end
       end
 

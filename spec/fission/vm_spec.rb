@@ -16,36 +16,39 @@ describe Fission::VM do
   end
 
   describe 'start' do
-    it 'should output that it was successful' do
+    it 'should return a successful response object' do
       $?.should_receive(:exitstatus).and_return(0)
       @vm.should_receive(:`).
           with("#{@vmrun_cmd} start #{@vm.conf_file.gsub(' ', '\ ')} gui 2>&1").
           and_return("it's all good")
-      @vm.start
 
-      @string_io.string.should match /VM started/
+      response = @vm.start
+      response.successful?.should == true
+      response.output.should == ''
     end
 
-    it 'should start the vm headless' do
+    it 'should successfully start the vm headless' do
       $?.should_receive(:exitstatus).and_return(0)
       @vm.should_receive(:`).
           with("#{@vmrun_cmd} start #{@vm.conf_file.gsub(' ', '\ ')} nogui 2>&1").
           and_return("it's all good")
-      @vm.start(:headless => true)
 
-      @string_io.string.should match /VM started/
+      response = @vm.start(:headless => true)
+      response.successful?.should == true
+      response.output.should == ''
     end
 
-    it 'should output that it was unsuccessful' do
+    it 'should return an unsuccessful response' do
       $?.should_receive(:exitstatus).and_return(1)
       @vm.should_receive(:`).
           with("#{@vmrun_cmd} start #{@vm.conf_file.gsub(' ', '\ ')} gui 2>&1").
           and_return("it blew up")
-      @vm.start
 
-      @string_io.string.should match /There was a problem starting the VM.+it blew up.+/m
+      response = @vm.start
+      response.successful?.should == false
+      response.code.should == 1
+      response.output.should == 'it blew up'
     end
-
   end
 
   describe 'stop' do
