@@ -121,8 +121,10 @@ describe Fission::VM do
       @vm.should_receive(:`).
           with("#{@vmrun_cmd} snapshot #{@vm.conf_file.gsub ' ', '\ '} \"bar\" 2>&1").
           and_return("")
-      @vm.create_snapshot('bar')
-      @string_io.string.should match /Snapshot 'bar' created/
+
+      response = @vm.create_snapshot 'bar'
+      response.successful?.should == true
+      response.output.should == ''
     end
 
     it 'should print an error and exit if there was a problem creating the snapshot' do
@@ -130,9 +132,11 @@ describe Fission::VM do
       @vm.should_receive(:`).
           with("#{@vmrun_cmd} snapshot #{@vm.conf_file.gsub ' ', '\ '} \"bar\" 2>&1").
           and_return("it blew up")
-      lambda { @vm.create_snapshot('bar') }.should raise_error SystemExit
-      @string_io.string.should match /error creating the snapshot/
-      @string_io.string.should match /error was.+it blew up/m
+
+      response = @vm.create_snapshot 'bar'
+      response.successful?.should == false
+      response.code.should == 1
+      response.output.should == 'it blew up'
     end
   end
 

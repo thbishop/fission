@@ -31,7 +31,13 @@ module Fission
         end
 
         Fission.ui.output "Creating snapshot"
-        @vm.create_snapshot(snap_name)
+        response = @vm.create_snapshot(snap_name)
+
+        if response.successful?
+          Fission.ui.output "Snapshot '#{snap_name}' created"
+        else
+          Fission.ui.output_and_exit "There was an error creating the snapshot.  The error was:\n#{response.output}", response.code
+        end
       end
 
       def option_parser
