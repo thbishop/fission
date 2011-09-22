@@ -7,6 +7,7 @@ describe Fission::VM do
     @vm = Fission::VM.new('foo')
     @vm.stub!(:conf_file).and_return(File.join(Fission::VM.path('foo'), 'foo.vmx'))
     @vmrun_cmd = Fission.config.attributes['vmrun_cmd']
+    @clone_response_mock = mock('clone_response')
   end
 
   describe 'new' do
@@ -423,7 +424,6 @@ describe Fission::VM do
       File.file?(File.join(Fission::VM.path('bar'), "bar.nvram")).should == true
     end
 
-
     it "should copy the vm files to the target if a sparse disk file name doesn't match the directory" do
       FileUtils.touch File.join(Fission::VM.path('foo'), 'other_name-s003.vmdk')
       File.should_receive(:binary?).
@@ -468,13 +468,14 @@ describe Fission::VM do
       File.read(File.join(Fission::VM.path('bar'), 'bar.vmdk')).should match /bar/
     end
 
-    it 'should output that the clone was successful' do
+    it 'should return a successful response object if clone was successful' do
       File.should_receive(:binary?).
            with(File.join(Fission::VM.path('bar'), "bar.vmdk")).and_return(true)
-      Fission::VM.clone @source_vm, @target_vm
+      response = Fission::VM.clone @source_vm, @target_vm
 
-      @string_io.string.should match /Cloning #{@source_vm} to #{@target_vm}/
-      @string_io.string.should match /Configuring #{@target_vm}/
+      response.successful?.should == true
+      response.output.should == ''
+      response.data.should be_nil
     end
   end
 

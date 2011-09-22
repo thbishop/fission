@@ -135,12 +135,12 @@ module Fission
     end
 
     def self.clone(source_vm, target_vm)
-      Fission.ui.output "Cloning #{source_vm} to #{target_vm}"
       FileUtils.cp_r path(source_vm), path(target_vm)
 
-      Fission.ui.output "Configuring #{target_vm}"
       rename_vm_files source_vm, target_vm
       update_config source_vm, target_vm
+
+      response = Response.new :code => 0
     end
 
     def self.delete(vm_name)

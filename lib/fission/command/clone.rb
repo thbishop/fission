@@ -35,22 +35,26 @@ module Fission
           end
         end
 
-        Fission::VM.clone source_vm, target_vm
+        clone_response = Fission::VM.clone source_vm, target_vm
 
-        Fission.ui.output ''
-        Fission.ui.output 'Clone complete!'
+        if clone_response.successful?
+          Fission.ui.output ''
+          Fission.ui.output 'Clone complete!'
 
-        if @options.start
-          Fission.ui.output "Starting '#{target_vm}'"
-          @vm = Fission::VM.new target_vm
+          if @options.start
+            Fission.ui.output "Starting '#{target_vm}'"
+            @vm = Fission::VM.new target_vm
 
-          start_response = @vm.start
+            start_response = @vm.start
 
-          if start_response.successful?
-            Fission.ui.output "VM '#{target_vm}' started"
-          else
-            Fission.ui.output_and_exit "There was an error starting the VM.  The error was:\n#{start_response.output}", start_response.code
+            if start_response.successful?
+              Fission.ui.output "VM '#{target_vm}' started"
+            else
+              Fission.ui.output_and_exit "There was an error starting the VM.  The error was:\n#{start_response.output}", start_response.code
+            end
           end
+        else
+          Fission.ui.output_and_exit "There was an error cloning the VM.  The error was:\n#{clone_response.output}", clone_response.code
         end
       end
 
