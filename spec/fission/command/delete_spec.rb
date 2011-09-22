@@ -5,6 +5,7 @@ describe Fission::Command::Delete do
     @target_vm = ['foo']
     @string_io = StringIO.new
     Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
+    @delete_response_mock = mock('delete_response')
     @exists_response_mock = mock('exists_response')
     @all_running_response_mock = mock('all_running_response')
   end
@@ -36,6 +37,7 @@ describe Fission::Command::Delete do
     end
 
     it "should try to delete the vm if it exists" do
+      @delete_response_mock.should_receive(:successful?).and_return(true)
       @exists_response_mock.should_receive(:successful?).and_return(true)
       @exists_response_mock.should_receive(:data).and_return(true)
       Fission::VM.should_receive(:exists?).with(@target_vm.first).
@@ -44,10 +46,31 @@ describe Fission::Command::Delete do
       @all_running_response_mock.should_receive(:data).and_return([])
       Fission::Fusion.should_receive(:is_running?).and_return(false)
       Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
-      Fission::VM.should_receive(:delete).with(@target_vm.first)
+      Fission::VM.should_receive(:delete).with(@target_vm.first).
+                                          and_return(@delete_response_mock)
       command = Fission::Command::Delete.new @target_vm
       command.execute
       @string_io.string.should match /Deletion complete/
+    end
+
+    it 'should output an error and exit if there was an error deleting the VM' do
+      @delete_response_mock.should_receive(:successful?).and_return(false)
+      @delete_response_mock.should_receive(:code).and_return(1)
+      @delete_response_mock.should_receive(:output).and_return('it blew up')
+      @exists_response_mock.should_receive(:successful?).and_return(true)
+      @exists_response_mock.should_receive(:data).and_return(true)
+      Fission::VM.should_receive(:exists?).with(@target_vm.first).
+                                           and_return(@exists_response_mock)
+      @all_running_response_mock.should_receive(:successful?).and_return(true)
+      @all_running_response_mock.should_receive(:data).and_return([])
+      Fission::Fusion.should_receive(:is_running?).and_return(false)
+      Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
+      Fission::VM.should_receive(:delete).with(@target_vm.first).
+                                          and_return(@delete_response_mock)
+      command = Fission::Command::Delete.new @target_vm
+      lambda { command.execute }.should raise_error SystemExit
+
+      @string_io.string.should match /There was an error deleting the VM.+it blew up/m
     end
 
     it 'should output an error and exit if the VM is running' do
@@ -96,11 +119,14 @@ describe Fission::Command::Delete do
       end
 
       it "should stop the VM if it's running and then delete it" do
+        @delete_response_mock.should_receive(:successful?).and_return(true)
         @stop_cmd_mock = mock('stop_cmd')
         @stop_cmd_mock.should_receive(:execute)
         @all_running_response_mock.should_receive(:successful?).and_return(true)
         @all_running_response_mock.should_receive(:data).and_return(['foo', 'bar'])
         Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
+        Fission::VM.should_receive(:delete).with(@target_vm.first).
+                                            and_return(@delete_response_mock)
         Fission::Command::Stop.should_receive(:new).with(@target_vm).
                                                     and_return(@stop_cmd_mock)
         command = Fission::Command::Delete.new @target_vm << '--force'

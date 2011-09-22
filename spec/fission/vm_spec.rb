@@ -482,6 +482,7 @@ describe Fission::VM do
   describe "self.delete" do
     before do
       @target_vm = 'foo'
+      # @delete_response_mock = mock('delete_response')
       @vm_files = %w{ .vmx .vmxf .vmdk -s001.vmdk -s002.vmdk .vmsd }
       FakeFS.activate!
 
@@ -502,12 +503,19 @@ describe Fission::VM do
       @vm_files.each do |file|
         File.exists?(File.join(Fission::VM.path(@target_vm), "#{@target_vm}#{file}")).should == false
       end
-      @string_io.string.should match /Deleting vm #{@target_vm}/
     end
 
     it 'should delete the target vm metadata' do
       Fission::Metadata.should_receive(:delete_vm_info)
       Fission::VM.delete @target_vm
+    end
+
+    it 'should return a successful reponsse object' do
+      Fission::Metadata.stub!(:delete_vm_info)
+      response = Fission::VM.delete @target_vm
+      response.successful?.should == true
+      response.output.should == ''
+      response.data.should be_nil
     end
 
   end

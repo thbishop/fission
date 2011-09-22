@@ -50,10 +50,14 @@ module Fission
           end
         end
 
-        Fission::VM.delete target_vm
+        delete_response = Fission::VM.delete target_vm
 
-        Fission.ui.output ''
-        Fission.ui.output "Deletion complete!"
+        if delete_response.successful?
+          Fission.ui.output ''
+          Fission.ui.output "Deletion complete!"
+        else
+          Fission.ui.output_and_exit "There was an error deleting the VM.  The error was:\n#{delete_response.output}", delete_response.code
+        end
       end
 
       def option_parser
