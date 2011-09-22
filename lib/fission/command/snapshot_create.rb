@@ -19,9 +19,15 @@ module Fission
           Fission.ui.output_and_exit "Unable to find the VM #{vm_name} (#{Fission::VM.path(vm_name)})", 1 
         end
 
-        unless Fission::VM.all_running.include? vm_name
-          Fission.ui.output "VM '#{vm_name}' is not running"
-          Fission.ui.output_and_exit 'A snapshot cannot be created unless the VM is running', 1
+        response = Fission::VM.all_running
+
+        if response.successful?
+          unless response.data.include? vm_name
+            Fission.ui.output "VM '#{vm_name}' is not running"
+            Fission.ui.output_and_exit 'A snapshot cannot be created unless the VM is running', 1
+          end
+        else
+          Fission.ui.output_and_exit "There was an error determining if this VM is running.  The error was:\n#{response.output}", response.code
         end
 
         @vm = Fission::VM.new vm_name

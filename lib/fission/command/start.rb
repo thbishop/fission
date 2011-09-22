@@ -22,9 +22,15 @@ module Fission
           Fission.ui.output_and_exit "Unable to find the VM #{vm_name} (#{Fission::VM.path(vm_name)})", 1 
         end
 
-        if VM.all_running.include?(vm_name)
-          Fission.ui.output ''
-          Fission.ui.output_and_exit "VM '#{vm_name}' is already running", 0
+        response = Fission::VM.all_running
+
+        if response.successful?
+          if response.data.include?(vm_name)
+            Fission.ui.output ''
+            Fission.ui.output_and_exit "VM '#{vm_name}' is already running", 0
+          end
+        else
+          Fission.ui.output_and_exit "There was an error determining if the VM is already running.  The error was:\n#{response.output}", response.code
         end
 
         Fission.ui.output "Starting '#{vm_name}'"
