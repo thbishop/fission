@@ -7,25 +7,45 @@ module Fission
     end
 
     def create_snapshot(name)
-      command = "#{Fission.config.attributes['vmrun_cmd']} snapshot #{conf_file.gsub ' ', '\ '} \"#{name}\" 2>&1"
+      conf_file_response = conf_file
+      unless conf_file_response.successful?
+        return conf_file_response
+      end
+
+      command = "#{Fission.config.attributes['vmrun_cmd']} snapshot "
+      command << "#{conf_file_response.data.gsub ' ', '\ '} \"#{name}\" 2>&1"
       output = `#{command}`
 
       response = Fission::Response.new :code => $?.exitstatus
       response.output = output unless response.successful?
+
       response
     end
 
     def revert_to_snapshot(name)
-      command = "#{Fission.config.attributes['vmrun_cmd']} revertToSnapshot #{conf_file.gsub ' ', '\ '} \"#{name}\" 2>&1"
+      conf_file_response = conf_file
+      unless conf_file_response.successful?
+        return conf_file_response
+      end
+
+      command = "#{Fission.config.attributes['vmrun_cmd']} revertToSnapshot "
+      command << "#{conf_file_response.data.gsub ' ', '\ '} \"#{name}\" 2>&1"
       output = `#{command}`
 
       response = Fission::Response.new :code => $?.exitstatus
       response.output = output unless response.successful?
+
       response
     end
 
     def snapshots
-      command = "#{Fission.config.attributes['vmrun_cmd']} listSnapshots #{conf_file.gsub ' ', '\ '} 2>&1"
+      conf_file_response = conf_file
+      unless conf_file_response.successful?
+        return conf_file_response
+      end
+
+      command = "#{Fission.config.attributes['vmrun_cmd']} listSnapshots "
+      command << "#{conf_file_response.data.gsub ' ', '\ '} 2>&1"
       output = `#{command}`
 
       response = Fission::Response.new :code => $?.exitstatus
@@ -41,7 +61,13 @@ module Fission
     end
 
     def start(args={})
-      command = "#{Fission.config.attributes['vmrun_cmd']} start #{conf_file.gsub ' ', '\ '} "
+      conf_file_response = conf_file
+      unless conf_file_response.successful?
+        return conf_file_response
+      end
+
+      command = "#{Fission.config.attributes['vmrun_cmd']} start "
+      command << "#{conf_file_response.data.gsub ' ', '\ '} "
 
       if !args[:headless].blank? && args[:headless]
         command << "nogui 2>&1"
@@ -53,20 +79,34 @@ module Fission
 
       response = Fission::Response.new :code => $?.exitstatus
       response.output = output unless response.successful?
+
       response
     end
 
     def stop
-      command = "#{Fission.config.attributes['vmrun_cmd']} stop #{conf_file.gsub ' ', '\ '} 2>&1"
+      conf_file_response = conf_file
+      unless conf_file_response.successful?
+        return conf_file_response
+      end
+
+      command = "#{Fission.config.attributes['vmrun_cmd']} stop "
+      command << "#{conf_file_response.data.gsub ' ', '\ '} 2>&1"
       output = `#{command}`
 
       response = Fission::Response.new :code => $?.exitstatus
       response.output = output unless response.successful?
+
       response
     end
 
     def suspend
-      command = "#{Fission.config.attributes['vmrun_cmd']} suspend #{conf_file.gsub ' ', '\ '} 2>&1"
+      conf_file_response = conf_file
+      unless conf_file_response.successful?
+        return conf_file_response
+      end
+
+      command = "#{Fission.config.attributes['vmrun_cmd']} suspend "
+      command << "#{conf_file_response.data.gsub ' ', '\ '} 2>&1"
       output = `#{command}`
 
       response = Fission::Response.new :code => $?.exitstatus
@@ -77,22 +117,29 @@ module Fission
     def conf_file
       vmx_path = File.join(self.class.path(@name), "*.vmx")
       conf_files = Dir.glob(vmx_path)
+      response = Response.new
 
       case conf_files.count
       when 0
-        Fission.ui.output_and_exit "Unable to find a config file for VM '#{@name}' (in '#{vmx_path}')", 1
+        response.code = 1
+        response.output = "Unable to find a config file for VM '#{@name}' (in '#{vmx_path}')"
       when 1
-        conf_files.first
+        response.code = 0
+        response.data = conf_files.first
       else
         if conf_files.include?(File.join(File.dirname(vmx_path), "#{@name}.vmx"))
-          File.join(File.dirname(vmx_path), "#{@name}.vmx")
+          response.code = 0
+          response.data = File.join(File.dirname(vmx_path), "#{@name}.vmx")
         else
+          response.code = 1
           output = "Multiple config files found for VM '#{@name}' ("
           output << conf_files.sort.map { |f| "'#{File.basename(f)}'" }.join(', ')
           output << " in '#{File.dirname(vmx_path)}')"
-          Fission.ui.output_and_exit output, 1
+          response.output = output
         end
       end
+
+      response
     end
 
     def self.all

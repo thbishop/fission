@@ -6,8 +6,10 @@ describe Fission::VM do
     Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
     @vm = Fission::VM.new('foo')
     @vm.stub!(:conf_file).and_return(File.join(Fission::VM.path('foo'), 'foo.vmx'))
+    @conf_file_path = File.join(Fission::VM.path('foo'), 'foo.vmx')
     @vmrun_cmd = Fission.config.attributes['vmrun_cmd']
     @clone_response_mock = mock('clone_response')
+    @conf_file_response_mock = mock('conf_file_response')
   end
 
   describe 'new' do
@@ -17,10 +19,13 @@ describe Fission::VM do
   end
 
   describe 'start' do
-    it 'should return a successful response object' do
+    it 'should start the VM and return a successful response object' do
+      @conf_file_response_mock.should_receive(:successful?).and_return(true)
+      @conf_file_response_mock.should_receive(:data).and_return(@conf_file_path)
+      @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(0)
       @vm.should_receive(:`).
-          with("#{@vmrun_cmd} start #{@vm.conf_file.gsub(' ', '\ ')} gui 2>&1").
+          with("#{@vmrun_cmd} start #{@conf_file_path.gsub(' ', '\ ')} gui 2>&1").
           and_return("it's all good")
 
       response = @vm.start
@@ -29,9 +34,12 @@ describe Fission::VM do
     end
 
     it 'should successfully start the vm headless' do
+      @conf_file_response_mock.should_receive(:successful?).and_return(true)
+      @conf_file_response_mock.should_receive(:data).and_return(@conf_file_path)
+      @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(0)
       @vm.should_receive(:`).
-          with("#{@vmrun_cmd} start #{@vm.conf_file.gsub(' ', '\ ')} nogui 2>&1").
+          with("#{@vmrun_cmd} start #{@conf_file_path.gsub(' ', '\ ')} nogui 2>&1").
           and_return("it's all good")
 
       response = @vm.start(:headless => true)
@@ -39,10 +47,26 @@ describe Fission::VM do
       response.output.should == ''
     end
 
-    it 'should return an unsuccessful response' do
+    it 'should return an unsuccessful response if unable to figure out the conf file' do
+      @conf_file_response_mock.stub!(:successful?).and_return(false)
+      @conf_file_response_mock.stub!(:output).and_return('it blew up')
+      @conf_file_response_mock.stub!(:code).and_return(1)
+      @conf_file_response_mock.stub!(:data).and_return(nil)
+      @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
+
+      response = @vm.start
+      response.successful?.should == false
+      response.output.should == 'it blew up'
+      response.data.should be_nil
+    end
+
+    it 'should return an unsuccessful response if there was an error starting the VM' do
+      @conf_file_response_mock.should_receive(:successful?).and_return(true)
+      @conf_file_response_mock.should_receive(:data).and_return(@conf_file_path)
+      @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(1)
       @vm.should_receive(:`).
-          with("#{@vmrun_cmd} start #{@vm.conf_file.gsub(' ', '\ ')} gui 2>&1").
+          with("#{@vmrun_cmd} start #{@conf_file_path.gsub(' ', '\ ')} gui 2>&1").
           and_return("it blew up")
 
       response = @vm.start
@@ -54,9 +78,12 @@ describe Fission::VM do
 
   describe 'stop' do
     it 'should return a successul response object' do
+      @conf_file_response_mock.should_receive(:successful?).and_return(true)
+      @conf_file_response_mock.should_receive(:data).and_return(@conf_file_path)
+      @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(0)
       @vm.should_receive(:`).
-          with("#{@vmrun_cmd} stop #{@vm.conf_file.gsub ' ', '\ '} 2>&1").
+          with("#{@vmrun_cmd} stop #{@conf_file_path.gsub ' ', '\ '} 2>&1").
           and_return("it's all good")
 
       response = @vm.stop
@@ -64,10 +91,26 @@ describe Fission::VM do
       response.output.should == ''
     end
 
+    it 'should return an unsuccessful response if unable to figure out the conf file' do
+      @conf_file_response_mock.stub!(:successful?).and_return(false)
+      @conf_file_response_mock.stub!(:output).and_return('it blew up')
+      @conf_file_response_mock.stub!(:code).and_return(1)
+      @conf_file_response_mock.stub!(:data).and_return(nil)
+      @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
+
+      response = @vm.stop
+      response.successful?.should == false
+      response.output.should == 'it blew up'
+      response.data.should be_nil
+    end
+
     it 'it should return unsuccessful response' do
+      @conf_file_response_mock.should_receive(:successful?).and_return(true)
+      @conf_file_response_mock.should_receive(:data).and_return(@conf_file_path)
+      @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(1)
       @vm.should_receive(:`).
-          with("#{@vmrun_cmd} stop #{@vm.conf_file.gsub ' ', '\ '} 2>&1").
+          with("#{@vmrun_cmd} stop #{@conf_file_path.gsub ' ', '\ '} 2>&1").
           and_return("it blew up")
 
       response = @vm.stop
@@ -79,9 +122,12 @@ describe Fission::VM do
 
   describe 'suspend' do
     it 'should output that it was successful' do
+      @conf_file_response_mock.should_receive(:successful?).and_return(true)
+      @conf_file_response_mock.should_receive(:data).and_return(@conf_file_path)
+      @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(0)
       @vm.should_receive(:`).
-          with("#{@vmrun_cmd} suspend #{@vm.conf_file.gsub ' ', '\ '} 2>&1").
+          with("#{@vmrun_cmd} suspend #{@conf_file_path.gsub ' ', '\ '} 2>&1").
           and_return("it's all good")
 
       response = @vm.suspend
@@ -89,10 +135,26 @@ describe Fission::VM do
       response.output.should == ''
     end
 
+    it 'should return an unsuccessful response if unable to figure out the conf file' do
+      @conf_file_response_mock.stub!(:successful?).and_return(false)
+      @conf_file_response_mock.stub!(:output).and_return('it blew up')
+      @conf_file_response_mock.stub!(:code).and_return(1)
+      @conf_file_response_mock.stub!(:data).and_return(nil)
+      @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
+
+      response = @vm.stop
+      response.successful?.should == false
+      response.output.should == 'it blew up'
+      response.data.should be_nil
+    end
+
     it 'it should output that it was unsuccessful' do
+      @conf_file_response_mock.should_receive(:successful?).and_return(true)
+      @conf_file_response_mock.should_receive(:data).and_return(@conf_file_path)
+      @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(1)
       @vm.should_receive(:`).
-          with("#{@vmrun_cmd} suspend #{@vm.conf_file.gsub ' ', '\ '} 2>&1").
+          with("#{@vmrun_cmd} suspend #{@conf_file_path.gsub ' ', '\ '} 2>&1").
           and_return("it blew up")
 
       response = @vm.suspend
@@ -104,9 +166,12 @@ describe Fission::VM do
 
   describe 'snapshots' do
     it 'should return the list of snapshots' do
+      @conf_file_response_mock.should_receive(:successful?).and_return(true)
+      @conf_file_response_mock.should_receive(:data).and_return(@conf_file_path)
+      @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(0)
       @vm.should_receive(:`).
-          with("#{@vmrun_cmd} listSnapshots #{@vm.conf_file.gsub ' ', '\ '} 2>&1").
+          with("#{@vmrun_cmd} listSnapshots #{@conf_file_path.gsub ' ', '\ '} 2>&1").
           and_return("Total snapshots: 3\nsnap foo\nsnap bar\nsnap baz\n")
 
       response = @vm.snapshots
@@ -115,10 +180,26 @@ describe Fission::VM do
       response.data.should == ['snap foo', 'snap bar', 'snap baz']
     end
 
+    it 'should return an unsuccessful response if unable to figure out the conf file' do
+      @conf_file_response_mock.stub!(:successful?).and_return(false)
+      @conf_file_response_mock.stub!(:output).and_return('it blew up')
+      @conf_file_response_mock.stub!(:code).and_return(1)
+      @conf_file_response_mock.stub!(:data).and_return(nil)
+      @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
+
+      response = @vm.snapshots
+      response.successful?.should == false
+      response.output.should == 'it blew up'
+      response.data.should be_nil
+    end
+
     it 'should print an error and exit if there was a problem getting the list of snapshots' do
+      @conf_file_response_mock.should_receive(:successful?).and_return(true)
+      @conf_file_response_mock.should_receive(:data).and_return(@conf_file_path)
+      @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(1)
       @vm.should_receive(:`).
-          with("#{@vmrun_cmd} listSnapshots #{@vm.conf_file.gsub ' ', '\ '} 2>&1").
+          with("#{@vmrun_cmd} listSnapshots #{@conf_file_path.gsub ' ', '\ '} 2>&1").
           and_return("it blew up")
 
       response = @vm.snapshots
@@ -131,9 +212,12 @@ describe Fission::VM do
 
   describe 'create_snapshot' do
     it 'should create a snapshot' do
+      @conf_file_response_mock.should_receive(:successful?).and_return(true)
+      @conf_file_response_mock.should_receive(:data).and_return(@conf_file_path)
+      @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(0)
       @vm.should_receive(:`).
-          with("#{@vmrun_cmd} snapshot #{@vm.conf_file.gsub ' ', '\ '} \"bar\" 2>&1").
+          with("#{@vmrun_cmd} snapshot #{@conf_file_path.gsub ' ', '\ '} \"bar\" 2>&1").
           and_return("")
 
       response = @vm.create_snapshot 'bar'
@@ -141,10 +225,26 @@ describe Fission::VM do
       response.output.should == ''
     end
 
+    it 'should return an unsuccessful response if unable to figure out the conf file' do
+      @conf_file_response_mock.stub!(:successful?).and_return(false)
+      @conf_file_response_mock.stub!(:output).and_return('it blew up')
+      @conf_file_response_mock.stub!(:code).and_return(1)
+      @conf_file_response_mock.stub!(:data).and_return(nil)
+      @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
+
+      response = @vm.create_snapshot 'bar'
+      response.successful?.should == false
+      response.output.should == 'it blew up'
+      response.data.should be_nil
+    end
+
     it 'should print an error and exit if there was a problem creating the snapshot' do
+      @conf_file_response_mock.should_receive(:successful?).and_return(true)
+      @conf_file_response_mock.should_receive(:data).and_return(@conf_file_path)
+      @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(1)
       @vm.should_receive(:`).
-          with("#{@vmrun_cmd} snapshot #{@vm.conf_file.gsub ' ', '\ '} \"bar\" 2>&1").
+          with("#{@vmrun_cmd} snapshot #{@conf_file_path.gsub ' ', '\ '} \"bar\" 2>&1").
           and_return("it blew up")
 
       response = @vm.create_snapshot 'bar'
@@ -156,9 +256,12 @@ describe Fission::VM do
 
   describe 'revert_to_snapshot' do
     it 'should revert to the provided snapshot' do
+      @conf_file_response_mock.should_receive(:successful?).and_return(true)
+      @conf_file_response_mock.should_receive(:data).and_return(@conf_file_path)
+      @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(0)
       @vm.should_receive(:`).
-          with("#{@vmrun_cmd} revertToSnapshot #{@vm.conf_file.gsub ' ', '\ '} \"bar\" 2>&1").
+          with("#{@vmrun_cmd} revertToSnapshot #{@conf_file_path.gsub ' ', '\ '} \"bar\" 2>&1").
           and_return("")
 
       response = @vm.revert_to_snapshot 'bar'
@@ -166,10 +269,26 @@ describe Fission::VM do
       response.output.should == ''
     end
 
+    it 'should return an unsuccessful response if unable to figure out the conf file' do
+      @conf_file_response_mock.stub!(:successful?).and_return(false)
+      @conf_file_response_mock.stub!(:output).and_return('it blew up')
+      @conf_file_response_mock.stub!(:code).and_return(1)
+      @conf_file_response_mock.stub!(:data).and_return(nil)
+      @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
+
+      response = @vm.revert_to_snapshot 'bar'
+      response.successful?.should == false
+      response.output.should == 'it blew up'
+      response.data.should be_nil
+    end
+
     it "should print an error and exit if the snapshot doesn't exist" do
+      @conf_file_response_mock.should_receive(:successful?).and_return(true)
+      @conf_file_response_mock.should_receive(:data).and_return(@conf_file_path)
+      @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(1)
       @vm.should_receive(:`).
-          with("#{@vmrun_cmd} revertToSnapshot #{@vm.conf_file.gsub ' ', '\ '} \"bar\" 2>&1").
+          with("#{@vmrun_cmd} revertToSnapshot #{@conf_file_path.gsub ' ', '\ '} \"bar\" 2>&1").
           and_return("it blew up")
 
       response = @vm.revert_to_snapshot 'bar'
@@ -191,50 +310,54 @@ describe Fission::VM do
       FakeFS::FileSystem.clear
     end
 
-    it 'should return the path to the conf file' do
+    it 'should return a successful response with the path to the conf file' do
       file_path = File.join(@vm_root_dir, 'foo.vmx')
       FileUtils.touch(file_path)
-      Fission::VM.new('foo').conf_file.should == file_path
+      response = Fission::VM.new('foo').conf_file
+      response.successful?.should == true
+      response.output.should == ''
+      response.data.should == file_path
     end
 
-    it 'should output an error and exit if no vmx file was found' do
-      lambda {
-        FileUtils.mkdir_p(@vm_root_dir)
-        Fission::VM.new('foo').conf_file
-      }.should raise_error SystemExit
-
-      @string_io.string.should match /Unable to find a config file for VM 'foo' \(in '#{File.join(@vm_root_dir, '\*\.vmx')}'\)/m
+    it 'should return an unsuccessful response with an error if no vmx file was found' do
+      response = Fission::VM.new('foo').conf_file
+      response.successful?.should == false
+      response.output.should match /Unable to find a config file for VM 'foo' \(in '#{File.join(@vm_root_dir, '\*\.vmx')}'\)/m
+      response.data.should be_nil
     end
 
     describe 'when the VM name and conf file name do not match' do
       it 'should return the path to the conf file' do
         file_path = File.join(@vm_root_dir, 'bar.vmx')
         FileUtils.touch(file_path)
-        Fission::VM.new('foo').conf_file.should == file_path
+        response = Fission::VM.new('foo').conf_file
+        response.successful?.should == true
+        response.output.should == ''
+        response.data.should == file_path
       end
     end
 
     describe 'if multiple vmx files are found' do
-      before do
-        FileUtils.mkdir_p(@vm_root_dir)
-      end
-
-      it 'should use the conf file which matches the VM name if it exists' do
+      it 'should use return a successful response with the conf file which matches the VM name if it exists' do
         ['foo.vmx', 'bar.vmx'].each do |file|
           FileUtils.touch(File.join(@vm_root_dir, file))
         end
-        Fission::VM.new('foo').conf_file.should == File.join(@vm_root_dir, 'foo.vmx')
+        response = Fission::VM.new('foo').conf_file
+        response.successful?.should == true
+        response.output.should == ''
+        response.data.should == File.join(@vm_root_dir, 'foo.vmx')
       end
 
       it 'should output an error and exit' do
-        lambda {
-          ['bar.vmx', 'baz.vmx'].each do |file|
-            FileUtils.touch(File.join(@vm_root_dir, file))
-          end
-          Fission::VM.new('foo').conf_file
-        }.should raise_error SystemExit
-
-        @string_io.string.should match /Multiple config files found for VM 'foo' \('bar\.vmx', 'baz\.vmx' in '#{@vm_root_dir}'/m
+        ['bar.vmx', 'baz.vmx'].each do |file|
+          FileUtils.touch(File.join(@vm_root_dir, file))
+        end
+        Fission::VM.new('foo').conf_file
+        response = Fission::VM.new('foo').conf_file
+        response.successful?.should == false
+        error_regex = /Multiple config files found for VM 'foo' \('bar\.vmx', 'baz\.vmx' in '#{@vm_root_dir}'/m
+        response.output.should match error_regex
+        response.data.should be_nil
       end
     end
 
