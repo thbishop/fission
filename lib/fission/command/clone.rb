@@ -19,12 +19,20 @@ module Fission
         source_vm = @args.first
         target_vm = @args[1]
 
-        unless Fission::VM.exists? source_vm
-          Fission.ui.output_and_exit "Unable to find the source vm #{source_vm} (#{Fission::VM.path(source_vm)})", 1 
+        exists_response = Fission::VM.exists? source_vm
+
+        if exists_response.successful?
+          unless exists_response.data
+            Fission.ui.output_and_exit "Unable to find the source vm #{source_vm} (#{Fission::VM.path(source_vm)})", 1 
+          end
         end
 
-        if Fission::VM.exists? target_vm
-          Fission::ui.output_and_exit "The target vm #{target_vm} already exists", 1
+        exists_response = Fission::VM.exists? target_vm
+
+        if exists_response.successful?
+          if exists_response.data
+            Fission::ui.output_and_exit "The target vm #{target_vm} already exists", 1
+          end
         end
 
         Fission::VM.clone source_vm, target_vm

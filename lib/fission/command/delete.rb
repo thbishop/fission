@@ -18,8 +18,12 @@ module Fission
 
         target_vm = @args.first
 
-        unless Fission::VM.exists? target_vm
-          Fission.ui.output_and_exit "Unable to find target vm #{target_vm} (#{Fission::VM.path(target_vm)})", 1
+        exists_response = Fission::VM.exists? target_vm
+
+        if exists_response.successful?
+          unless exists_response.data
+            Fission.ui.output_and_exit "Unable to find target vm #{target_vm} (#{Fission::VM.path(target_vm)})", 1
+          end
         end
 
         response = Fission::VM.all_running

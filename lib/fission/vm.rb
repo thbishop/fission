@@ -127,7 +127,7 @@ module Fission
     end
 
     def self.exists?(vm_name)
-      File.directory? path(vm_name)
+      Response.new :code => 0, :data => (File.directory? path(vm_name))
     end
 
     def self.path(vm_name)

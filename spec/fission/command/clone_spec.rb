@@ -5,6 +5,10 @@ describe Fission::Command::Clone do
     @vm_info = ['foo', 'bar']
     @string_io = StringIO.new
     Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
+    @source_exists_response_mock = mock('source_exists_response')
+    @target_exists_response_mock = mock('target_exists_response')
+    @vm_mocks = { 'foo' => @source_exists_response_mock,
+                  'bar' => @target_exists_response_mock }
   end
 
   describe 'execute' do
@@ -22,7 +26,10 @@ describe Fission::Command::Clone do
     end
 
     it "should output an error and exit if it can't find the source vm" do
-      Fission::VM.should_receive(:exists?).with(@vm_info.first).and_return(false)
+      @source_exists_response_mock.should_receive(:successful?).and_return(true)
+      @source_exists_response_mock.should_receive(:data).and_return(false)
+      Fission::VM.should_receive(:exists?).with(@vm_info.first).
+                                           and_return(@source_exists_response_mock)
       Fission::VM.should_not_receive(:exists?).with(@vm_info[1])
 
       lambda {
@@ -34,8 +41,10 @@ describe Fission::Command::Clone do
     end
 
     it "should output an error and exit if the target vm already exists" do
-      @vm_info.each do |vm|
-        Fission::VM.should_receive(:exists?).with(vm).and_return(true)
+      @vm_mocks.each_pair do |vm_name, mock|
+        mock.should_receive(:successful?).and_return(true)
+        mock.should_receive(:data).and_return(true)
+        Fission::VM.should_receive(:exists?).with(vm_name).and_return(mock)
       end
 
       lambda {
@@ -47,8 +56,13 @@ describe Fission::Command::Clone do
     end
 
     it 'should try to clone the vm if the source vm exists and the target vm does not' do
-      Fission::VM.should_receive(:exists?).with(@vm_info.first).and_return(true)
-      Fission::VM.should_receive(:exists?).with(@vm_info[1]).and_return(false)
+      @vm_mocks.each_pair do |vm_name, mock|
+        mock.should_receive(:successful?).and_return(true)
+        Fission::VM.should_receive(:exists?).with(vm_name).and_return(mock)
+      end
+      @source_exists_response_mock.should_receive(:data).and_return(true)
+      @target_exists_response_mock.should_receive(:data).and_return(false)
+
       Fission::VM.should_receive(:clone).with(@vm_info.first, @vm_info[1])
       command = Fission::Command::Clone.new @vm_info
       command.execute
@@ -59,8 +73,12 @@ describe Fission::Command::Clone do
     describe 'with --start' do
       it 'should try to clone the vm and start it' do
         @vm_mock = mock('vm_mock')
-        Fission::VM.should_receive(:exists?).with(@vm_info.first).and_return(true)
-        Fission::VM.should_receive(:exists?).with(@vm_info[1]).and_return(false)
+        @vm_mocks.each_pair do |vm_name, mock|
+          mock.should_receive(:successful?).and_return(true)
+          Fission::VM.should_receive(:exists?).with(vm_name).and_return(mock)
+        end
+        @source_exists_response_mock.should_receive(:data).and_return(true)
+        @target_exists_response_mock.should_receive(:data).and_return(false)
         Fission::VM.should_receive(:clone).with(@vm_info.first, @vm_info[1])
 
         @vm_mock.should_receive(:start)

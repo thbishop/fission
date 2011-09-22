@@ -347,15 +347,19 @@ describe Fission::VM do
   describe "self.exists?" do
     it "should return true if the vm exists" do
       FakeFS do
-        FileUtils.mkdir_p(Fission::VM.path('foo'))
-        Fission::VM.exists?('foo').should == true
+        FileUtils.mkdir_p Fission::VM.path('foo')
+        response = Fission::VM.exists?('foo')
+        response.successful?.should == true
+        response.data.should == true
       end
     end
 
     it 'should return false if the vm does not exist' do
       FakeFS do
-        FileUtils.rm_r(Fission::VM.path('foo'))
-        Fission::VM.exists?('foo').should == false
+        FileUtils.rm_r Fission::VM.path('foo')
+        response = Fission::VM.exists?('foo')
+        response.successful?.should == true
+        response.data.should == false
       end
     end
   end

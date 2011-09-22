@@ -5,8 +5,9 @@ describe Fission::Command::Suspend do
     @vm_info = ['foo']
     @string_io = StringIO.new
     Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
-    @all_running_response_mock = mock('response')
-    @suspend_response_mock = mock('response')
+    @all_running_response_mock = mock('all_running_response')
+    @exists_response_mock = mock('exists_response')
+    @suspend_response_mock = mock('suspend_response')
   end
 
   describe 'execute' do
@@ -21,8 +22,11 @@ describe Fission::Command::Suspend do
       @string_io.string.should match /Incorrect arguments for suspend command/
     end
 
-    it "should output an error and exit if it can't find the vm" do
-      Fission::VM.should_receive(:exists?).with(@vm_info.first).and_return(false)
+    it "should output an error and exit if it can't find the VM" do
+      @exists_response_mock.should_receive(:successful?).and_return(true)
+      @exists_response_mock.should_receive(:data).and_return(false)
+      Fission::VM.should_receive(:exists?).with(@vm_info.first).
+                                           and_return(@exists_response_mock)
 
       lambda {
         command = Fission::Command::Suspend.new @vm_info
@@ -34,7 +38,10 @@ describe Fission::Command::Suspend do
 
 
     it "should output and exit if the vm is not running" do
-      Fission::VM.should_receive(:exists?).with(@vm_info.first).and_return(true)
+      @exists_response_mock.should_receive(:successful?).and_return(true)
+      @exists_response_mock.should_receive(:data).and_return(true)
+      Fission::VM.should_receive(:exists?).with(@vm_info.first).
+                                           and_return(@exists_response_mock)
       @all_running_response_mock.should_receive(:successful?).and_return(true)
       @all_running_response_mock.should_receive(:data).and_return([])
       Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
@@ -51,7 +58,10 @@ describe Fission::Command::Suspend do
       @vm_mock = mock('vm_mock')
       @all_running_response_mock.should_receive(:successful?).and_return(true)
       @all_running_response_mock.should_receive(:data).and_return([@vm_info.first])
-      Fission::VM.should_receive(:exists?).with(@vm_info.first).and_return(true)
+      @exists_response_mock.should_receive(:successful?).and_return(true)
+      @exists_response_mock.should_receive(:data).and_return(true)
+      Fission::VM.should_receive(:exists?).with(@vm_info.first).
+                                           and_return(@exists_response_mock)
       Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
       Fission::VM.should_receive(:new).with(@vm_info.first).and_return(@vm_mock)
       @suspend_response_mock.should_receive(:successful?).and_return(true)
@@ -69,7 +79,10 @@ describe Fission::Command::Suspend do
       @all_running_response_mock.should_receive(:successful?).and_return(false)
       @all_running_response_mock.should_receive(:code).and_return(1)
       @all_running_response_mock.should_receive(:output).and_return('it blew up')
-      Fission::VM.should_receive(:exists?).with(@vm_info.first).and_return(true)
+      @exists_response_mock.should_receive(:successful?).and_return(true)
+      @exists_response_mock.should_receive(:data).and_return(true)
+      Fission::VM.should_receive(:exists?).with(@vm_info.first).
+                                           and_return(@exists_response_mock)
       Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
 
       command = Fission::Command::Suspend.new @vm_info

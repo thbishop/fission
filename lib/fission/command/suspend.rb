@@ -36,9 +36,14 @@ module Fission
           end
         else
           vm_name = @args.first
-          unless Fission::VM.exists? vm_name
-            Fission.ui.output ''
-            Fission.ui.output_and_exit "Unable to find the VM #{vm_name} (#{Fission::VM.path(vm_name)})", 1
+
+          exists_response = Fission::VM.exists? vm_name
+
+          if exists_response.successful?
+            unless exists_response.data
+              Fission.ui.output ''
+              Fission.ui.output_and_exit "Unable to find the VM #{vm_name} (#{Fission::VM.path(vm_name)})", 1
+            end
           end
 
           response = Fission::VM.all_running

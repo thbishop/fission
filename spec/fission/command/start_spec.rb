@@ -7,6 +7,7 @@ describe Fission::Command::Start do
     Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
     @vm_mock = mock('vm_mock')
     @all_running_response_mock = mock('all_running_response')
+    @exists_response_mock = mock('exists_response')
     @start_response_mock = mock('start_response')
   end
 
@@ -23,7 +24,10 @@ describe Fission::Command::Start do
     end
 
     it "should output an error and exit if it can't find the vm" do
-      Fission::VM.should_receive(:exists?).with(@vm_info.first).and_return(false)
+      @exists_response_mock.should_receive(:successful?).and_return(true)
+      @exists_response_mock.should_receive(:data).and_return(false)
+      Fission::VM.should_receive(:exists?).with(@vm_info.first).
+                                           and_return(@exists_response_mock)
 
       lambda {
         command = Fission::Command::Start.new @vm_info
@@ -35,9 +39,12 @@ describe Fission::Command::Start do
 
 
     it "should output and exit if the vm is already running" do
+      @exists_response_mock.should_receive(:successful?).and_return(true)
+      @exists_response_mock.should_receive(:data).and_return(true)
+      Fission::VM.should_receive(:exists?).with(@vm_info.first).
+                                           and_return(@exists_response_mock)
       @all_running_response_mock.should_receive(:successful?).and_return(true)
       @all_running_response_mock.should_receive(:data).and_return(@vm_info)
-      Fission::VM.should_receive(:exists?).with(@vm_info.first).and_return(true)
       Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
 
       lambda {
@@ -49,10 +56,13 @@ describe Fission::Command::Start do
     end
 
     it 'should output an error and exit if there was an error getting the list of running VMs' do
+      @exists_response_mock.should_receive(:successful?).and_return(true)
+      @exists_response_mock.should_receive(:data).and_return(true)
+      Fission::VM.should_receive(:exists?).with(@vm_info.first).
+                                           and_return(@exists_response_mock)
       @all_running_response_mock.should_receive(:successful?).and_return(false)
       @all_running_response_mock.should_receive(:code).and_return(1)
       @all_running_response_mock.should_receive(:output).and_return('it blew up')
-      Fission::VM.should_receive(:exists?).with(@vm_info.first).and_return(true)
       Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
 
       command = Fission::Command::Start.new @vm_info
@@ -62,9 +72,12 @@ describe Fission::Command::Start do
     end
 
     it 'should try to start the vm if it is not running' do
+      @exists_response_mock.should_receive(:successful?).and_return(true)
+      @exists_response_mock.should_receive(:data).and_return(true)
+      Fission::VM.should_receive(:exists?).with(@vm_info.first).
+                                           and_return(@exists_response_mock)
       @all_running_response_mock.should_receive(:successful?).and_return(true)
       @all_running_response_mock.should_receive(:data).and_return([])
-      Fission::VM.should_receive(:exists?).with(@vm_info.first).and_return(true)
       Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
       Fission::VM.should_receive(:new).with(@vm_info.first).and_return(@vm_mock)
       @start_response_mock.should_receive(:successful?).and_return(true)
@@ -78,9 +91,12 @@ describe Fission::Command::Start do
     end
 
     it 'should out an error and exit if there was an error starting the vm' do
+      @exists_response_mock.should_receive(:successful?).and_return(true)
+      @exists_response_mock.should_receive(:data).and_return(true)
+      Fission::VM.should_receive(:exists?).with(@vm_info.first).
+                                           and_return(@exists_response_mock)
       @all_running_response_mock.should_receive(:successful?).and_return(true)
       @all_running_response_mock.should_receive(:data).and_return([])
-      Fission::VM.should_receive(:exists?).with(@vm_info.first).and_return(true)
       Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
       Fission::VM.should_receive(:new).with(@vm_info.first).and_return(@vm_mock)
       @start_response_mock.should_receive(:successful?).and_return(false)
@@ -97,9 +113,12 @@ describe Fission::Command::Start do
 
     describe 'with --headless' do
       it 'should start the vm headless' do
+        @exists_response_mock.should_receive(:successful?).and_return(true)
+        @exists_response_mock.should_receive(:data).and_return(true)
+        Fission::VM.should_receive(:exists?).with(@vm_info.first).
+                                             and_return(@exists_response_mock)
         @all_running_response_mock.should_receive(:successful?).and_return(true)
         @all_running_response_mock.should_receive(:data).and_return([])
-        Fission::VM.should_receive(:exists?).with(@vm_info.first).and_return(true)
         Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
         Fission::Fusion.should_receive(:is_running?).and_return(false)
         Fission::VM.should_receive(:new).with(@vm_info.first).and_return(@vm_mock)
@@ -114,9 +133,12 @@ describe Fission::Command::Start do
       end
 
       it 'should output an error and exit if the fusion app is running' do
+        @exists_response_mock.should_receive(:successful?).and_return(true)
+        @exists_response_mock.should_receive(:data).and_return(true)
+        Fission::VM.should_receive(:exists?).with(@vm_info.first).
+                                             and_return(@exists_response_mock)
         @all_running_response_mock.should_receive(:successful?).and_return(true)
         @all_running_response_mock.should_receive(:data).and_return([])
-        Fission::VM.should_receive(:exists?).with(@vm_info.first).and_return(true)
         Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
         Fission::Fusion.should_receive(:is_running?).and_return(true)
         Fission::VM.should_receive(:new).with(@vm_info.first).and_return(@vm_mock)
