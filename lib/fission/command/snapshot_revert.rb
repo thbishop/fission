@@ -30,8 +30,16 @@ module Fission
 
         @vm = Fission::VM.new vm_name
 
-        unless @vm.snapshots.include? snap_name
-          Fission.ui.output_and_exit "Unable to find the snapshot '#{snap_name}'", 1
+        snapshots_response = @vm.snapshots
+
+        if snapshots_response.successful?
+          snaps = snapshots_response.data
+
+          unless snaps.include? snap_name
+            Fission.ui.output_and_exit "Unable to find the snapshot '#{snap_name}'", 1
+          end
+        else
+          Fission.ui.output_and_exit "There was an error getting the list of snapshots.  The error was:\n#{snapshots_response.output}", snapshots_response.code
         end
 
         Fission.ui.output "Reverting to snapshot '#{snap_name}'"
