@@ -41,7 +41,7 @@ describe Fission::Command::SnapshotRevert do
       command = Fission::Command::SnapshotRevert.new @target_vm << 'snap_1'
       lambda { command.execute }.should raise_error SystemExit
 
-      @string_io.string.should match /Unable to find the VM #{@target_vm.first}/
+      @string_io.string.should match /Unable to find the VM '#{@target_vm.first}'/
     end
 
     it "should output an error and exit if it can't find the snapshot" do

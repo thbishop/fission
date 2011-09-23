@@ -30,7 +30,7 @@ describe Fission::Command::Delete do
       command = Fission::Command::Delete.new @target_vm
       lambda { command.execute }.should raise_error SystemExit
 
-      @string_io.string.should match /Unable to find target vm #{@target_vm}/
+      @string_io.string.should match /Unable to find the VM '#{@target_vm.first}'/
     end
 
     it "should try to delete the vm if it exists" do

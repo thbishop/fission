@@ -29,9 +29,8 @@ describe Fission::Command::Stop do
       command = Fission::Command::Stop.new @vm_info
       lambda { command.execute }.should raise_error SystemExit
 
-      @string_io.string.should match /Unable to find the VM #{@vm_info.first}/
+      @string_io.string.should match /Unable to find the VM '#{@vm_info.first}'/
     end
-
 
     it "should output and exit if the vm is not running" do
       @exists_response_mock.should_receive(:successful?).and_return(true)

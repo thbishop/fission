@@ -40,7 +40,7 @@ describe Fission::Command::SnapshotCreate do
       command = Fission::Command::SnapshotCreate.new @target_vm << 'snap_1'
       lambda { command.execute }.should raise_error SystemExit
 
-      @string_io.string.should match /Unable to find the VM #{@target_vm.first}/
+      @string_io.string.should match /Unable to find the VM '#{@target_vm.first}'/
     end
 
     it 'should output an error and exit if the VM is not running' do

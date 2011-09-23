@@ -23,7 +23,7 @@ module Fission
 
         if exists_response.successful?
           unless exists_response.data
-            Fission.ui.output_and_exit "Unable to find the source vm #{source_vm} (#{Fission::VM.path(source_vm)})", 1 
+            Fission.ui.output_and_exit "Unable to find the VM '#{source_vm}' (#{Fission::VM.path(source_vm)})", 1 
           end
         end
 
@@ -31,7 +31,7 @@ module Fission
 
         if exists_response.successful?
           if exists_response.data
-            Fission::ui.output_and_exit "The target vm #{target_vm} already exists", 1
+            Fission::ui.output_and_exit "The target VM '#{target_vm}' already exists", 1
           end
         end
 

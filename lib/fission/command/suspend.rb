@@ -42,7 +42,7 @@ module Fission
           if exists_response.successful?
             unless exists_response.data
               Fission.ui.output ''
-              Fission.ui.output_and_exit "Unable to find the VM #{vm_name} (#{Fission::VM.path(vm_name)})", 1
+              Fission.ui.output_and_exit "Unable to find the VM '#{vm_name}' (#{Fission::VM.path(vm_name)})", 1
             end
           end
 

@@ -35,7 +35,7 @@ describe Fission::Command::Clone do
       command = Fission::Command::Clone.new @vm_info
       lambda { command.execute }.should raise_error SystemExit
 
-      @string_io.string.should match /Unable to find the source vm #{@vm_info.first}/
+      @string_io.string.should match /Unable to find the VM '#{@vm_info.first}'/
     end
 
     it "should output an error and exit if the target vm already exists" do
@@ -48,7 +48,7 @@ describe Fission::Command::Clone do
       command = Fission::Command::Clone.new @vm_info
       lambda { command.execute }.should raise_error SystemExit
 
-      @string_io.string.should match /The target vm #{@vm_info[1]} already exists/
+      @string_io.string.should match /The target VM '#{@vm_info[1]}' already exists/
     end
 
     it 'should try to clone the vm if the source vm exists and the target vm does not' do

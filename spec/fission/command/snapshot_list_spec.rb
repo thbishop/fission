@@ -30,7 +30,7 @@ describe Fission::Command::SnapshotList do
       command = Fission::Command::SnapshotList.new @target_vm
       lambda { command.execute }.should raise_error SystemExit
 
-      @string_io.string.should match /Unable to find the VM #{@target_vm.first}/
+      @string_io.string.should match /Unable to find the VM '#{@target_vm.first}'/
     end
 
     it 'should output the list of snapshots if any exist' do
