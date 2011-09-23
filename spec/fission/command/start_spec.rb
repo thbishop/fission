@@ -85,7 +85,7 @@ describe Fission::Command::Start do
       @string_io.string.should match /VM '#{@vm_info.first}' started/
     end
 
-    it 'should out an error and exit if there was an error starting the vm' do
+    it 'should output an error and exit if there was an error starting the vm' do
       @exists_response_mock.should_receive(:successful?).and_return(true)
       @exists_response_mock.should_receive(:data).and_return(true)
       Fission::VM.should_receive(:exists?).with(@vm_info.first).

@@ -348,7 +348,7 @@ describe Fission::VM do
         response.data.should == File.join(@vm_root_dir, 'foo.vmx')
       end
 
-      it 'should output an error and exit' do
+      it 'should return an unsuccessful object if none of the conf files matches the VM name' do
         ['bar.vmx', 'baz.vmx'].each do |file|
           FileUtils.touch(File.join(@vm_root_dir, file))
         end
