@@ -52,6 +52,22 @@ describe Fission::Command::Delete do
       @string_io.string.should match /Deletion complete/
     end
 
+    it 'should output an error and exit if there was an error getting the list of running VMs' do
+      @exists_response_mock.should_receive(:successful?).and_return(true)
+      @exists_response_mock.should_receive(:data).and_return(true)
+      Fission::VM.should_receive(:exists?).with(@target_vm.first).
+                                           and_return(@exists_response_mock)
+      @all_running_response_mock.should_receive(:successful?).and_return(false)
+      @all_running_response_mock.should_receive(:code).and_return(1)
+      @all_running_response_mock.should_receive(:output).and_return('it blew up')
+      Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
+
+      command = Fission::Command::Delete.new @target_vm
+      lambda { command.execute }.should raise_error SystemExit
+
+      @string_io.string.should match /There was an error determining if the VM is running.+it blew up.+/m
+    end
+
     it 'should output an error and exit if there was an error deleting the VM' do
       @delete_response_mock.should_receive(:successful?).and_return(false)
       @delete_response_mock.should_receive(:code).and_return(1)

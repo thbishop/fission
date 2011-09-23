@@ -38,6 +38,8 @@ module Fission
               Fission.ui.output_and_exit "Either stop/suspend the VM or use '--force' and try again.", 1
             end
           end
+        else
+          Fission.ui.output_and_exit "There was an error determining if the VM is running.  The error was:\n#{response.output}", response.code
         end
 
         fusion_running_response = Fission::Fusion.is_running?
