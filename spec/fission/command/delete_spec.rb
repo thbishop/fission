@@ -7,6 +7,7 @@ describe Fission::Command::Delete do
     Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
     @delete_response_mock = mock('delete_response')
     @exists_response_mock = mock('exists_response')
+    @fusion_running_response_mock = mock('fusion_running_response_mock')
     @all_running_response_mock = mock('all_running_response')
   end
 
@@ -44,7 +45,9 @@ describe Fission::Command::Delete do
                                            and_return(@exists_response_mock)
       @all_running_response_mock.should_receive(:successful?).and_return(true)
       @all_running_response_mock.should_receive(:data).and_return([])
-      Fission::Fusion.should_receive(:is_running?).and_return(false)
+      @fusion_running_response_mock.should_receive(:successful?).and_return(true)
+      @fusion_running_response_mock.should_receive(:data).and_return(false)
+      Fission::Fusion.should_receive(:is_running?).and_return(@fusion_running_response_mock)
       Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
       Fission::VM.should_receive(:delete).with(@target_vm.first).
                                           and_return(@delete_response_mock)
@@ -63,7 +66,9 @@ describe Fission::Command::Delete do
                                            and_return(@exists_response_mock)
       @all_running_response_mock.should_receive(:successful?).and_return(true)
       @all_running_response_mock.should_receive(:data).and_return([])
-      Fission::Fusion.should_receive(:is_running?).and_return(false)
+      @fusion_running_response_mock.should_receive(:successful?).and_return(true)
+      @fusion_running_response_mock.should_receive(:data).and_return(false)
+      Fission::Fusion.should_receive(:is_running?).and_return(@fusion_running_response_mock)
       Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
       Fission::VM.should_receive(:delete).with(@target_vm.first).
                                           and_return(@delete_response_mock)
@@ -97,8 +102,10 @@ describe Fission::Command::Delete do
                                            and_return(@exists_response_mock)
       @all_running_response_mock.should_receive(:successful?).and_return(true)
       @all_running_response_mock.should_receive(:data).and_return([])
+      @fusion_running_response_mock.should_receive(:successful?).and_return(true)
+      @fusion_running_response_mock.should_receive(:data).and_return(true)
+      Fission::Fusion.should_receive(:is_running?).and_return(@fusion_running_response_mock)
       Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
-      Fission::Fusion.should_receive(:is_running?).and_return(true)
 
       lambda {
         command = Fission::Command::Delete.new @target_vm
@@ -140,7 +147,9 @@ describe Fission::Command::Delete do
         @all_running_response_mock.should_receive(:successful?).and_return(true)
         @all_running_response_mock.should_receive(:data).and_return(['bar'])
         Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
-        Fission::Fusion.should_receive(:is_running?).and_return(true)
+        @fusion_running_response_mock.should_receive(:successful?).and_return(true)
+        @fusion_running_response_mock.should_receive(:data).and_return(true)
+        Fission::Fusion.should_receive(:is_running?).and_return(@fusion_running_response_mock)
         command = Fission::Command::Delete.new @target_vm << '--force'
         command.execute
         @string_io.string.should match /Fusion GUI is currently running/

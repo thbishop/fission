@@ -8,6 +8,7 @@ describe Fission::Command::Start do
     @vm_mock = mock('vm_mock')
     @all_running_response_mock = mock('all_running_response')
     @exists_response_mock = mock('exists_response')
+    @fusion_running_response_mock = mock('fusion_running_response_mock')
     @start_response_mock = mock('start_response')
   end
 
@@ -120,7 +121,9 @@ describe Fission::Command::Start do
         @all_running_response_mock.should_receive(:successful?).and_return(true)
         @all_running_response_mock.should_receive(:data).and_return([])
         Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
-        Fission::Fusion.should_receive(:is_running?).and_return(false)
+        @fusion_running_response_mock.should_receive(:successful?).and_return(true)
+        @fusion_running_response_mock.should_receive(:data).and_return(false)
+        Fission::Fusion.should_receive(:is_running?).and_return(@fusion_running_response_mock)
         Fission::VM.should_receive(:new).with(@vm_info.first).and_return(@vm_mock)
         @start_response_mock.should_receive(:successful?).and_return(true)
         @vm_mock.should_receive(:start).and_return(@start_response_mock)
@@ -140,7 +143,9 @@ describe Fission::Command::Start do
         @all_running_response_mock.should_receive(:successful?).and_return(true)
         @all_running_response_mock.should_receive(:data).and_return([])
         Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
-        Fission::Fusion.should_receive(:is_running?).and_return(true)
+        @fusion_running_response_mock.should_receive(:successful?).and_return(true)
+        @fusion_running_response_mock.should_receive(:data).and_return(true)
+        Fission::Fusion.should_receive(:is_running?).and_return(@fusion_running_response_mock)
         Fission::VM.should_receive(:new).with(@vm_info.first).and_return(@vm_mock)
         @vm_mock.should_not_receive(:start)
 

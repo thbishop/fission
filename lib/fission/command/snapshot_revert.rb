@@ -23,9 +23,13 @@ module Fission
           end
         end
 
-        if Fission::Fusion.is_running?
-          Fission.ui.output 'It looks like the Fusion GUI is currently running'
-          Fission.ui.output_and_exit 'Please exit the Fusion GUI and try again', 1
+        fusion_running_response = Fission::Fusion.is_running?
+
+        if fusion_running_response.successful?
+          if fusion_running_response.data
+            Fission.ui.output 'It looks like the Fusion GUI is currently running'
+            Fission.ui.output_and_exit 'Please exit the Fusion GUI and try again', 1
+          end
         end
 
         @vm = Fission::VM.new vm_name

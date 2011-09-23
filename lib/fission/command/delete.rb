@@ -40,13 +40,18 @@ module Fission
           end
         end
 
-        if Fission::Fusion.is_running?
-          Fission.ui.output 'It looks like the Fusion GUI is currently running'
-          if @options.force
-            Fission.ui.output 'The Fusion metadata for the VM may not be removed completely'
-          else
-            Fission.ui.output "Either exit the Fusion GUI or use '--force' and try again"
-            Fission.ui.output_and_exit "NOTE: Forcing a VM deletion with the Fusion GUI running may not clean up all of the VM metadata", 1
+        fusion_running_response = Fission::Fusion.is_running?
+
+        if fusion_running_response.successful?
+          if fusion_running_response.data
+            Fission.ui.output 'It looks like the Fusion GUI is currently running'
+
+            if @options.force
+              Fission.ui.output 'The Fusion metadata for the VM may not be removed completely'
+            else
+              Fission.ui.output "Either exit the Fusion GUI or use '--force' and try again"
+              Fission.ui.output_and_exit "NOTE: Forcing a VM deletion with the Fusion GUI running may not clean up all of the VM metadata", 1
+            end
           end
         end
 

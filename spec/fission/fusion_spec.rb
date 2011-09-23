@@ -7,16 +7,20 @@ describe Fission::Fusion do
       @cmd << "grep -c #{Fission.config.attributes['gui_bin'].gsub(' ', '\ ')} 2>&1"
     end
 
-    it 'should return true if the fusion app is running' do
+    it 'should return a successful response and true if the fusion app is running' do
       Fission::Fusion.should_receive(:`).with(@cmd).
                                          and_return("1\n")
-      Fission::Fusion.is_running?.should == true
+      response = Fission::Fusion.is_running?
+      response.successful?.should == true
+      response.data.should == true
     end
 
-    it 'should return false if the fusion app is not running' do
+    it 'should return a successful response and false if the fusion app is not running' do
       Fission::Fusion.should_receive(:`).with(@cmd).
                                          and_return("0\n")
-      Fission::Fusion.is_running?.should == false
+      response = Fission::Fusion.is_running?
+      response.successful?.should == true
+      response.data.should == false
     end
   end
 end

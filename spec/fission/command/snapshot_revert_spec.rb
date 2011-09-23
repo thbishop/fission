@@ -8,6 +8,7 @@ describe Fission::Command::SnapshotRevert do
     @string_io = StringIO.new
     Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
     @exists_response_mock = mock('exists_response')
+    @fusion_running_response_mock = mock('fusion_running_response_mock')
     @snap_list_response_mock = mock('snap_list_response')
     @snap_revert_response_mock = mock('snap_revert_response')
   end
@@ -57,7 +58,9 @@ describe Fission::Command::SnapshotRevert do
       @exists_response_mock.should_receive(:data).and_return(true)
       Fission::VM.should_receive(:exists?).with(@target_vm.first).
                                            and_return(@exists_response_mock)
-      Fission::Fusion.should_receive(:is_running?).and_return(false)
+      @fusion_running_response_mock.should_receive(:successful?).and_return(true)
+      @fusion_running_response_mock.should_receive(:data).and_return(false)
+      Fission::Fusion.should_receive(:is_running?).and_return(@fusion_running_response_mock)
 
       lambda {
         command = Fission::Command::SnapshotRevert.new @target_vm << 'snap_1'
@@ -72,7 +75,9 @@ describe Fission::Command::SnapshotRevert do
       @exists_response_mock.should_receive(:data).and_return(true)
       Fission::VM.should_receive(:exists?).with(@target_vm.first).
                                            and_return(@exists_response_mock)
-      Fission::Fusion.should_receive(:is_running?).and_return(true)
+      @fusion_running_response_mock.should_receive(:successful?).and_return(true)
+      @fusion_running_response_mock.should_receive(:data).and_return(true)
+      Fission::Fusion.should_receive(:is_running?).and_return(@fusion_running_response_mock)
 
       lambda {
         command = Fission::Command::SnapshotRevert.new @target_vm << 'snap_1'
@@ -91,7 +96,9 @@ describe Fission::Command::SnapshotRevert do
       @exists_response_mock.should_receive(:data).and_return(true)
       Fission::VM.should_receive(:exists?).with(@target_vm.first).
                                            and_return(@exists_response_mock)
-      Fission::Fusion.should_receive(:is_running?).and_return(false)
+      @fusion_running_response_mock.should_receive(:successful?).and_return(true)
+      @fusion_running_response_mock.should_receive(:data).and_return(false)
+      Fission::Fusion.should_receive(:is_running?).and_return(@fusion_running_response_mock)
       @snap_revert_response_mock.should_receive(:successful?).and_return(true)
       @vm_mock.should_receive(:revert_to_snapshot).with('snap_1').and_return(@snap_revert_response_mock)
       command = Fission::Command::SnapshotRevert.new @target_vm << 'snap_1'
@@ -110,7 +117,10 @@ describe Fission::Command::SnapshotRevert do
       @exists_response_mock.should_receive(:data).and_return(true)
       Fission::VM.should_receive(:exists?).with(@target_vm.first).
                                            and_return(@exists_response_mock)
-      Fission::Fusion.should_receive(:is_running?).and_return(false)
+      @fusion_running_response_mock.should_receive(:successful?).and_return(true)
+      @fusion_running_response_mock.should_receive(:data).and_return(false)
+      Fission::Fusion.should_receive(:is_running?).and_return(@fusion_running_response_mock)
+
       command = Fission::Command::SnapshotRevert.new @target_vm << 'snap_1'
       lambda { command.execute }.should raise_error SystemExit
 
@@ -125,7 +135,9 @@ describe Fission::Command::SnapshotRevert do
       @exists_response_mock.should_receive(:data).and_return(true)
       Fission::VM.should_receive(:exists?).with(@target_vm.first).
                                            and_return(@exists_response_mock)
-      Fission::Fusion.should_receive(:is_running?).and_return(false)
+      @fusion_running_response_mock.should_receive(:successful?).and_return(true)
+      @fusion_running_response_mock.should_receive(:data).and_return(false)
+      Fission::Fusion.should_receive(:is_running?).and_return(@fusion_running_response_mock)
       @snap_revert_response_mock.should_receive(:successful?).and_return(false)
       @snap_revert_response_mock.should_receive(:code).and_return(1)
       @snap_revert_response_mock.should_receive(:output).and_return('it blew up')
