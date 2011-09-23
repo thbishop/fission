@@ -82,7 +82,7 @@ describe Fission::Command::SnapshotList do
     it 'should output info for this command' do
       output = Fission::Command::SnapshotList.help
 
-      output.should match /snapshot list/
+      output.should match /snapshot list vm_name/
     end
   end
 end

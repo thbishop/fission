@@ -156,7 +156,7 @@ describe Fission::Command::Start do
     it 'should output info for this command' do
       output = Fission::Command::Start.help
 
-      output.should match /start vm \[options\]/
+      output.should match /start vm_name \[options\]/
       output.should match /--headless/
     end
   end

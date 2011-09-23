@@ -16,24 +16,24 @@ module Fission
           Fission.ui.output_and_exit "Incorrect arguments for delete command", 1
         end
 
-        target_vm = @args.first
+        vm_name = @args.first
 
-        exists_response = Fission::VM.exists? target_vm
+        exists_response = Fission::VM.exists? vm_name
 
         if exists_response.successful?
           unless exists_response.data
-            Fission.ui.output_and_exit "Unable to find the VM '#{target_vm}' (#{Fission::VM.path(target_vm)})", 1
+            Fission.ui.output_and_exit "Unable to find the VM '#{vm_name}' (#{Fission::VM.path(vm_name)})", 1
           end
         end
 
         response = Fission::VM.all_running
 
         if response.successful?
-          if response.data.include? target_vm
+          if response.data.include? vm_name
             Fission.ui.output 'VM is currently running'
             if @options.force
               Fission.ui.output 'Going to stop it'
-              Fission::Command::Stop.new([target_vm]).execute
+              Fission::Command::Stop.new([vm_name]).execute
             else
               Fission.ui.output_and_exit "Either stop/suspend the VM or use '--force' and try again.", 1
             end
@@ -57,7 +57,7 @@ module Fission
           end
         end
 
-        delete_response = Fission::VM.delete target_vm
+        delete_response = Fission::VM.delete vm_name
 
         if delete_response.successful?
           Fission.ui.output ''
@@ -69,7 +69,7 @@ module Fission
 
       def option_parser
         optparse = OptionParser.new do |opts|
-          opts.banner = "\ndelete usage: fission delete target_vm [--force]"
+          opts.banner = "\ndelete usage: fission delete vm_name [--force]"
 
           opts.on '--force', "Stop the VM if it's running and then delete it" do
             @options.force = true

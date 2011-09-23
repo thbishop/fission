@@ -37,7 +37,7 @@ module Fission
 
       def option_parser
         optparse = OptionParser.new do |opts|
-          opts.banner = "\nsnapshot list: fission snapshot list my_vm"
+          opts.banner = "\nsnapshot list: fission snapshot list vm_name"
         end
 
         optparse

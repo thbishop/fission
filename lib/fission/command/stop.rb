@@ -43,7 +43,7 @@ module Fission
 
       def option_parser
         optparse = OptionParser.new do |opts|
-          opts.banner = "\nstop usage: fission stop vm"
+          opts.banner = "\nstop usage: fission stop vm_name"
         end
 
         optparse

@@ -119,7 +119,7 @@ describe Fission::Command::Suspend do
     it 'should output info for this command' do
       output = Fission::Command::Suspend.help
 
-      output.should match /suspend \[vm \| --all\]/
+      output.should match /suspend \[vm_name \| --all\]/
     end
   end
 end

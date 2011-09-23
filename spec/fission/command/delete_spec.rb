@@ -173,7 +173,7 @@ describe Fission::Command::Delete do
     it 'should output info for this command' do
       output = Fission::Command::Delete.help
 
-      output.should match /delete target_vm \[--force\]/
+      output.should match /delete vm_name \[--force\]/
       output.should match /--force/
     end
   end
