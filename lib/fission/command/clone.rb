@@ -43,9 +43,9 @@ module Fission
 
           if @options.start
             Fission.ui.output "Starting '#{target_vm}'"
-            @vm = Fission::VM.new target_vm
+            vm = Fission::VM.new target_vm
 
-            start_response = @vm.start
+            start_response = vm.start
 
             if start_response.successful?
               Fission.ui.output "VM '#{target_vm}' started"

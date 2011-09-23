@@ -38,7 +38,7 @@ module Fission
         end
 
         Fission.ui.output "Starting '#{vm_name}'"
-        @vm = Fission::VM.new vm_name
+        vm = Fission::VM.new vm_name
         start_args = {}
 
         if @options.headless
@@ -55,7 +55,7 @@ module Fission
           end
         end
 
-        response = @vm.start start_args
+        response = vm.start start_args
 
         if response.successful?
           Fission.ui.output "VM '#{vm_name}' started"

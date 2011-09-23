@@ -19,8 +19,8 @@ module Fission
           end
         end
 
-        @vm = Fission::VM.new vm_name
-        response = @vm.snapshots
+        vm = Fission::VM.new vm_name
+        response = vm.snapshots
 
         if response.successful?
           snaps = response.data

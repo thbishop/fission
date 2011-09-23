@@ -28,9 +28,9 @@ module Fission
           end
         end
 
-        @vm = Fission::VM.new vm_name
+        vm = Fission::VM.new vm_name
 
-        snapshots_response = @vm.snapshots
+        snapshots_response = vm.snapshots
 
         if snapshots_response.successful?
           snaps = snapshots_response.data
@@ -43,7 +43,7 @@ module Fission
         end
 
         Fission.ui.output "Reverting to snapshot '#{snap_name}'"
-        response = @vm.revert_to_snapshot snap_name
+        response = vm.revert_to_snapshot snap_name
 
         if response.successful?
           Fission.ui.output "Reverted to snapshot '#{snap_name}'"

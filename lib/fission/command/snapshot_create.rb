@@ -30,14 +30,14 @@ module Fission
           Fission.ui.output_and_exit "There was an error determining if this VM is running.  The error was:\n#{response.output}", response.code
         end
 
-        @vm = Fission::VM.new vm_name
+        vm = Fission::VM.new vm_name
 
-        if @vm.snapshots.include? snap_name
+        if vm.snapshots.include? snap_name
           Fission.ui.output_and_exit "VM '#{vm_name}' already has a snapshot named '#{snap_name}'", 1
         end
 
         Fission.ui.output "Creating snapshot"
-        response = @vm.create_snapshot(snap_name)
+        response = vm.create_snapshot(snap_name)
 
         if response.successful?
           Fission.ui.output "Snapshot '#{snap_name}' created"
