@@ -18,10 +18,8 @@ describe Fission::Command::Clone do
       it "should output an error and the help when #{args.count} arguments are passed in" do
         Fission::Command::Clone.should_receive(:help)
 
-        lambda {
-          command = Fission::Command::Clone.new args
-          command.execute
-        }.should raise_error SystemExit
+        command = Fission::Command::Clone.new args
+        lambda { command.execute }.should raise_error SystemExit
 
         @string_io.string.should match /Incorrect arguments for clone command/
       end
@@ -34,10 +32,8 @@ describe Fission::Command::Clone do
                                            and_return(@source_exists_response_mock)
       Fission::VM.should_not_receive(:exists?).with(@vm_info[1])
 
-      lambda {
-        command = Fission::Command::Clone.new @vm_info
-        command.execute
-      }.should raise_error SystemExit
+      command = Fission::Command::Clone.new @vm_info
+      lambda { command.execute }.should raise_error SystemExit
 
       @string_io.string.should match /Unable to find the source vm #{@vm_info.first}/
     end
@@ -49,10 +45,8 @@ describe Fission::Command::Clone do
         Fission::VM.should_receive(:exists?).with(vm_name).and_return(mock)
       end
 
-      lambda {
-        command = Fission::Command::Clone.new @vm_info
-        command.execute
-      }.should raise_error SystemExit
+      command = Fission::Command::Clone.new @vm_info
+      lambda { command.execute }.should raise_error SystemExit
 
       @string_io.string.should match /The target vm #{@vm_info[1]} already exists/
     end

@@ -17,10 +17,8 @@ describe Fission::Command::SnapshotRevert do
     it "should output an error and the help when no vm name is passed in" do
       Fission::Command::SnapshotRevert.should_receive(:help)
 
-      lambda {
-        command = Fission::Command::SnapshotRevert.new
-        command.execute
-      }.should raise_error SystemExit
+      command = Fission::Command::SnapshotRevert.new
+      lambda { command.execute }.should raise_error SystemExit
 
       @string_io.string.should match /Incorrect arguments for snapshot revert command/
     end
@@ -28,10 +26,8 @@ describe Fission::Command::SnapshotRevert do
     it "should output an error and the help when no snapshot name is passed in" do
       Fission::Command::SnapshotRevert.should_receive(:help)
 
-      lambda {
-        command = Fission::Command::SnapshotRevert.new @target_vm
-        command.execute
-      }.should raise_error SystemExit
+      command = Fission::Command::SnapshotRevert.new @target_vm
+      lambda { command.execute }.should raise_error SystemExit
 
       @string_io.string.should match /Incorrect arguments for snapshot revert command/
     end
@@ -42,10 +38,8 @@ describe Fission::Command::SnapshotRevert do
       Fission::VM.should_receive(:exists?).with(@target_vm.first).
                                            and_return(@exists_response_mock)
 
-      lambda {
-        command = Fission::Command::SnapshotRevert.new @target_vm << 'snap_1'
-        command.execute
-      }.should raise_error SystemExit
+      command = Fission::Command::SnapshotRevert.new @target_vm << 'snap_1'
+      lambda { command.execute }.should raise_error SystemExit
 
       @string_io.string.should match /Unable to find the VM #{@target_vm.first}/
     end
@@ -62,10 +56,8 @@ describe Fission::Command::SnapshotRevert do
       @fusion_running_response_mock.should_receive(:data).and_return(false)
       Fission::Fusion.should_receive(:is_running?).and_return(@fusion_running_response_mock)
 
-      lambda {
-        command = Fission::Command::SnapshotRevert.new @target_vm << 'snap_1'
-        command.execute
-      }.should raise_error SystemExit
+      command = Fission::Command::SnapshotRevert.new @target_vm << 'snap_1'
+      lambda { command.execute }.should raise_error SystemExit
 
       @string_io.string.should match /Unable to find the snapshot 'snap_1'/
     end
@@ -79,10 +71,8 @@ describe Fission::Command::SnapshotRevert do
       @fusion_running_response_mock.should_receive(:data).and_return(true)
       Fission::Fusion.should_receive(:is_running?).and_return(@fusion_running_response_mock)
 
-      lambda {
-        command = Fission::Command::SnapshotRevert.new @target_vm << 'snap_1'
-        command.execute
-      }.should raise_error SystemExit
+      command = Fission::Command::SnapshotRevert.new @target_vm << 'snap_1'
+      lambda { command.execute }.should raise_error SystemExit
 
       @string_io.string.should match /Fusion GUI is currently running/
       @string_io.string.should match /Please exit the Fusion GUI and try again/
@@ -142,6 +132,7 @@ describe Fission::Command::SnapshotRevert do
       @snap_revert_response_mock.should_receive(:code).and_return(1)
       @snap_revert_response_mock.should_receive(:output).and_return('it blew up')
       @vm_mock.should_receive(:revert_to_snapshot).with('snap_1').and_return(@snap_revert_response_mock)
+
       command = Fission::Command::SnapshotRevert.new @target_vm << 'snap_1'
       lambda { command.execute }.should raise_error SystemExit
 

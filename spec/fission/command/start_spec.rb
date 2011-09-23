@@ -16,10 +16,8 @@ describe Fission::Command::Start do
     it "should output an error and the help when no VM argument is passed in" do
       Fission::Command::Start.should_receive(:help)
 
-      lambda {
-        command = Fission::Command::Start.new
-        command.execute
-      }.should raise_error SystemExit
+      command = Fission::Command::Start.new
+      lambda { command.execute }.should raise_error SystemExit
 
       @string_io.string.should match /Incorrect arguments for start command/
     end
@@ -30,10 +28,8 @@ describe Fission::Command::Start do
       Fission::VM.should_receive(:exists?).with(@vm_info.first).
                                            and_return(@exists_response_mock)
 
-      lambda {
-        command = Fission::Command::Start.new @vm_info
-        command.execute
-      }.should raise_error SystemExit
+      command = Fission::Command::Start.new @vm_info
+      lambda { command.execute }.should raise_error SystemExit
 
       @string_io.string.should match /Unable to find the VM #{@vm_info.first}/
     end
@@ -48,10 +44,8 @@ describe Fission::Command::Start do
       @all_running_response_mock.should_receive(:data).and_return(@vm_info)
       Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
 
-      lambda {
-        command = Fission::Command::Start.new @vm_info
-        command.execute
-      }.should raise_error SystemExit
+      command = Fission::Command::Start.new @vm_info
+      lambda { command.execute }.should raise_error SystemExit
 
       @string_io.string.should match /VM '#{@vm_info.first}' is already running/
     end
@@ -149,10 +143,8 @@ describe Fission::Command::Start do
         Fission::VM.should_receive(:new).with(@vm_info.first).and_return(@vm_mock)
         @vm_mock.should_not_receive(:start)
 
-        lambda {
-          command = Fission::Command::Start.new @vm_info << '--headless'
-          command.execute
-        }.should raise_error SystemExit
+        command = Fission::Command::Start.new @vm_info << '--headless'
+        lambda { command.execute }.should raise_error SystemExit
 
         @string_io.string.should match /Fusion GUI is currently running/
         @string_io.string.should match /A VM cannot be started in headless mode when the Fusion GUI is running/

@@ -15,10 +15,8 @@ describe Fission::Command::Delete do
     it "should output an error and the help when no VM argument is passed in" do
       Fission::Command::Delete.should_receive(:help)
 
-      lambda {
-        command = Fission::Command::Delete.new
-        command.execute
-      }.should raise_error SystemExit
+      command = Fission::Command::Delete.new
+      lambda { command.execute }.should raise_error SystemExit
 
       @string_io.string.should match /Incorrect arguments for delete command/
     end
@@ -29,10 +27,8 @@ describe Fission::Command::Delete do
       Fission::VM.should_receive(:exists?).with(@target_vm.first).
                                            and_return(@exists_response_mock)
 
-      lambda {
-        command = Fission::Command::Delete.new @target_vm
-        command.execute
-      }.should raise_error SystemExit
+      command = Fission::Command::Delete.new @target_vm
+      lambda { command.execute }.should raise_error SystemExit
 
       @string_io.string.should match /Unable to find target vm #{@target_vm}/
     end
@@ -86,10 +82,9 @@ describe Fission::Command::Delete do
       @all_running_response_mock.should_receive(:successful?).and_return(true)
       @all_running_response_mock.should_receive(:data).and_return(['foo', 'bar'])
       Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
-      lambda {
-        command = Fission::Command::Delete.new @target_vm
-        command.execute
-      }.should raise_error SystemExit
+
+      command = Fission::Command::Delete.new @target_vm
+      lambda { command.execute }.should raise_error SystemExit
 
       @string_io.string.should match /VM is currently running/
       @string_io.string.should match /Either stop\/suspend the VM or use '--force' and try again/
@@ -107,10 +102,8 @@ describe Fission::Command::Delete do
       Fission::Fusion.should_receive(:is_running?).and_return(@fusion_running_response_mock)
       Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
 
-      lambda {
-        command = Fission::Command::Delete.new @target_vm
-        command.execute
-      }.should raise_error SystemExit
+      command = Fission::Command::Delete.new @target_vm
+      lambda { command.execute }.should raise_error SystemExit
 
       @string_io.string.should match /Fusion GUI is currently running/
       @string_io.string.should match /Either exit the Fusion GUI or use '--force' and try again/

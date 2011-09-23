@@ -15,10 +15,8 @@ describe Fission::Command::SnapshotList do
     it "should output an error and the help when no VM argument is passed in" do
       Fission::Command::SnapshotList.should_receive(:help)
 
-      lambda {
-        command = Fission::Command::SnapshotList.new
-        command.execute
-      }.should raise_error SystemExit
+      command = Fission::Command::SnapshotList.new
+      lambda { command.execute }.should raise_error SystemExit
 
       @string_io.string.should match /Incorrect arguments for snapshot list command/
     end
@@ -29,10 +27,8 @@ describe Fission::Command::SnapshotList do
       Fission::VM.should_receive(:exists?).with(@target_vm.first).
                                            and_return(@exists_response_mock)
 
-      lambda {
-        command = Fission::Command::SnapshotList.new @target_vm
-        command.execute
-      }.should raise_error SystemExit
+      command = Fission::Command::SnapshotList.new @target_vm
+      lambda { command.execute }.should raise_error SystemExit
 
       @string_io.string.should match /Unable to find the VM #{@target_vm.first}/
     end

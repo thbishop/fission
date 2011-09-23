@@ -16,10 +16,8 @@ describe Fission::Command::SnapshotCreate do
     it "should output an error and the help when no vm name is passed in" do
       Fission::Command::SnapshotCreate.should_receive(:help)
 
-      lambda {
-        command = Fission::Command::SnapshotCreate.new
-        command.execute
-      }.should raise_error SystemExit
+      command = Fission::Command::SnapshotCreate.new
+      lambda { command.execute }.should raise_error SystemExit
 
       @string_io.string.should match /Incorrect arguments for snapshot create command/
     end
@@ -27,10 +25,8 @@ describe Fission::Command::SnapshotCreate do
     it "should output an error and the help when no snapshot name is passed in" do
       Fission::Command::SnapshotCreate.should_receive(:help)
 
-      lambda {
-        command = Fission::Command::SnapshotCreate.new @target_vm
-        command.execute
-      }.should raise_error SystemExit
+      command = Fission::Command::SnapshotCreate.new @target_vm
+      lambda { command.execute }.should raise_error SystemExit
 
       @string_io.string.should match /Incorrect arguments for snapshot create command/
     end
@@ -41,10 +37,8 @@ describe Fission::Command::SnapshotCreate do
       Fission::VM.should_receive(:exists?).with(@target_vm.first).
                                            and_return(@exists_response_mock)
 
-      lambda {
-        command = Fission::Command::SnapshotCreate.new @target_vm << 'snap_1'
-        command.execute
-      }.should raise_error SystemExit
+      command = Fission::Command::SnapshotCreate.new @target_vm << 'snap_1'
+      lambda { command.execute }.should raise_error SystemExit
 
       @string_io.string.should match /Unable to find the VM #{@target_vm.first}/
     end
@@ -57,10 +51,9 @@ describe Fission::Command::SnapshotCreate do
       @all_running_response_mock.should_receive(:successful?).and_return(true)
       @all_running_response_mock.should_receive(:data).and_return([])
       Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
-      lambda {
-        command = Fission::Command::SnapshotCreate.new @target_vm << 'snap_1'
-        command.execute
-      }.should raise_error SystemExit
+
+      command = Fission::Command::SnapshotCreate.new @target_vm << 'snap_1'
+      lambda { command.execute }.should raise_error SystemExit
 
       @string_io.string.should match /VM 'foo' is not running/
       @string_io.string.should match /A snapshot cannot be created unless the VM is running/
@@ -75,10 +68,9 @@ describe Fission::Command::SnapshotCreate do
       @all_running_response_mock.should_receive(:data).and_return([@target_vm.first])
       Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
       @vm_mock.should_receive(:snapshots).and_return(['snap_1'])
-      lambda {
-        command = Fission::Command::SnapshotCreate.new @target_vm << 'snap_1'
-        command.execute
-      }.should raise_error SystemExit
+
+      command = Fission::Command::SnapshotCreate.new @target_vm << 'snap_1'
+      lambda { command.execute }.should raise_error SystemExit
 
       @string_io.string.should match /VM 'foo' already has a snapshot named 'snap_1'/
     end
@@ -92,10 +84,9 @@ describe Fission::Command::SnapshotCreate do
       @all_running_response_mock.should_receive(:code).and_return(1)
       @all_running_response_mock.should_receive(:output).and_return('it blew up')
       Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
-      lambda {
-        command = Fission::Command::SnapshotCreate.new @target_vm << 'snap_1'
-        command.execute
-      }.should raise_error SystemExit
+
+      command = Fission::Command::SnapshotCreate.new @target_vm << 'snap_1'
+      lambda { command.execute }.should raise_error SystemExit
 
       @string_io.string.should match /There was an error determining if this VM is running.+\n#{'it blew up'}/m
     end
