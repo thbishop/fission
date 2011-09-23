@@ -2,10 +2,6 @@ module Fission
   class Command
     class SnapshotCreate < Command
 
-      def initialize(args=[])
-        super
-      end
-
       def execute
         unless @args.count == 2
           Fission.ui.output self.class.help

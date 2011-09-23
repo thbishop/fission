@@ -2,10 +2,6 @@ module Fission
   class Command
     class Status < Command
 
-      def initialize(args=[])
-        super
-      end
-
       def execute
         response = Fission::VM.all
         if response.successful?

@@ -2,10 +2,6 @@ module Fission
   class Command
     class Stop < Command
 
-      def initialize(args=[])
-        super
-      end
-
       def execute
         unless @args.count == 1
           Fission.ui.output self.class.help
