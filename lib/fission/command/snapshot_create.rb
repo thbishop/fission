@@ -32,8 +32,13 @@ module Fission
 
         vm = Fission::VM.new vm_name
 
-        if vm.snapshots.include? snap_name
-          Fission.ui.output_and_exit "VM '#{vm_name}' already has a snapshot named '#{snap_name}'", 1
+        snaps_response = vm.snapshots
+        if snaps_response.successful?
+          if snaps_response.data.include? snap_name
+            Fission.ui.output_and_exit "VM '#{vm_name}' already has a snapshot named '#{snap_name}'", 1
+          end
+        else
+          Fission.ui.output_and_exit "There was an error getting the list of snapshots.  The error was:\n#{snaps_response.output}", snaps_response.code
         end
 
         Fission.ui.output "Creating snapshot"
