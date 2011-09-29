@@ -12,5 +12,11 @@ module Fission
       @code == 0
     end
 
+    def self.from_command(output)
+      response = new :code => $?.exitstatus
+      response.output = output unless response.successful?
+      response
+    end
+
   end
 end

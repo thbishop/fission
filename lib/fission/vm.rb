@@ -14,12 +14,8 @@ module Fission
 
       command = "#{Fission.config.attributes['vmrun_cmd']} snapshot "
       command << "#{conf_file_response.data.gsub ' ', '\ '} \"#{name}\" 2>&1"
-      output = `#{command}`
 
-      response = Fission::Response.new :code => $?.exitstatus
-      response.output = output unless response.successful?
-
-      response
+      Response.from_command(`#{command}`)
     end
 
     def revert_to_snapshot(name)
@@ -30,12 +26,8 @@ module Fission
 
       command = "#{Fission.config.attributes['vmrun_cmd']} revertToSnapshot "
       command << "#{conf_file_response.data.gsub ' ', '\ '} \"#{name}\" 2>&1"
-      output = `#{command}`
 
-      response = Fission::Response.new :code => $?.exitstatus
-      response.output = output unless response.successful?
-
-      response
+      Response.from_command(`#{command}`)
     end
 
     def snapshots
@@ -75,12 +67,7 @@ module Fission
         command << "gui 2>&1"
       end
 
-      output = `#{command}`
-
-      response = Fission::Response.new :code => $?.exitstatus
-      response.output = output unless response.successful?
-
-      response
+      Response.from_command(`#{command}`)
     end
 
     def stop
@@ -91,12 +78,8 @@ module Fission
 
       command = "#{Fission.config.attributes['vmrun_cmd']} stop "
       command << "#{conf_file_response.data.gsub ' ', '\ '} 2>&1"
-      output = `#{command}`
 
-      response = Fission::Response.new :code => $?.exitstatus
-      response.output = output unless response.successful?
-
-      response
+      Response.from_command(`#{command}`)
     end
 
     def suspend
@@ -107,11 +90,8 @@ module Fission
 
       command = "#{Fission.config.attributes['vmrun_cmd']} suspend "
       command << "#{conf_file_response.data.gsub ' ', '\ '} 2>&1"
-      output = `#{command}`
 
-      response = Fission::Response.new :code => $?.exitstatus
-      response.output = output unless response.successful?
-      response
+      Response.from_command(`#{command}`)
     end
 
     def conf_file

@@ -57,4 +57,25 @@ describe Fission::Response do
       @response.data.should == [1, 2, 3]
     end
   end
+
+  describe 'self.from_command' do
+    it 'should return a response object' do
+      Fission::Response.from_command('').should be_a Fission::Response
+    end
+
+    it 'should set the code to the exit status' do
+      $?.should_receive(:exitstatus).and_return(55)
+      Fission::Response.from_command('').code.should == 55
+    end
+
+    it 'should set the output if the command was unsuccessful' do
+      $?.should_receive(:exitstatus).and_return(55)
+      Fission::Response.from_command('foo').output.should == 'foo'
+    end
+    it 'should not set the output if the command was successful' do
+      $?.should_receive(:exitstatus).and_return(0)
+      Fission::Response.from_command('foo').output.should == ''
+    end
+
+  end
 end
