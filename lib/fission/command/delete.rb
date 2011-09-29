@@ -57,7 +57,7 @@ module Fission
           end
         end
 
-        delete_response = Fission::VM.delete vm_name
+        delete_response = Fission::VM.new(vm_name).delete
 
         if delete_response.successful?
           Fission.ui.output ''

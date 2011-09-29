@@ -190,9 +190,9 @@ module Fission
       Response.new :code => 0
     end
 
-    def self.delete(vm_name)
-      FileUtils.rm_rf path(vm_name)
-      Fission::Metadata.delete_vm_info(path(vm_name))
+    def delete
+      FileUtils.rm_rf Fission::VM.path(@name)
+      Fission::Metadata.delete_vm_info(Fission::VM.path(@name))
 
       Response.new :code => 0
     end

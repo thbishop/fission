@@ -508,7 +508,7 @@ describe Fission::VM do
     end
   end
 
-  describe "self.delete" do
+  describe "delete" do
     before do
       @target_vm = 'foo'
       @vm_files = %w{ .vmx .vmxf .vmdk -s001.vmdk -s002.vmdk .vmsd }
@@ -527,7 +527,7 @@ describe Fission::VM do
 
     it "should delete the target vm files" do
       Fission::Metadata.stub!(:delete_vm_info)
-      Fission::VM.delete @target_vm
+      Fission::VM.new(@target_vm).delete
       @vm_files.each do |file|
         File.exists?(File.join(Fission::VM.path(@target_vm), "#{@target_vm}#{file}")).should == false
       end
@@ -535,12 +535,12 @@ describe Fission::VM do
 
     it 'should delete the target vm metadata' do
       Fission::Metadata.should_receive(:delete_vm_info)
-      Fission::VM.delete @target_vm
+      Fission::VM.new(@target_vm).delete
     end
 
     it 'should return a successful reponsse object' do
       Fission::Metadata.stub!(:delete_vm_info)
-      Fission::VM.delete(@target_vm).should be_a_successful_response
+      Fission::VM.new(@target_vm).delete.should be_a_successful_response
     end
 
   end
