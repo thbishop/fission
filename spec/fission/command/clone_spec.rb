@@ -15,15 +15,9 @@ describe Fission::Command::Clone do
   end
 
   describe 'execute' do
+    subject { Fission::Command::Clone }
     [ [], ['foo'] ].each do |args|
-      it "should output an error and the help when #{args.count} arguments are passed in" do
-        Fission::Command::Clone.should_receive(:help)
-
-        command = Fission::Command::Clone.new args
-        lambda { command.execute }.should raise_error SystemExit
-
-        @string_io.string.should match /Incorrect arguments for clone command/
-      end
+      it_should_not_accept_arguments_of args, 'clone'
     end
 
     it "should output an error and exit if it can't find the source vm" do

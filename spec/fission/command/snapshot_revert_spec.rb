@@ -14,14 +14,9 @@ describe Fission::Command::SnapshotRevert do
   end
 
   describe 'execute' do
-    it "should output an error and the help when no vm name is passed in" do
-      Fission::Command::SnapshotRevert.should_receive(:help)
+    subject { Fission::Command::SnapshotRevert }
 
-      command = Fission::Command::SnapshotRevert.new
-      lambda { command.execute }.should raise_error SystemExit
-
-      @string_io.string.should match /Incorrect arguments for snapshot revert command/
-    end
+    it_should_not_accept_arguments_of [], 'snapshot revert'
 
     it "should output an error and the help when no snapshot name is passed in" do
       Fission::Command::SnapshotRevert.should_receive(:help)

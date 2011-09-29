@@ -7,3 +7,4 @@ require 'fakefs/safe'
 end
 
 include ResponseHelpers
+include CommandHelpers

@@ -12,14 +12,9 @@ describe Fission::Command::Stop do
   end
 
   describe 'execute' do
-    it "should output an error and the help when no VM argument is passed in" do
-      Fission::Command::Stop.should_receive(:help)
+    subject { Fission::Command::Stop }
 
-      command = Fission::Command::Stop.new
-      lambda { command.execute }.should raise_error SystemExit
-
-      @string_io.string.should match /Incorrect arguments for stop command/
-    end
+    it_should_not_accept_arguments_of [], 'stop'
 
     it "should output an error and exit if it can't find the vm" do
       @exists_response_mock.stub_as_successful false

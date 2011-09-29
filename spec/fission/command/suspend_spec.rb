@@ -12,14 +12,9 @@ describe Fission::Command::Suspend do
   end
 
   describe 'execute' do
-    it "should output an error and the help when no VM argument is passed in" do
-      Fission::Command::Suspend.should_receive(:help)
+    subject { Fission::Command::Suspend }
 
-      command = Fission::Command::Suspend.new
-      lambda { command.execute }.should raise_error SystemExit
-
-      @string_io.string.should match /Incorrect arguments for suspend command/
-    end
+    it_should_not_accept_arguments_of [], 'suspend'
 
     it "should output an error and exit if it can't find the VM" do
       @exists_response_mock.stub_as_successful false
