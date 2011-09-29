@@ -187,7 +187,7 @@ module Fission
       rename_vm_files source_vm, target_vm
       update_config source_vm, target_vm
 
-      response = Response.new :code => 0
+      Response.new :code => 0
     end
 
     def self.delete(vm_name)
