@@ -8,6 +8,7 @@ describe Fission::Command::Stop do
     @all_running_response_mock = mock('all_running_response')
     @exists_response_mock = mock('exists_response')
     @stop_response_mock = mock('stop_response')
+    @vm_mock = mock('vm_mock')
   end
 
   describe 'execute' do
@@ -21,8 +22,8 @@ describe Fission::Command::Stop do
     end
 
     it "should output an error and exit if it can't find the vm" do
-      @exists_response_mock.should_receive(:successful?).and_return(true)
-      @exists_response_mock.should_receive(:data).and_return(false)
+      @exists_response_mock.stub_as_successful false
+
       Fission::VM.should_receive(:exists?).with(@vm_info.first).
                                            and_return(@exists_response_mock)
 
@@ -32,77 +33,63 @@ describe Fission::Command::Stop do
       @string_io.string.should match /Unable to find the VM '#{@vm_info.first}'/
     end
 
-    it "should output and exit if the vm is not running" do
-      @exists_response_mock.should_receive(:successful?).and_return(true)
-      @exists_response_mock.should_receive(:data).and_return(true)
-      Fission::VM.should_receive(:exists?).with(@vm_info.first).
-                                           and_return(@exists_response_mock)
-      @all_running_response_mock.should_receive(:successful?).and_return(true)
-      @all_running_response_mock.should_receive(:data).and_return([])
-      Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
+    describe 'when the VM exists' do
+      before do
+        @exists_response_mock.stub_as_successful true
+        Fission::VM.should_receive(:exists?).with(@vm_info.first).
+                                             and_return(@exists_response_mock)
+        Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
+      end
 
-      command = Fission::Command::Stop.new @vm_info
-      lambda { command.execute }.should raise_error SystemExit
+      it "should output and exit if the vm is not running" do
+        @all_running_response_mock.stub_as_successful []
 
-      @string_io.string.should match /VM '#{@vm_info.first}' is not running/
-    end
+        command = Fission::Command::Stop.new @vm_info
+        lambda { command.execute }.should raise_error SystemExit
 
-    it 'should output an error and exit if there was an error getting the list of running VMs' do
-      @exists_response_mock.should_receive(:successful?).and_return(true)
-      @exists_response_mock.should_receive(:data).and_return(true)
-      Fission::VM.should_receive(:exists?).with(@vm_info.first).
-                                           and_return(@exists_response_mock)
-      @all_running_response_mock.should_receive(:successful?).and_return(false)
-      @all_running_response_mock.should_receive(:code).and_return(1)
-      @all_running_response_mock.should_receive(:output).and_return('it blew up')
-      Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
+        @string_io.string.should match /VM '#{@vm_info.first}' is not running/
+      end
 
-      command = Fission::Command::Stop.new @vm_info
-      lambda { command.execute }.should raise_error SystemExit
+      it 'should output an error and exit if there was an error getting the list of running VMs' do
+        @all_running_response_mock.stub_as_unsuccessful
 
-      @string_io.string.should match /There was an error determining if the VM is already running.+it blew up.+/m
-    end
+        command = Fission::Command::Stop.new @vm_info
+        lambda { command.execute }.should raise_error SystemExit
 
-    it 'should try to stop the vm if it is running' do
-      @vm_mock = mock('vm_mock')
-      @exists_response_mock.should_receive(:successful?).and_return(true)
-      @exists_response_mock.should_receive(:data).and_return(true)
-      Fission::VM.should_receive(:exists?).with(@vm_info.first).
-                                           and_return(@exists_response_mock)
-      @all_running_response_mock.should_receive(:successful?).and_return(true)
-      @all_running_response_mock.should_receive(:data).and_return([@vm_info.first])
-      Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
-      Fission::VM.should_receive(:new).with(@vm_info.first).and_return(@vm_mock)
-      @stop_response_mock.should_receive(:successful?).and_return(true)
-      @vm_mock.should_receive(:stop).and_return(@stop_response_mock)
+        @string_io.string.should match /There was an error determining if the VM is already running.+it blew up.+/m
+      end
 
-      command = Fission::Command::Stop.new @vm_info
-      command.execute
+      it 'should try to stop the vm if it is running' do
+        @all_running_response_mock.stub_as_successful [@vm_info.first]
 
-      @string_io.string.should match /Stopping '#{@vm_info.first}'/
-      @string_io.string.should match /VM '#{@vm_info.first}' stopped/
-    end
+        @stop_response_mock.should_receive(:successful?).and_return(true)
+        @vm_mock.should_receive(:stop).and_return(@stop_response_mock)
 
-    it 'should output an error and exit if there was an error stopping the vm' do
-      @vm_mock = mock('vm_mock')
-      @exists_response_mock.should_receive(:successful?).and_return(true)
-      @exists_response_mock.should_receive(:data).and_return(true)
-      Fission::VM.should_receive(:exists?).with(@vm_info.first).
-                                           and_return(@exists_response_mock)
-      @all_running_response_mock.should_receive(:successful?).and_return(true)
-      @all_running_response_mock.should_receive(:data).and_return([@vm_info.first])
-      Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
-      Fission::VM.should_receive(:new).with(@vm_info.first).and_return(@vm_mock)
-      @stop_response_mock.should_receive(:successful?).and_return(false)
-      @stop_response_mock.should_receive(:code).and_return(1)
-      @stop_response_mock.should_receive(:output).and_return('it blew up')
-      @vm_mock.should_receive(:stop).and_return(@stop_response_mock)
+        Fission::VM.should_receive(:new).with(@vm_info.first).
+                                         and_return(@vm_mock)
 
-      command = Fission::Command::Stop.new @vm_info
-      lambda { command.execute }.should raise_error SystemExit
+        command = Fission::Command::Stop.new @vm_info
+        command.execute
 
-      @string_io.string.should match /Stopping '#{@vm_info.first}'/
-      @string_io.string.should match /There was an error stopping the VM.+it blew up.+/m
+        @string_io.string.should match /Stopping '#{@vm_info.first}'/
+        @string_io.string.should match /VM '#{@vm_info.first}' stopped/
+      end
+
+      it 'should output an error and exit if there was an error stopping the vm' do
+        @all_running_response_mock.stub_as_successful [@vm_info.first]
+        @stop_response_mock.stub_as_unsuccessful
+
+        @vm_mock.should_receive(:stop).and_return(@stop_response_mock)
+
+        Fission::VM.should_receive(:new).with(@vm_info.first).
+                                         and_return(@vm_mock)
+
+        command = Fission::Command::Stop.new @vm_info
+        lambda { command.execute }.should raise_error SystemExit
+
+        @string_io.string.should match /Stopping '#{@vm_info.first}'/
+        @string_io.string.should match /There was an error stopping the VM.+it blew up.+/m
+      end
     end
   end
 

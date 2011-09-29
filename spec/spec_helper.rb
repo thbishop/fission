@@ -1,4 +1,9 @@
 require 'rspec'
 require 'fission'
 require 'fakefs/safe'
-Dir[File.expand_path(File.join(File.dirname(__FILE__),'matchers','*.rb'))].each {|f| require f}
+
+['matchers', 'helpers'].each do |dir|
+  Dir[File.expand_path(File.join(File.dirname(__FILE__),dir,'*.rb'))].each {|f| require f}
+end
+
+include ResponseHelpers

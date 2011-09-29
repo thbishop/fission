@@ -32,8 +32,7 @@ describe Fission::Command::SnapshotCreate do
     end
 
     it "should output an error and exit if it can't find the target vm" do
-      @exists_response_mock.should_receive(:successful?).and_return(true)
-      @exists_response_mock.should_receive(:data).and_return(false)
+      @exists_response_mock.stub_as_successful false
       Fission::VM.should_receive(:exists?).with(@target_vm.first).
                                            and_return(@exists_response_mock)
 
@@ -43,93 +42,70 @@ describe Fission::Command::SnapshotCreate do
       @string_io.string.should match /Unable to find the VM '#{@target_vm.first}'/
     end
 
-    it 'should output an error and exit if the VM is not running' do
-      @exists_response_mock.should_receive(:successful?).and_return(true)
-      @exists_response_mock.should_receive(:data).and_return(true)
-      Fission::VM.should_receive(:exists?).with(@target_vm.first).
-                                           and_return(@exists_response_mock)
-      @all_running_response_mock.should_receive(:successful?).and_return(true)
-      @all_running_response_mock.should_receive(:data).and_return([])
-      Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
+    describe 'when the VM exists' do
+      before do
+        @exists_response_mock.stub_as_successful true
+        Fission::VM.should_receive(:exists?).with(@target_vm.first).
+                                             and_return(@exists_response_mock)
+        Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
+      end
 
-      command = Fission::Command::SnapshotCreate.new @target_vm << 'snap_1'
-      lambda { command.execute }.should raise_error SystemExit
+      it 'should output an error and exit if the VM is not running' do
+        @all_running_response_mock.stub_as_successful []
 
-      @string_io.string.should match /VM 'foo' is not running/
-      @string_io.string.should match /A snapshot cannot be created unless the VM is running/
-    end
+        command = Fission::Command::SnapshotCreate.new @target_vm << 'snap_1'
+        lambda { command.execute }.should raise_error SystemExit
 
-    it "should output an error and exit if there is already a snapshot with the provided name"  do
-      @exists_response_mock.should_receive(:successful?).and_return(true)
-      @exists_response_mock.should_receive(:data).and_return(true)
-      Fission::VM.should_receive(:exists?).with(@target_vm.first).
-                                           and_return(@exists_response_mock)
-      @all_running_response_mock.should_receive(:successful?).and_return(true)
-      @all_running_response_mock.should_receive(:data).and_return([@target_vm.first])
-      Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
-      @vm_mock.should_receive(:snapshots).and_return(['snap_1'])
+        @string_io.string.should match /VM 'foo' is not running/
+        @string_io.string.should match /A snapshot cannot be created unless the VM is running/
+      end
 
-      command = Fission::Command::SnapshotCreate.new @target_vm << 'snap_1'
-      lambda { command.execute }.should raise_error SystemExit
+      it "should output an error and exit if there is already a snapshot with the provided name"  do
+        @all_running_response_mock.stub_as_successful [@target_vm.first]
+        @vm_mock.should_receive(:snapshots).and_return(['snap_1'])
 
-      @string_io.string.should match /VM 'foo' already has a snapshot named 'snap_1'/
-    end
+        command = Fission::Command::SnapshotCreate.new @target_vm << 'snap_1'
+        lambda { command.execute }.should raise_error SystemExit
 
-    it 'should output an error and exit if there is an error getting the list of running VMs' do
-      @exists_response_mock.should_receive(:successful?).and_return(true)
-      @exists_response_mock.should_receive(:data).and_return(true)
-      Fission::VM.should_receive(:exists?).with(@target_vm.first).
-                                           and_return(@exists_response_mock)
-      @all_running_response_mock.should_receive(:successful?).and_return(false)
-      @all_running_response_mock.should_receive(:code).and_return(1)
-      @all_running_response_mock.should_receive(:output).and_return('it blew up')
-      Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
+        @string_io.string.should match /VM 'foo' already has a snapshot named 'snap_1'/
+      end
 
-      command = Fission::Command::SnapshotCreate.new @target_vm << 'snap_1'
-      lambda { command.execute }.should raise_error SystemExit
+      it 'should output an error and exit if there is an error getting the list of running VMs' do
+        @all_running_response_mock.stub_as_unsuccessful
 
-      @string_io.string.should match /There was an error determining if this VM is running.+\n#{'it blew up'}/m
-    end
+        command = Fission::Command::SnapshotCreate.new @target_vm << 'snap_1'
+        lambda { command.execute }.should raise_error SystemExit
 
-    it 'should create a new snapshot with the provided name' do
-      @exists_response_mock.should_receive(:successful?).and_return(true)
-      @exists_response_mock.should_receive(:data).and_return(true)
-      Fission::VM.should_receive(:exists?).with(@target_vm.first).
-                                           and_return(@exists_response_mock)
-      @all_running_response_mock.should_receive(:successful?).and_return(true)
-      @all_running_response_mock.should_receive(:data).and_return([@target_vm.first])
-      Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
-      @snap_create_response_mock.should_receive(:successful?).and_return(true)
-      @vm_mock.should_receive(:snapshots).and_return([])
-      @vm_mock.should_receive(:create_snapshot).with('snap_1').and_return(@snap_create_response_mock)
+        @string_io.string.should match /There was an error determining if this VM is running.+\n#{'it blew up'}/m
+      end
 
-      command = Fission::Command::SnapshotCreate.new @target_vm << 'snap_1'
-      command.execute
+      it 'should create a new snapshot with the provided name' do
+        @all_running_response_mock.stub_as_successful [@target_vm.first]
+        @snap_create_response_mock.stub_as_successful []
+        @vm_mock.should_receive(:snapshots).and_return([])
+        @vm_mock.should_receive(:create_snapshot).with('snap_1').
+                                                  and_return(@snap_create_response_mock)
 
-      @string_io.string.should match /Creating snapshot/
-      @string_io.string.should match /Snapshot 'snap_1' created/
-    end
+        command = Fission::Command::SnapshotCreate.new @target_vm << 'snap_1'
+        command.execute
 
-    it 'should output an error and exit if there was an error creating the snapshot' do
-      @exists_response_mock.should_receive(:successful?).and_return(true)
-      @exists_response_mock.should_receive(:data).and_return(true)
-      Fission::VM.should_receive(:exists?).with(@target_vm.first).
-                                           and_return(@exists_response_mock)
-      @all_running_response_mock.should_receive(:successful?).and_return(true)
-      @all_running_response_mock.should_receive(:data).and_return([@target_vm.first])
-      Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
+        @string_io.string.should match /Creating snapshot/
+        @string_io.string.should match /Snapshot 'snap_1' created/
+      end
 
-      @snap_create_response_mock.should_receive(:successful?).and_return(false)
-      @snap_create_response_mock.should_receive(:code).and_return(1)
-      @snap_create_response_mock.should_receive(:output).and_return('it blew up')
-      @vm_mock.should_receive(:snapshots).and_return([])
-      @vm_mock.should_receive(:create_snapshot).with('snap_1').and_return(@snap_create_response_mock)
+      it 'should output an error and exit if there was an error creating the snapshot' do
+        @all_running_response_mock.stub_as_successful [@target_vm.first]
+        @snap_create_response_mock.stub_as_unsuccessful
+        @vm_mock.should_receive(:snapshots).and_return([])
+        @vm_mock.should_receive(:create_snapshot).with('snap_1').
+                                                  and_return(@snap_create_response_mock)
 
-      command = Fission::Command::SnapshotCreate.new @target_vm << 'snap_1'
-      lambda { command.execute }.should raise_error SystemExit
+        command = Fission::Command::SnapshotCreate.new @target_vm << 'snap_1'
+        lambda { command.execute }.should raise_error SystemExit
 
-      @string_io.string.should match /Creating snapshot/
-      @string_io.string.should match /There was an error creating the snapshot.+it blew up.+/m
+        @string_io.string.should match /Creating snapshot/
+        @string_io.string.should match /There was an error creating the snapshot.+it blew up.+/m
+      end
     end
   end
 

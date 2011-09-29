@@ -19,8 +19,7 @@ describe Fission::VM do
 
   describe 'start' do
     it 'should start the VM and return a successful response object' do
-      @conf_file_response_mock.should_receive(:successful?).and_return(true)
-      @conf_file_response_mock.should_receive(:data).and_return(@conf_file_path)
+      @conf_file_response_mock.stub_as_successful @conf_file_path
       @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(0)
       @vm.should_receive(:`).
@@ -31,8 +30,7 @@ describe Fission::VM do
     end
 
     it 'should successfully start the vm headless' do
-      @conf_file_response_mock.should_receive(:successful?).and_return(true)
-      @conf_file_response_mock.should_receive(:data).and_return(@conf_file_path)
+      @conf_file_response_mock.stub_as_successful @conf_file_path
       @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(0)
       @vm.should_receive(:`).
@@ -43,18 +41,14 @@ describe Fission::VM do
     end
 
     it 'should return an unsuccessful response if unable to figure out the conf file' do
-      @conf_file_response_mock.stub!(:successful?).and_return(false)
-      @conf_file_response_mock.stub!(:output).and_return('it blew up')
-      @conf_file_response_mock.stub!(:code).and_return(1)
-      @conf_file_response_mock.stub!(:data).and_return(nil)
+      @conf_file_response_mock.stub_as_unsuccessful
       @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
 
       @vm.start.should be_an_unsuccessful_response
     end
 
     it 'should return an unsuccessful response if there was an error starting the VM' do
-      @conf_file_response_mock.should_receive(:successful?).and_return(true)
-      @conf_file_response_mock.should_receive(:data).and_return(@conf_file_path)
+      @conf_file_response_mock.stub_as_successful @conf_file_path
       @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(1)
       @vm.should_receive(:`).
@@ -67,8 +61,7 @@ describe Fission::VM do
 
   describe 'stop' do
     it 'should return a successul response object' do
-      @conf_file_response_mock.should_receive(:successful?).and_return(true)
-      @conf_file_response_mock.should_receive(:data).and_return(@conf_file_path)
+      @conf_file_response_mock.stub_as_successful @conf_file_path
       @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(0)
       @vm.should_receive(:`).
@@ -79,18 +72,14 @@ describe Fission::VM do
     end
 
     it 'should return an unsuccessful response if unable to figure out the conf file' do
-      @conf_file_response_mock.stub!(:successful?).and_return(false)
-      @conf_file_response_mock.stub!(:output).and_return('it blew up')
-      @conf_file_response_mock.stub!(:code).and_return(1)
-      @conf_file_response_mock.stub!(:data).and_return(nil)
+      @conf_file_response_mock.stub_as_unsuccessful
       @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
 
       @vm.stop.should be_an_unsuccessful_response
     end
 
     it 'it should return unsuccessful response' do
-      @conf_file_response_mock.should_receive(:successful?).and_return(true)
-      @conf_file_response_mock.should_receive(:data).and_return(@conf_file_path)
+      @conf_file_response_mock.stub_as_successful @conf_file_path
       @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(1)
       @vm.should_receive(:`).
@@ -103,8 +92,7 @@ describe Fission::VM do
 
   describe 'suspend' do
     it 'should output that it was successful' do
-      @conf_file_response_mock.should_receive(:successful?).and_return(true)
-      @conf_file_response_mock.should_receive(:data).and_return(@conf_file_path)
+      @conf_file_response_mock.stub_as_successful @conf_file_path
       @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(0)
       @vm.should_receive(:`).
@@ -115,18 +103,14 @@ describe Fission::VM do
     end
 
     it 'should return an unsuccessful response if unable to figure out the conf file' do
-      @conf_file_response_mock.stub!(:successful?).and_return(false)
-      @conf_file_response_mock.stub!(:output).and_return('it blew up')
-      @conf_file_response_mock.stub!(:code).and_return(1)
-      @conf_file_response_mock.stub!(:data).and_return(nil)
+      @conf_file_response_mock.stub_as_unsuccessful
       @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
 
       @vm.suspend.should be_an_unsuccessful_response
     end
 
     it 'it should output that it was unsuccessful' do
-      @conf_file_response_mock.should_receive(:successful?).and_return(true)
-      @conf_file_response_mock.should_receive(:data).and_return(@conf_file_path)
+      @conf_file_response_mock.stub_as_successful @conf_file_path
       @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(1)
       @vm.should_receive(:`).
@@ -139,8 +123,7 @@ describe Fission::VM do
 
   describe 'snapshots' do
     it 'should return the list of snapshots' do
-      @conf_file_response_mock.should_receive(:successful?).and_return(true)
-      @conf_file_response_mock.should_receive(:data).and_return(@conf_file_path)
+      @conf_file_response_mock.stub_as_successful @conf_file_path
       @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(0)
       @vm.should_receive(:`).
@@ -153,18 +136,14 @@ describe Fission::VM do
     end
 
     it 'should return an unsuccessful response if unable to figure out the conf file' do
-      @conf_file_response_mock.stub!(:successful?).and_return(false)
-      @conf_file_response_mock.stub!(:output).and_return('it blew up')
-      @conf_file_response_mock.stub!(:code).and_return(1)
-      @conf_file_response_mock.stub!(:data).and_return(nil)
+      @conf_file_response_mock.stub_as_unsuccessful
       @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
 
       @vm.snapshots.should be_an_unsuccessful_response
     end
 
     it 'should print an error and exit if there was a problem getting the list of snapshots' do
-      @conf_file_response_mock.should_receive(:successful?).and_return(true)
-      @conf_file_response_mock.should_receive(:data).and_return(@conf_file_path)
+      @conf_file_response_mock.stub_as_successful @conf_file_path
       @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(1)
       @vm.should_receive(:`).
@@ -177,8 +156,7 @@ describe Fission::VM do
 
   describe 'create_snapshot' do
     it 'should create a snapshot' do
-      @conf_file_response_mock.should_receive(:successful?).and_return(true)
-      @conf_file_response_mock.should_receive(:data).and_return(@conf_file_path)
+      @conf_file_response_mock.stub_as_successful @conf_file_path
       @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(0)
       @vm.should_receive(:`).
@@ -189,18 +167,14 @@ describe Fission::VM do
     end
 
     it 'should return an unsuccessful response if unable to figure out the conf file' do
-      @conf_file_response_mock.stub!(:successful?).and_return(false)
-      @conf_file_response_mock.stub!(:output).and_return('it blew up')
-      @conf_file_response_mock.stub!(:code).and_return(1)
-      @conf_file_response_mock.stub!(:data).and_return(nil)
+      @conf_file_response_mock.stub_as_unsuccessful
       @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
 
       @vm.create_snapshot('bar').should be_an_unsuccessful_response
     end
 
     it 'should print an error and exit if there was a problem creating the snapshot' do
-      @conf_file_response_mock.should_receive(:successful?).and_return(true)
-      @conf_file_response_mock.should_receive(:data).and_return(@conf_file_path)
+      @conf_file_response_mock.stub_as_successful @conf_file_path
       @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(1)
       @vm.should_receive(:`).
@@ -213,8 +187,7 @@ describe Fission::VM do
 
   describe 'revert_to_snapshot' do
     it 'should revert to the provided snapshot' do
-      @conf_file_response_mock.should_receive(:successful?).and_return(true)
-      @conf_file_response_mock.should_receive(:data).and_return(@conf_file_path)
+      @conf_file_response_mock.stub_as_successful @conf_file_path
       @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(0)
       @vm.should_receive(:`).
@@ -225,18 +198,14 @@ describe Fission::VM do
     end
 
     it 'should return an unsuccessful response if unable to figure out the conf file' do
-      @conf_file_response_mock.stub!(:successful?).and_return(false)
-      @conf_file_response_mock.stub!(:output).and_return('it blew up')
-      @conf_file_response_mock.stub!(:code).and_return(1)
-      @conf_file_response_mock.stub!(:data).and_return(nil)
+      @conf_file_response_mock.stub_as_unsuccessful
       @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
 
       @vm.revert_to_snapshot('bar').should be_an_unsuccessful_response
     end
 
     it "should print an error and exit if the snapshot doesn't exist" do
-      @conf_file_response_mock.should_receive(:successful?).and_return(true)
-      @conf_file_response_mock.should_receive(:data).and_return(@conf_file_path)
+      @conf_file_response_mock.stub_as_successful @conf_file_path
       @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(1)
       @vm.should_receive(:`).

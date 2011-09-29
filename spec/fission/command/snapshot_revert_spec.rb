@@ -33,8 +33,8 @@ describe Fission::Command::SnapshotRevert do
     end
 
     it "should output an error and exit if it can't find the target vm" do
-      @exists_response_mock.should_receive(:successful?).and_return(true)
-      @exists_response_mock.should_receive(:data).and_return(false)
+      @exists_response_mock.stub_as_successful false
+
       Fission::VM.should_receive(:exists?).with(@target_vm.first).
                                            and_return(@exists_response_mock)
 
@@ -44,100 +44,76 @@ describe Fission::Command::SnapshotRevert do
       @string_io.string.should match /Unable to find the VM '#{@target_vm.first}'/
     end
 
-    it "should output an error and exit if it can't find the snapshot" do
-      @snap_list_response_mock.should_receive(:successful?).and_return(true)
-      @snap_list_response_mock.should_receive(:data).and_return([])
-      @vm_mock.should_receive(:snapshots).and_return(@snap_list_response_mock)
-      @exists_response_mock.should_receive(:successful?).and_return(true)
-      @exists_response_mock.should_receive(:data).and_return(true)
-      Fission::VM.should_receive(:exists?).with(@target_vm.first).
-                                           and_return(@exists_response_mock)
-      @fusion_running_response_mock.should_receive(:successful?).and_return(true)
-      @fusion_running_response_mock.should_receive(:data).and_return(false)
-      Fission::Fusion.should_receive(:is_running?).and_return(@fusion_running_response_mock)
+    describe 'when the VM exists' do
+      before do
+        @exists_response_mock.stub_as_successful true
+        Fission::VM.should_receive(:exists?).with(@target_vm.first).
+                                             and_return(@exists_response_mock)
+        Fission::Fusion.should_receive(:is_running?).and_return(@fusion_running_response_mock)
+      end
 
-      command = Fission::Command::SnapshotRevert.new @target_vm << 'snap_1'
-      lambda { command.execute }.should raise_error SystemExit
+      it 'should output an error and exit if the fusion app is running' do
+        @fusion_running_response_mock.stub_as_successful true
 
-      @string_io.string.should match /Unable to find the snapshot 'snap_1'/
-    end
+        command = Fission::Command::SnapshotRevert.new @target_vm << 'snap_1'
+        lambda { command.execute }.should raise_error SystemExit
 
-    it 'should output an error and exit if the fusion app is running' do
-      @exists_response_mock.should_receive(:successful?).and_return(true)
-      @exists_response_mock.should_receive(:data).and_return(true)
-      Fission::VM.should_receive(:exists?).with(@target_vm.first).
-                                           and_return(@exists_response_mock)
-      @fusion_running_response_mock.should_receive(:successful?).and_return(true)
-      @fusion_running_response_mock.should_receive(:data).and_return(true)
-      Fission::Fusion.should_receive(:is_running?).and_return(@fusion_running_response_mock)
+        @string_io.string.should match /Fusion GUI is currently running/
+        @string_io.string.should match /Please exit the Fusion GUI and try again/
+      end
 
-      command = Fission::Command::SnapshotRevert.new @target_vm << 'snap_1'
-      lambda { command.execute }.should raise_error SystemExit
+      describe 'when the Fusion app is not running' do
+        before do
+          @fusion_running_response_mock.stub_as_successful false
+          @vm_mock.should_receive(:snapshots).and_return(@snap_list_response_mock)
+        end
 
-      @string_io.string.should match /Fusion GUI is currently running/
-      @string_io.string.should match /Please exit the Fusion GUI and try again/
-    end
+        it "should output an error and exit if it can't find the snapshot" do
+          @snap_list_response_mock.stub_as_successful []
 
-    it 'should revert to the snapshot with the provided name' do
-      @snap_list_response_mock.should_receive(:successful?).and_return(true)
-      @snap_list_response_mock.should_receive(:data).and_return(['snap_1', 'snap_2'])
-      @vm_mock.should_receive(:snapshots).and_return(@snap_list_response_mock)
-      @exists_response_mock.should_receive(:successful?).and_return(true)
-      @exists_response_mock.should_receive(:data).and_return(true)
-      Fission::VM.should_receive(:exists?).with(@target_vm.first).
-                                           and_return(@exists_response_mock)
-      @fusion_running_response_mock.should_receive(:successful?).and_return(true)
-      @fusion_running_response_mock.should_receive(:data).and_return(false)
-      Fission::Fusion.should_receive(:is_running?).and_return(@fusion_running_response_mock)
-      @snap_revert_response_mock.should_receive(:successful?).and_return(true)
-      @vm_mock.should_receive(:revert_to_snapshot).with('snap_1').and_return(@snap_revert_response_mock)
-      command = Fission::Command::SnapshotRevert.new @target_vm << 'snap_1'
-      command.execute
+          command = Fission::Command::SnapshotRevert.new @target_vm << 'snap_1'
+          lambda { command.execute }.should raise_error SystemExit
 
-      @string_io.string.should match /Reverting to snapshot 'snap_1'/
-      @string_io.string.should match /Reverted to snapshot 'snap_1'/
-    end
+          @string_io.string.should match /Unable to find the snapshot 'snap_1'/
+        end
 
-    it 'should output an error and exit if there was an error getting the list of snapshots' do
-      @snap_list_response_mock.should_receive(:successful?).and_return(false)
-      @snap_list_response_mock.should_receive(:code).and_return(1)
-      @snap_list_response_mock.should_receive(:output).and_return('it blew up')
-      @vm_mock.should_receive(:snapshots).and_return(@snap_list_response_mock)
-      @exists_response_mock.should_receive(:successful?).and_return(true)
-      @exists_response_mock.should_receive(:data).and_return(true)
-      Fission::VM.should_receive(:exists?).with(@target_vm.first).
-                                           and_return(@exists_response_mock)
-      @fusion_running_response_mock.should_receive(:successful?).and_return(true)
-      @fusion_running_response_mock.should_receive(:data).and_return(false)
-      Fission::Fusion.should_receive(:is_running?).and_return(@fusion_running_response_mock)
+        it 'should revert to the snapshot with the provided name' do
+          @snap_list_response_mock.stub_as_successful ['snap_1', 'snap_2']
+          @snap_revert_response_mock.stub_as_successful
 
-      command = Fission::Command::SnapshotRevert.new @target_vm << 'snap_1'
-      lambda { command.execute }.should raise_error SystemExit
+          @vm_mock.should_receive(:revert_to_snapshot).with('snap_1').
+                                                       and_return(@snap_revert_response_mock)
 
-      @string_io.string.should match /There was an error getting the list of snapshots.+it blew up/m
-    end
+          command = Fission::Command::SnapshotRevert.new @target_vm << 'snap_1'
+          command.execute
 
-    it 'should output an error and exit if there was an error reverting to the snapshot' do
-      @snap_list_response_mock.should_receive(:successful?).and_return(true)
-      @snap_list_response_mock.should_receive(:data).and_return(['snap_1', 'snap_2'])
-      @vm_mock.should_receive(:snapshots).and_return(@snap_list_response_mock)
-      @exists_response_mock.should_receive(:successful?).and_return(true)
-      @exists_response_mock.should_receive(:data).and_return(true)
-      Fission::VM.should_receive(:exists?).with(@target_vm.first).
-                                           and_return(@exists_response_mock)
-      @fusion_running_response_mock.should_receive(:successful?).and_return(true)
-      @fusion_running_response_mock.should_receive(:data).and_return(false)
-      Fission::Fusion.should_receive(:is_running?).and_return(@fusion_running_response_mock)
-      @snap_revert_response_mock.should_receive(:successful?).and_return(false)
-      @snap_revert_response_mock.should_receive(:code).and_return(1)
-      @snap_revert_response_mock.should_receive(:output).and_return('it blew up')
-      @vm_mock.should_receive(:revert_to_snapshot).with('snap_1').and_return(@snap_revert_response_mock)
+          @string_io.string.should match /Reverting to snapshot 'snap_1'/
+          @string_io.string.should match /Reverted to snapshot 'snap_1'/
+        end
 
-      command = Fission::Command::SnapshotRevert.new @target_vm << 'snap_1'
-      lambda { command.execute }.should raise_error SystemExit
+        it 'should output an error and exit if there was an error getting the list of snapshots' do
+          @snap_list_response_mock.stub_as_unsuccessful
 
-      @string_io.string.should match /Reverting to snapshot 'snap_1'/
-      @string_io.string.should match /There was an error reverting to the snapshot.+it blew up.+/m
+          command = Fission::Command::SnapshotRevert.new @target_vm << 'snap_1'
+          lambda { command.execute }.should raise_error SystemExit
+
+          @string_io.string.should match /There was an error getting the list of snapshots.+it blew up/m
+        end
+
+        it 'should output an error and exit if there was an error reverting to the snapshot' do
+          @snap_list_response_mock.stub_as_successful ['snap_1', 'snap_2']
+          @snap_revert_response_mock.stub_as_unsuccessful
+
+          @vm_mock.should_receive(:revert_to_snapshot).with('snap_1').
+                                                       and_return(@snap_revert_response_mock)
+
+          command = Fission::Command::SnapshotRevert.new @target_vm << 'snap_1'
+          lambda { command.execute }.should raise_error SystemExit
+
+          @string_io.string.should match /Reverting to snapshot 'snap_1'/
+          @string_io.string.should match /There was an error reverting to the snapshot.+it blew up.+/m
+        end
+      end
     end
   end
 

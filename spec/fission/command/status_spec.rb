@@ -10,16 +10,15 @@ describe Fission::Command::Status do
 
   describe 'execute' do
     before do
-      @all_response_mock.should_receive(:successful?).and_return(true)
-      @all_response_mock.should_receive(:data).and_return(['foo', 'bar', 'baz'])
+      @all_response_mock.stub_as_successful ['foo', 'bar', 'baz']
+
       Fission::VM.should_receive(:all).and_return(@all_response_mock)
       Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
     end
 
     describe 'when successful' do
       before do
-        @all_running_response_mock.should_receive(:successful?).and_return(true)
-        @all_running_response_mock.should_receive(:data).and_return(['foo', 'baz'])
+        @all_running_response_mock.stub_as_successful ['foo', 'baz']
       end
 
       it 'should output the VMs which are running' do
@@ -40,9 +39,7 @@ describe Fission::Command::Status do
 
     describe 'when unsuccessful' do
       before do
-        @all_running_response_mock.should_receive(:successful?).and_return(false)
-        @all_running_response_mock.should_receive(:code).and_return(1)
-        @all_running_response_mock.should_receive(:output).and_return('it blew up')
+        @all_running_response_mock.stub_as_unsuccessful
       end
 
       it 'should output an error and exit if there was an error getting the list of running VMs' do
