@@ -7,6 +7,7 @@ $:.unshift File.join(File.dirname(__FILE__), *%w[.. lib])
 
 require 'fission/cli'
 require 'fission/command'
+require 'fission/command_helpers'
 require 'fission/command/clone'
 require 'fission/command/snapshot_create'
 require 'fission/command/snapshot_list'

@@ -1,6 +1,7 @@
 module Fission
   class Command
     class SnapshotRevert < Command
+      include Fission::CommandHelpers
 
       def execute
         unless @args.count == 2
@@ -11,13 +12,7 @@ module Fission
 
         vm_name, snap_name = @args.take 2
 
-        exists_response = VM.exists? vm_name
-
-        if exists_response.successful?
-          unless exists_response.data
-            output_and_exit "Unable to find the VM '#{vm_name}' (#{VM.path(vm_name)})", 1
-          end
-        end
+        ensure_vm_exists vm_name
 
         fusion_running_response = Fusion.is_running?
 

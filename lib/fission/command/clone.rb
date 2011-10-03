@@ -1,6 +1,7 @@
 module Fission
   class Command
     class Clone < Command
+      include Fission::CommandHelpers
 
       def initialize(args=[])
         super
@@ -19,13 +20,7 @@ module Fission
         source_vm = @args.first
         target_vm = @args[1]
 
-        exists_response = VM.exists? source_vm
-
-        if exists_response.successful?
-          unless exists_response.data
-            output_and_exit "Unable to find the VM '#{source_vm}' (#{VM.path(source_vm)})", 1
-          end
-        end
+        ensure_vm_exists source_vm
 
         exists_response = VM.exists? target_vm
 
