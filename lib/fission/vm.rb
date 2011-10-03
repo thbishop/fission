@@ -8,36 +8,30 @@ module Fission
 
     def create_snapshot(name)
       conf_file_response = conf_file
-      unless conf_file_response.successful?
-        return conf_file_response
-      end
+      return conf_file_response unless conf_file_response.successful?
 
-      command = "#{Fission.config['vmrun_cmd']} snapshot "
-      command << "#{conf_file_response.data.gsub ' ', '\ '} \"#{name}\" 2>&1"
+      command = "#{vmrun_cmd} snapshot "
+      command << "#{conf_file_response.data} \"#{name}\" 2>&1"
 
       Response.from_command(`#{command}`)
     end
 
     def revert_to_snapshot(name)
       conf_file_response = conf_file
-      unless conf_file_response.successful?
-        return conf_file_response
-      end
+      return conf_file_response unless conf_file_response.successful?
 
-      command = "#{Fission.config['vmrun_cmd']} revertToSnapshot "
-      command << "#{conf_file_response.data.gsub ' ', '\ '} \"#{name}\" 2>&1"
+      command = "#{vmrun_cmd} revertToSnapshot "
+      command << "#{conf_file_response.data} \"#{name}\" 2>&1"
 
       Response.from_command(`#{command}`)
     end
 
     def snapshots
       conf_file_response = conf_file
-      unless conf_file_response.successful?
-        return conf_file_response
-      end
+      return conf_file_response unless conf_file_response.successful?
 
-      command = "#{Fission.config['vmrun_cmd']} listSnapshots "
-      command << "#{conf_file_response.data.gsub ' ', '\ '} 2>&1"
+      command = "#{vmrun_cmd} listSnapshots "
+      command << "#{conf_file_response.data} 2>&1"
       output = `#{command}`
 
       response = Response.new :code => $?.exitstatus
@@ -54,12 +48,10 @@ module Fission
 
     def start(args={})
       conf_file_response = conf_file
-      unless conf_file_response.successful?
-        return conf_file_response
-      end
+      return conf_file_response unless conf_file_response.successful?
 
-      command = "#{Fission.config['vmrun_cmd']} start "
-      command << "#{conf_file_response.data.gsub ' ', '\ '} "
+      command = "#{vmrun_cmd} start "
+      command << "#{conf_file_response.data} "
 
       command << (args[:headless].blank? ? 'gui ' : 'nogui ')
       command << '2>&1'
@@ -69,24 +61,20 @@ module Fission
 
     def stop
       conf_file_response = conf_file
-      unless conf_file_response.successful?
-        return conf_file_response
-      end
+      return conf_file_response unless conf_file_response.successful?
 
-      command = "#{Fission.config['vmrun_cmd']} stop "
-      command << "#{conf_file_response.data.gsub ' ', '\ '} 2>&1"
+      command = "#{vmrun_cmd} stop "
+      command << "#{conf_file_response.data} 2>&1"
 
       Response.from_command(`#{command}`)
     end
 
     def suspend
       conf_file_response = conf_file
-      unless conf_file_response.successful?
-        return conf_file_response
-      end
+      return conf_file_response unless conf_file_response.successful?
 
-      command = "#{Fission.config['vmrun_cmd']} suspend "
-      command << "#{conf_file_response.data.gsub ' ', '\ '} 2>&1"
+      command = "#{vmrun_cmd} suspend "
+      command << "#{conf_file_response.data} 2>&1"
 
       Response.from_command(`#{command}`)
     end
@@ -115,6 +103,8 @@ module Fission
           response.output = output
         end
       end
+
+      response.data.gsub! ' ', '\ ' if response.successful?
 
       response
     end
@@ -218,6 +208,10 @@ module Fission
           File.open(file, 'w'){ |f| f.print text }
         end
       end
+    end
+
+    def vmrun_cmd
+      Fission.config['vmrun_cmd']
     end
 
   end
