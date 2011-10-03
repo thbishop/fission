@@ -61,11 +61,8 @@ module Fission
       command = "#{Fission.config['vmrun_cmd']} start "
       command << "#{conf_file_response.data.gsub ' ', '\ '} "
 
-      if !args[:headless].blank? && args[:headless]
-        command << "nogui 2>&1"
-      else
-        command << "gui 2>&1"
-      end
+      command << (args[:headless].blank? ? 'gui ' : 'nogui ')
+      command << '2>&1'
 
       Response.from_command(`#{command}`)
     end
