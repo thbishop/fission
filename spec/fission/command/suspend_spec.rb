@@ -4,7 +4,7 @@ describe Fission::Command::Suspend do
   include_context 'command_setup'
 
   before do
-    @vm_info = ['foo']
+    @target_vm = ['foo']
     @suspend_response_mock = mock('suspend_response')
   end
 
@@ -16,19 +16,19 @@ describe Fission::Command::Suspend do
     it "should output an error and exit if it can't find the VM" do
       @exists_response_mock.stub_as_successful false
 
-      Fission::VM.should_receive(:exists?).with(@vm_info.first).
+      Fission::VM.should_receive(:exists?).with(@target_vm.first).
                                            and_return(@exists_response_mock)
 
-      command = Fission::Command::Suspend.new @vm_info
+      command = Fission::Command::Suspend.new @target_vm
       lambda { command.execute }.should raise_error SystemExit
 
-      @string_io.string.should match /Unable to find the VM '#{@vm_info.first}'/
+      @string_io.string.should match /Unable to find the VM '#{@target_vm.first}'/
     end
 
     describe 'when the VM exists' do
       before do
         @exists_response_mock.stub_as_successful true
-        Fission::VM.should_receive(:exists?).with(@vm_info.first).
+        Fission::VM.should_receive(:exists?).with(@target_vm.first).
                                              and_return(@exists_response_mock)
         Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
       end
@@ -36,32 +36,32 @@ describe Fission::Command::Suspend do
       it "should output and exit if the vm is not running" do
         @all_running_response_mock.stub_as_successful []
 
-        command = Fission::Command::Suspend.new @vm_info
+        command = Fission::Command::Suspend.new @target_vm
         lambda { command.execute }.should raise_error SystemExit
 
-        @string_io.string.should match /VM '#{@vm_info.first}' is not running/
+        @string_io.string.should match /VM '#{@target_vm.first}' is not running/
       end
 
       it 'should try to suspend the vm if it is running' do
-        @all_running_response_mock.stub_as_successful [@vm_info.first]
+        @all_running_response_mock.stub_as_successful [@target_vm.first]
         @suspend_response_mock.stub_as_successful
 
         @vm_mock.should_receive(:suspend).and_return(@suspend_response_mock)
 
-        Fission::VM.should_receive(:new).with(@vm_info.first).and_return(@vm_mock)
+        Fission::VM.should_receive(:new).with(@target_vm.first).and_return(@vm_mock)
 
-        command = Fission::Command::Suspend.new @vm_info
+        command = Fission::Command::Suspend.new @target_vm
         command.execute
 
-        @string_io.string.should match /Suspending '#{@vm_info.first}'/
-        @string_io.string.should match /VM '#{@vm_info.first}' suspended/
+        @string_io.string.should match /Suspending '#{@target_vm.first}'/
+        @string_io.string.should match /VM '#{@target_vm.first}' suspended/
       end
 
       it 'should print an error and exit if there was an error getting the list of running VMs' do
 
         @all_running_response_mock.stub_as_unsuccessful
 
-        command = Fission::Command::Suspend.new @vm_info
+        command = Fission::Command::Suspend.new @target_vm
         lambda { command.execute }.should raise_error SystemExit
 
         @string_io.string.should match /There was an error getting the list of running VMs.+it blew up/m
