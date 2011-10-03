@@ -4,7 +4,7 @@ describe Fission::Fusion do
   describe 'self.is_running?' do
     before do
       @cmd = "ps -ef | grep -v grep | "
-      @cmd << "grep -c #{Fission.config.attributes['gui_bin'].gsub(' ', '\ ')} 2>&1"
+      @cmd << "grep -c #{Fission.config['gui_bin'].gsub(' ', '\ ')} 2>&1"
     end
 
     it 'should return a successful response and true if the fusion app is running' do

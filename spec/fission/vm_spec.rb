@@ -5,7 +5,7 @@ describe Fission::VM do
     @vm = Fission::VM.new('foo')
     @vm.stub!(:conf_file).and_return(File.join(Fission::VM.path('foo'), 'foo.vmx'))
     @conf_file_path = File.join(Fission::VM.path('foo'), 'foo.vmx')
-    @vmrun_cmd = Fission.config.attributes['vmrun_cmd']
+    @vmrun_cmd = Fission.config['vmrun_cmd']
     @conf_file_response_mock = mock('conf_file_response')
   end
 
@@ -278,11 +278,11 @@ describe Fission::VM do
 
   describe "self.all" do
     it "should return a successful object with the list of VMs" do
-      vm_root = Fission.config.attributes['vm_dir']
+      vm_root = Fission.config['vm_dir']
       Dir.should_receive(:[]).
           and_return(["#{File.join vm_root, 'foo.vmwarevm' }", "#{File.join vm_root, 'bar.vmwarevm' }"])
 
-      vm_root = Fission.config.attributes['vm_dir']
+      vm_root = Fission.config['vm_dir']
       File.should_receive(:directory?).with("#{File.join vm_root, 'foo.vmwarevm'}").
                                        and_return(true)
       File.should_receive(:directory?).with("#{File.join vm_root, 'bar.vmwarevm'}").
@@ -295,7 +295,7 @@ describe Fission::VM do
     end
 
     it "should return a successful object and not return an item in the list if it isn't a directory" do
-      vm_root = Fission.config.attributes['vm_dir']
+      vm_root = Fission.config['vm_dir']
       Dir.should_receive(:[]).
           and_return((['foo', 'bar', 'baz'].map { |i| File.join vm_root, "#{i}.vmwarevm"}))
       File.should_receive(:directory?).
@@ -311,7 +311,7 @@ describe Fission::VM do
     end
 
     it "should only query for items with an extension of .vmwarevm" do
-      dir_arg = File.join Fission.config.attributes['vm_dir'], '*.vmwarevm'
+      dir_arg = File.join Fission.config['vm_dir'], '*.vmwarevm'
       Dir.should_receive(:[]).with(dir_arg).
                               and_return(['foo.vmwarevm', 'bar.vmwarevm'])
       Fission::VM.all
@@ -369,7 +369,7 @@ describe Fission::VM do
 
   describe "self.path" do
     it "should return the path of the vm" do
-      vm_path = File.join(Fission.config.attributes['vm_dir'], 'foo.vmwarevm').gsub '\\', ''
+      vm_path = File.join(Fission.config['vm_dir'], 'foo.vmwarevm').gsub '\\', ''
       Fission::VM.path('foo').should == vm_path
     end
   end

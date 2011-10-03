@@ -44,4 +44,23 @@ describe Fission::Config do
 
   end
 
+  describe '[]' do
+    before do
+      @config_items = { 'vmrun_bin' => '/foo/bar/vmrun',
+                        'vmrun_cmd' => '/foo/bar/vmrun -T fusion',
+                        'plist_file' => '/foo/bar/plist',
+                        'gui_bin' => '/foo/bar/gui',
+                        'vm_dir' => '/foo/bar/vms'}
+      @config = Fission::Config.new
+      @config.attributes = @config_items
+    end
+
+    it 'should return the value for specifed key' do
+      @config_items.each_pair do |k, v|
+        @config[k].should == v
+      end
+    end
+
+  end
+
 end

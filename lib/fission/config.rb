@@ -18,6 +18,10 @@ module Fission
       @attributes['gui_bin'] = File.expand_path('/Applications/VMware Fusion.app/Contents/MacOS/vmware')
     end
 
+    def [](item)
+      @attributes[item]
+    end
+
     private
     def load_from_file
       if File.file?(CONF_FILE)

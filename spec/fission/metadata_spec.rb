@@ -3,7 +3,7 @@ require File.expand_path('../../spec_helper.rb', __FILE__)
 describe Fission::Metadata do
   before do
     @plist_mock = mock('plist_mock')
-    @plist_file_path = Fission.config.attributes['plist_file']
+    @plist_file_path = Fission.config['plist_file']
     @metadata = Fission::Metadata.new
   end
 

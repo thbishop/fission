@@ -12,7 +12,7 @@ module Fission
         return conf_file_response
       end
 
-      command = "#{Fission.config.attributes['vmrun_cmd']} snapshot "
+      command = "#{Fission.config['vmrun_cmd']} snapshot "
       command << "#{conf_file_response.data.gsub ' ', '\ '} \"#{name}\" 2>&1"
 
       Response.from_command(`#{command}`)
@@ -24,7 +24,7 @@ module Fission
         return conf_file_response
       end
 
-      command = "#{Fission.config.attributes['vmrun_cmd']} revertToSnapshot "
+      command = "#{Fission.config['vmrun_cmd']} revertToSnapshot "
       command << "#{conf_file_response.data.gsub ' ', '\ '} \"#{name}\" 2>&1"
 
       Response.from_command(`#{command}`)
@@ -36,7 +36,7 @@ module Fission
         return conf_file_response
       end
 
-      command = "#{Fission.config.attributes['vmrun_cmd']} listSnapshots "
+      command = "#{Fission.config['vmrun_cmd']} listSnapshots "
       command << "#{conf_file_response.data.gsub ' ', '\ '} 2>&1"
       output = `#{command}`
 
@@ -58,7 +58,7 @@ module Fission
         return conf_file_response
       end
 
-      command = "#{Fission.config.attributes['vmrun_cmd']} start "
+      command = "#{Fission.config['vmrun_cmd']} start "
       command << "#{conf_file_response.data.gsub ' ', '\ '} "
 
       if !args[:headless].blank? && args[:headless]
@@ -76,7 +76,7 @@ module Fission
         return conf_file_response
       end
 
-      command = "#{Fission.config.attributes['vmrun_cmd']} stop "
+      command = "#{Fission.config['vmrun_cmd']} stop "
       command << "#{conf_file_response.data.gsub ' ', '\ '} 2>&1"
 
       Response.from_command(`#{command}`)
@@ -88,7 +88,7 @@ module Fission
         return conf_file_response
       end
 
-      command = "#{Fission.config.attributes['vmrun_cmd']} suspend "
+      command = "#{Fission.config['vmrun_cmd']} suspend "
       command << "#{conf_file_response.data.gsub ' ', '\ '} 2>&1"
 
       Response.from_command(`#{command}`)
@@ -123,7 +123,7 @@ module Fission
     end
 
     def self.all
-      vm_dirs = Dir[File.join Fission.config.attributes['vm_dir'], '*.vmwarevm'].select do |d|
+      vm_dirs = Dir[File.join Fission.config['vm_dir'], '*.vmwarevm'].select do |d|
         File.directory? d
       end
 
@@ -134,7 +134,7 @@ module Fission
     end
 
     def self.all_running
-      command = "#{Fission.config.attributes['vmrun_cmd']} list"
+      command = "#{Fission.config['vmrun_cmd']} list"
 
       output = `#{command}`
 
@@ -158,7 +158,7 @@ module Fission
     end
 
     def self.path(vm_name)
-      File.join Fission.config.attributes['vm_dir'], "#{vm_name}.vmwarevm"
+      File.join Fission.config['vm_dir'], "#{vm_name}.vmwarevm"
     end
 
     def self.clone(source_vm, target_vm)

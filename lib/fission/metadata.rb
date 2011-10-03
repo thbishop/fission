@@ -14,14 +14,14 @@ module Fission
     end
 
     def load
-      raw_data = CFPropertyList::List.new :file => Fission.config.attributes['plist_file']
+      raw_data = CFPropertyList::List.new :file => Fission.config['plist_file']
       @content = CFPropertyList.native_types raw_data.value
     end
 
     def save
       new_content = CFPropertyList::List.new
       new_content.value = CFPropertyList.guess @content
-      new_content.save Fission.config.attributes['plist_file'],
+      new_content.save Fission.config['plist_file'],
                        CFPropertyList::List::FORMAT_BINARY
     end
 
