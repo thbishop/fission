@@ -11,19 +11,19 @@ module Fission
         option_parser.parse! @args
 
         if @args.count != 1 && !@options.all
-          Fission.ui.output self.class.help
-          Fission.ui.output ""
-          Fission.ui.output_and_exit "Incorrect arguments for suspend command", 1
+          output self.class.help
+          output ''
+          output_and_exit 'Incorrect arguments for suspend command', 1
         end
 
         vms_to_suspend.each do |vm_name|
-          Fission.ui.output "Suspending '#{vm_name}'"
+          output "Suspending '#{vm_name}'"
           response = Fission::VM.new(vm_name).suspend
 
           if response.successful?
-            Fission.ui.output "VM '#{vm_name}' suspended"
+            output "VM '#{vm_name}' suspended"
           else
-            Fission.ui.output_and_exit "There was an error suspending the VM.  The error was:\n#{response.output}", response.code
+            output_and_exit "There was an error suspending the VM.  The error was:\n#{response.output}", response.code
           end
         end
       end
@@ -41,8 +41,8 @@ module Fission
 
           if exists_response.successful?
             unless exists_response.data
-              Fission.ui.output ''
-              Fission.ui.output_and_exit "Unable to find the VM '#{vm_name}' (#{Fission::VM.path(vm_name)})", 1
+              output ''
+              output_and_exit "Unable to find the VM '#{vm_name}' (#{Fission::VM.path(vm_name)})", 1
             end
           end
 
@@ -50,11 +50,11 @@ module Fission
 
           if response.successful?
             unless response.data.include?(vm_name)
-              Fission.ui.output ''
-              Fission.ui.output_and_exit "VM '#{vm_name}' is not running", 1
+              output ''
+              output_and_exit "VM '#{vm_name}' is not running", 1
             end
           else
-            Fission.ui.output_and_exit "There was an error getting the list of running VMs.  The error was:\n#{response.output}", response.code
+            output_and_exit "There was an error getting the list of running VMs.  The error was:\n#{response.output}", response.code
           end
 
           vms = [vm_name]

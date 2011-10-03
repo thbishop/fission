@@ -14,7 +14,8 @@ describe Fission::Command::Clone do
   end
 
   describe 'execute' do
-    subject { Fission::Command::Clone }
+   subject { Fission::Command::Clone }
+
     [ [], ['foo'] ].each do |args|
       it_should_not_accept_arguments_of args, 'clone'
     end

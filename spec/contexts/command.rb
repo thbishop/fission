@@ -1,7 +1,8 @@
 shared_context 'command_setup' do
   before do
     @string_io = StringIO.new
-    Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
+    ui_stub = Fission::UI.new(@string_io)
+    Fission::UI.stub!(:new).and_return(ui_stub)
 
     @all_running_response_mock = mock('all_running_response')
     @exists_response_mock = mock('exists_response')

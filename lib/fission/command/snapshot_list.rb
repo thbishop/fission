@@ -4,9 +4,9 @@ module Fission
 
       def execute
         unless @args.count == 1
-          Fission.ui.output self.class.help
-          Fission.ui.output ""
-          Fission.ui.output_and_exit "Incorrect arguments for snapshot list command", 1
+          output self.class.help
+          output ''
+          output_and_exit 'Incorrect arguments for snapshot list command', 1
         end
 
         vm_name = @args.first
@@ -15,7 +15,7 @@ module Fission
 
         if exists_response.successful?
           unless exists_response.data
-            Fission.ui.output_and_exit "Unable to find the VM '#{vm_name}' (#{Fission::VM.path(vm_name)})", 1 
+            output_and_exit "Unable to find the VM '#{vm_name}' (#{Fission::VM.path(vm_name)})", 1 
           end
         end
 
@@ -26,12 +26,12 @@ module Fission
           snaps = response.data
 
           if snaps.any?
-            Fission.ui.output snaps.join("\n")
+            output snaps.join("\n")
           else
-            Fission.ui.output "No snapshots found for VM '#{vm_name}'"
+            output "No snapshots found for VM '#{vm_name}'"
           end
         else
-          Fission.ui.output_and_exit "There was an error listing the snapshots.  The error was:\n#{response.output}", response.code
+          output_and_exit "There was an error listing the snapshots.  The error was:\n#{response.output}", response.code
         end
       end
 

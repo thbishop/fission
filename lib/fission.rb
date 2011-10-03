@@ -33,8 +33,4 @@ module Fission
   def config
     @config ||= Fission::Config.new
   end
-
-  def ui
-    @ui ||= Fission::UI.new
-  end
 end
