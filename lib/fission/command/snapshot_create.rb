@@ -11,15 +11,15 @@ module Fission
 
         vm_name, snap_name = @args.take 2
 
-        exists_response = Fission::VM.exists? vm_name
+        exists_response = VM.exists? vm_name
 
         if exists_response.successful?
           unless exists_response.data
-            output_and_exit "Unable to find the VM '#{vm_name}' (#{Fission::VM.path(vm_name)})", 1 
+            output_and_exit "Unable to find the VM '#{vm_name}' (#{VM.path(vm_name)})", 1
           end
         end
 
-        response = Fission::VM.all_running
+        response = VM.all_running
 
         if response.successful?
           unless response.data.include? vm_name
@@ -30,7 +30,7 @@ module Fission
           output_and_exit "There was an error determining if this VM is running.  The error was:\n#{response.output}", response.code
         end
 
-        vm = Fission::VM.new vm_name
+        vm = VM.new vm_name
 
         snaps_response = vm.snapshots
         if snaps_response.successful?

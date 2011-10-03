@@ -6,7 +6,7 @@ module Fission
       command << "#{Fission.config['gui_bin'].gsub(' ', '\ ')} 2>&1"
       output = `#{command}`
 
-      response = Fission::Response.new :code => 0
+      response = Response.new :code => 0
 
       output.strip.to_i > 0 ? response.data = true : response.data = false
 

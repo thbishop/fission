@@ -11,15 +11,15 @@ module Fission
 
         vm_name = @args.first
 
-        exists_response = Fission::VM.exists? vm_name
+        exists_response = VM.exists? vm_name
 
         if exists_response.successful?
           unless exists_response.data
-            output_and_exit "Unable to find the VM '#{vm_name}' (#{Fission::VM.path(vm_name)})", 1 
+            output_and_exit "Unable to find the VM '#{vm_name}' (#{VM.path(vm_name)})", 1
           end
         end
 
-        vm = Fission::VM.new vm_name
+        vm = VM.new vm_name
         response = vm.snapshots
 
         if response.successful?

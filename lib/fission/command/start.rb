@@ -18,15 +18,15 @@ module Fission
 
         vm_name = @args.first
 
-        exists_response = Fission::VM.exists? vm_name
+        exists_response = VM.exists? vm_name
 
         if exists_response.successful?
           unless exists_response.data
-            output_and_exit "Unable to find the VM '#{vm_name}' (#{Fission::VM.path(vm_name)})", 1 
+            output_and_exit "Unable to find the VM '#{vm_name}' (#{VM.path(vm_name)})", 1
           end
         end
 
-        response = Fission::VM.all_running
+        response = VM.all_running
 
         if response.successful?
           if response.data.include?(vm_name)
@@ -38,11 +38,11 @@ module Fission
         end
 
         output "Starting '#{vm_name}'"
-        vm = Fission::VM.new vm_name
+        vm = VM.new vm_name
         start_args = {}
 
         if @options.headless
-          fusion_running_response = Fission::Fusion.is_running?
+          fusion_running_response = Fusion.is_running?
 
           if fusion_running_response.successful?
             if fusion_running_response.data

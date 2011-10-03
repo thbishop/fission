@@ -5,7 +5,7 @@ module Fission
         opts.banner = "\nUsage: fission [options] COMMAND [arguments]"
 
         opts.on_head('-v', '--version', 'Output the version of fission') do
-          Fission.ui.output Fission::VERSION
+          Fission.ui.output VERSION
           exit(0)
         end
 
@@ -29,10 +29,10 @@ module Fission
       end
 
       if commands.include?(args.first)
-        @cmd = Fission::Command.const_get(args.first.capitalize).new args.drop 1
+        @cmd = Command.const_get(args.first.capitalize).new args.drop 1
       elsif is_snapshot_command?(args)
         klass = args.take(2).map {|c| c.capitalize}.join('')
-        @cmd = Fission::Command.const_get(klass).new args.drop 2
+        @cmd = Command.const_get(klass).new args.drop 2
       else
         show_all_help(optparse)
         exit(1)
@@ -56,7 +56,7 @@ module Fission
 
     def self.commands_banner
       text = "\nCommands:\n"
-      Fission::Command.descendants.each do |command_klass|
+      Command.descendants.each do |command_klass|
         text << (command_klass.send :help)
       end
 

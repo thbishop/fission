@@ -31,6 +31,6 @@ module Fission
   extend self
 
   def config
-    @config ||= Fission::Config.new
+    @config ||= Config.new
   end
 end

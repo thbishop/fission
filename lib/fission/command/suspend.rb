@@ -18,7 +18,7 @@ module Fission
 
         vms_to_suspend.each do |vm_name|
           output "Suspending '#{vm_name}'"
-          response = Fission::VM.new(vm_name).suspend
+          response = VM.new(vm_name).suspend
 
           if response.successful?
             output "VM '#{vm_name}' suspended"
@@ -30,23 +30,23 @@ module Fission
 
       def vms_to_suspend
         if @options.all
-          response = Fission::VM.all_running
+          response = VM.all_running
           if response.successful?
             vms = response.data
           end
         else
           vm_name = @args.first
 
-          exists_response = Fission::VM.exists? vm_name
+          exists_response = VM.exists? vm_name
 
           if exists_response.successful?
             unless exists_response.data
               output ''
-              output_and_exit "Unable to find the VM '#{vm_name}' (#{Fission::VM.path(vm_name)})", 1
+              output_and_exit "Unable to find the VM '#{vm_name}' (#{VM.path(vm_name)})", 1
             end
           end
 
-          response = Fission::VM.all_running
+          response = VM.all_running
 
           if response.successful?
             unless response.data.include?(vm_name)

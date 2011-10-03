@@ -3,12 +3,12 @@ module Fission
     class Status < Command
 
       def execute
-        response = Fission::VM.all
+        response = VM.all
         if response.successful?
           all_vms = response.data
         end
 
-        response = Fission::VM.all_running
+        response = VM.all_running
         if response.successful?
           all_running_vms = response.data
         else

@@ -19,15 +19,15 @@ module Fission
         source_vm = @args.first
         target_vm = @args[1]
 
-        exists_response = Fission::VM.exists? source_vm
+        exists_response = VM.exists? source_vm
 
         if exists_response.successful?
           unless exists_response.data
-            output_and_exit "Unable to find the VM '#{source_vm}' (#{Fission::VM.path(source_vm)})", 1 
+            output_and_exit "Unable to find the VM '#{source_vm}' (#{VM.path(source_vm)})", 1
           end
         end
 
-        exists_response = Fission::VM.exists? target_vm
+        exists_response = VM.exists? target_vm
 
         if exists_response.successful?
           if exists_response.data
@@ -35,7 +35,7 @@ module Fission
           end
         end
 
-        clone_response = Fission::VM.clone source_vm, target_vm
+        clone_response = VM.clone source_vm, target_vm
 
         if clone_response.successful?
           output ''
@@ -43,7 +43,7 @@ module Fission
 
           if @options.start
             output "Starting '#{target_vm}'"
-            vm = Fission::VM.new target_vm
+            vm = VM.new target_vm
 
             start_response = vm.start
 

@@ -15,7 +15,7 @@ module Fission
     end
 
     def ui
-      @ui ||= Fission::UI.new
+      @ui ||= UI.new
     end
 
     def self.help

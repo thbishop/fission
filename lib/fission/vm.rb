@@ -40,7 +40,7 @@ module Fission
       command << "#{conf_file_response.data.gsub ' ', '\ '} 2>&1"
       output = `#{command}`
 
-      response = Fission::Response.new :code => $?.exitstatus
+      response = Response.new :code => $?.exitstatus
 
       if response.successful?
         snaps = output.split("\n").select { |s| !s.include? 'Total snapshots:' }
@@ -124,7 +124,7 @@ module Fission
         File.directory? d
       end
 
-      response = Fission::Response.new :code => 0
+      response = Response.new :code => 0
       response.data = vm_dirs.map { |d| File.basename d, '.vmwarevm' }
 
       response
@@ -135,7 +135,7 @@ module Fission
 
       output = `#{command}`
 
-      response = Fission::Response.new :code => $?.exitstatus
+      response = Response.new :code => $?.exitstatus
 
       if response.successful?
         vms = output.split("\n").select do |vm|
@@ -168,8 +168,8 @@ module Fission
     end
 
     def delete
-      FileUtils.rm_rf Fission::VM.path(@name)
-      Fission::Metadata.delete_vm_info(Fission::VM.path(@name))
+      FileUtils.rm_rf VM.path(@name)
+      Metadata.delete_vm_info(VM.path(@name))
 
       Response.new :code => 0
     end

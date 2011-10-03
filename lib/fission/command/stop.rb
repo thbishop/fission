@@ -11,15 +11,15 @@ module Fission
 
         vm_name = @args.first
 
-        exists_response = Fission::VM.exists? vm_name
+        exists_response = VM.exists? vm_name
 
         if exists_response.successful?
           unless exists_response.data
-            output_and_exit "Unable to find the VM '#{vm_name}' (#{Fission::VM.path(vm_name)})", 1 
+            output_and_exit "Unable to find the VM '#{vm_name}' (#{VM.path(vm_name)})", 1
           end
         end
 
-        response = Fission::VM.all_running
+        response = VM.all_running
 
         if response.successful?
           unless response.data.include?(vm_name)
@@ -31,7 +31,7 @@ module Fission
         end
 
         output "Stopping '#{vm_name}'"
-        @vm = Fission::VM.new vm_name
+        @vm = VM.new vm_name
         response = @vm.stop
 
         if response.successful?
