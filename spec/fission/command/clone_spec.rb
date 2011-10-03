@@ -1,15 +1,14 @@
 require File.expand_path('../../../spec_helper.rb', __FILE__)
 
 describe Fission::Command::Clone do
+  include_context 'command_setup'
+
   before do
     @vm_info = ['foo', 'bar']
-    @string_io = StringIO.new
-    Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
     @source_exists_response_mock = mock('source_exists_response')
     @target_exists_response_mock = mock('target_exists_response')
     @clone_response_mock = mock('clone_reponse')
     @start_response_mock = mock('start_reponse')
-    @vm_mock = mock('vm_mock')
     @vm_mocks = { 'foo' => @source_exists_response_mock,
                   'bar' => @target_exists_response_mock }
   end

@@ -1,14 +1,11 @@
 require File.expand_path('../../../spec_helper.rb', __FILE__)
 
 describe Fission::Command::Suspend do
+  include_context 'command_setup'
+
   before do
     @vm_info = ['foo']
-    @string_io = StringIO.new
-    Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
-    @all_running_response_mock = mock('all_running_response')
-    @exists_response_mock = mock('exists_response')
     @suspend_response_mock = mock('suspend_response')
-    @vm_mock = mock('vm_mock')
   end
 
   describe 'execute' do

@@ -1,14 +1,11 @@
 require File.expand_path('../../../spec_helper.rb', __FILE__)
 
 describe Fission::Command::SnapshotRevert do
+  include_context 'command_setup'
+
   before do
     @target_vm = ['foo']
-    @vm_mock = mock('vm_mock')
     Fission::VM.stub!(:new).and_return(@vm_mock)
-    @string_io = StringIO.new
-    Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
-    @exists_response_mock = mock('exists_response')
-    @fusion_running_response_mock = mock('fusion_running_response_mock')
     @snap_list_response_mock = mock('snap_list_response')
     @snap_revert_response_mock = mock('snap_revert_response')
   end

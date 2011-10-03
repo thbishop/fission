@@ -1,11 +1,10 @@
 require File.expand_path('../../../spec_helper.rb', __FILE__)
 
 describe Fission::Command::Status do
+  include_context 'command_setup'
+
   before do
-    @string_io = StringIO.new
-    Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
     @all_response_mock = mock('response')
-    @all_running_response_mock = mock('response')
   end
 
   describe 'execute' do

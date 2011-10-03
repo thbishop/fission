@@ -1,15 +1,11 @@
 require File.expand_path('../../../spec_helper.rb', __FILE__)
 
 describe Fission::Command::Delete do
+  include_context 'command_setup'
+
   before do
     @target_vm = ['foo']
-    @string_io = StringIO.new
-    Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
     @delete_response_mock = mock('delete_response')
-    @exists_response_mock = mock('exists_response')
-    @fusion_running_response_mock = mock('fusion_running_response_mock')
-    @all_running_response_mock = mock('all_running_response')
-    @vm_mock = mock('vm_mock')
   end
 
   describe "execute" do

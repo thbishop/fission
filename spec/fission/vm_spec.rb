@@ -2,8 +2,6 @@ require File.expand_path('../../spec_helper.rb', __FILE__)
 
 describe Fission::VM do
   before do
-    @string_io = StringIO.new
-    Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
     @vm = Fission::VM.new('foo')
     @vm.stub!(:conf_file).and_return(File.join(Fission::VM.path('foo'), 'foo.vmx'))
     @conf_file_path = File.join(Fission::VM.path('foo'), 'foo.vmx')
