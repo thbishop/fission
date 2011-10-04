@@ -1,5 +1,17 @@
 module Fission
   class CLI
+    # Public: Starts the command line parsing logic and hands off to the
+    # requested commands.  If there are invalid arguments or errors then the
+    # help text will be displayed.
+    #
+    # args - The list of arguments for the Fission command line app.  This
+    #        should be the raw command line arguments.
+    #
+    # Examples
+    #
+    #   Fission::CLI.execute
+    #
+    # Returns nothing.
     def self.execute(args=ARGV)
       optparse = OptionParser.new do |opts|
         opts.banner = "\nUsage: fission [options] COMMAND [arguments]"
@@ -41,6 +53,16 @@ module Fission
       @cmd.execute
     end
 
+    # Public: Provides the list of Fission commands based on the files in the
+    # command directory.
+    #
+    # Examples
+    #
+    #   Fission::CLI.commands
+    #   # => ['clone', 'delete', 'snapshot create', 'snapshot list']
+    #
+    # Returns an Array of the commands (String).  Commands with underscores will
+    # have them replaced with spaces.
     def self.commands
       cmds = Dir.entries(File.join(File.dirname(__FILE__), 'command')).select do |file|
         !File.directory? file
@@ -50,10 +72,33 @@ module Fission
     end
 
     private
+    # Private: Determines if the provided command is a snapshot related command.
+    #
+    # args - The arguments (Array) to interrogate.  This should be the command
+    #        line arguments.  Only the first two items in the Array will be
+    #        used.
+    #
+    # Examples
+    #
+    #   Fission::CLI.is_snapshot_command? ['foo', 'bar']
+    #   # => false
+    #
+    #   Fission::CLI.is_snapshot_command? ['snapshot', 'list']
+    #   # => true
+    #
+    # Returns a Boolean of whether a snapshot command was given or not.
     def self.is_snapshot_command?(args)
       args.first == 'snapshot' && args.count > 1 && commands.include?(args.take(2).join(' '))
     end
 
+    # Private: Provides the help of all of the known commands.
+    #
+    # Examples
+    #
+    #   Fission::CLI.commands_banner
+    #
+    # Returns a String which is a concatenation of the help text for all known
+    # commands.
     def self.commands_banner
       text = "\nCommands:\n"
       Command.descendants.each do |command_klass|
@@ -63,6 +108,18 @@ module Fission
       text
     end
 
+    # Private: Helper method to output the command line options and the help
+    # for all known commands to the terminal.
+    #
+    # options - The options to display as a part of the output.  This can (and
+    #           in almost all cases) should be the optparse object.
+    #
+    # Examples
+    #
+    #   Fission::CLI.show_all_help my_opt_parse
+    #   # => 'fission options command arguments ....' (concatenated)
+    #
+    # Returns nothing.
     def self.show_all_help(options)
       Fission.ui.output options
       Fission.ui.output commands_banner
