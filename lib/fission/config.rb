@@ -2,6 +2,7 @@ module Fission
   class Config
     attr_accessor :attributes
 
+    # Public: Path to the Fission conf file (default: ~/.fissionrc).
     CONF_FILE = File.expand_path '~/.fissionrc'
 
     def initialize
@@ -18,11 +19,29 @@ module Fission
       @attributes['gui_bin'] = File.expand_path('/Applications/VMware Fusion.app/Contents/MacOS/vmware')
     end
 
+    # Public: Helper method to access config atributes.  This is a shortcut for
+    # querying the config attributes.
+    #
+    # item - The config item to query.
+    #
+    # Examples
+    #
+    #   Fission.config['vmrun_bin']
+    #   # => '/foo/bar/vmrun'
+    #
+    # Returns the value of the specified config item.
     def [](item)
       @attributes[item]
     end
 
     private
+    # Private: Loads config values from the Fission conf file into attributes.
+    #
+    # Examples
+    #
+    #   load_from_file
+    #
+    # Returns nothing.
     def load_from_file
       if File.file?(CONF_FILE)
         @attributes.merge!(YAML.load_file(CONF_FILE))
