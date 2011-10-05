@@ -81,7 +81,8 @@ module Fission
     # options - Hash of options:
     #           :headless - Boolean which specifies to start the VM without a
     #                       GUI console.  If the VMware Fusion GUI interface is
-    #                       not running, it will not be started. (default: false)
+    #                       not running, it will not be started.
+    #                       (default: false)
     #
     # Examples
     #
@@ -315,7 +316,7 @@ module Fission
     # Private: Renames the files of a newly cloned VM.
     #
     # from - The VM name that was used as the source of the clone.
-    # to - The name of the newly cloned VM.
+    # to   - The name of the newly cloned VM.
     #
     # Examples
     #
@@ -343,7 +344,7 @@ module Fission
     # cloned VM directory.
     #
     # from - The VM name that was used as the source of the clone.
-    # to - The name of the newly cloned VM.
+    # to   - The name of the newly cloned VM.
     #
     # Examples
     #
@@ -384,7 +385,7 @@ module Fission
     # '.vmdk' files will be skipped.
     #
     # from - The VM name that was used as the source of the clone.
-    # to - The name of the newly cloned VM.
+    # to   - The name of the newly cloned VM.
     #
     # Examples
     #

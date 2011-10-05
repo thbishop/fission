@@ -1,5 +1,6 @@
 module Fission
   class CLI
+
     # Public: Starts the command line parsing logic and hands off to the
     # requested commands.  If there are invalid arguments or errors then the
     # help text will be displayed.
