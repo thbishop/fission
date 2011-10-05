@@ -5,6 +5,13 @@ module Fission
     # Public: Path to the Fission conf file (default: ~/.fissionrc).
     CONF_FILE = File.expand_path '~/.fissionrc'
 
+    # Public: Initializes a Config object.  This also sets the default config
+    # attributes for 'vmrun_bin', 'vmrun_cmd', 'vm_dir', 'plist_file', and
+    # 'gui_bin'.
+    #
+    # Examples
+    #
+    #   Fission::Config.new
     def initialize
       @attributes = {}
       load_from_file
