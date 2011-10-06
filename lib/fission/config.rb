@@ -1,5 +1,7 @@
 module Fission
   class Config
+
+    # Public: Gets/Sets the Hash of attributes.
     attr_accessor :attributes
 
     # Public: Path to the Fission conf file (default: ~/.fissionrc).

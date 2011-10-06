@@ -1,6 +1,14 @@
 module Fission
   class Response
-    attr_accessor :code, :output, :data
+
+    # Public: Gets/Sets the code (Integer).
+    attr_accessor :code
+
+    # Public: Gets/Sets the output (String).
+    attr_accessor :output
+
+    # Public: Gets/Sets the data (can be any of type as needed).
+    attr_accessor :data
 
     # Public: Initialize a ResponseObject.
     #

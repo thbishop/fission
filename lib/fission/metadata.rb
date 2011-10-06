@@ -3,6 +3,7 @@ module Fission
 
     require 'cfpropertylist'
 
+    # Public: Gets/Sets the content (Hash).
     attr_accessor :content
 
     # Public: Deletes the Fusion metadata related to a VM.  The VM should not be

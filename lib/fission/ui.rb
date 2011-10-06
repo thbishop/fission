@@ -1,5 +1,7 @@
 module Fission
   class UI
+
+    # Public: Returns the stdout value.
     attr_reader :stdout
 
     # Public: Initialize a UI object.

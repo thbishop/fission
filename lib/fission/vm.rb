@@ -1,5 +1,7 @@
 module Fission
   class VM
+
+    # Public: Returns the name (String).
     attr_reader :name
 
     def initialize(name)

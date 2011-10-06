@@ -6,7 +6,11 @@ module Fission
 
     def_delegators :@ui, :output, :output_and_exit, :output_printf
 
-    attr_reader :options, :args, :ui
+    # Public: Returns the OpenStruct options of the command.
+    attr_reader :options
+
+    # Public: Returns the Array arguments of the command.
+    attr_reader :args
 
     # Public: Initializes a new Command with some basic setup.  This is intended
     # to be used as a base class for other command classes to inherit from.
