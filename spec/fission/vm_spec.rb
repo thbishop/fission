@@ -214,6 +214,67 @@ describe Fission::VM do
     end
   end
 
+  describe 'network_info' do
+    before do
+      @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
+      @conf_file_io = StringIO.new
+    end
+
+    it 'should return a successful response with the list of interfaces and macs' do
+      @conf_file_response_mock.stub_as_successful @conf_file_path
+
+      vmx_content = 'ide1:0.deviceType = "cdrom-image"
+ethernet0.present = "TRUE"
+ethernet1.address = "00:0c:29:1d:6a:75"
+ethernet0.connectionType = "nat"
+ethernet0.generatedAddress = "00:0c:29:1d:6a:64"
+ethernet0.virtualDev = "e1000"
+ethernet0.wakeOnPcktRcv = "FALSE"
+ethernet0.addressType = "generated"
+ethernet0.linkStatePropagation.enable = "TRUE"
+ethernet0.generatedAddressenable = "TRUE"
+ethernet1.generatedAddressenable = "TRUE"'
+
+      @conf_file_io.string = vmx_content
+
+      File.should_receive(:open).with(@conf_file_path, 'r').
+                                 and_yield(@conf_file_io)
+
+      response = @vm.network_info
+      response.should be_a_successful_response
+      response.data.should == { 'ethernet0' => { 'mac' => '00:0c:29:1d:6a:64' },
+                                'ethernet1' => { 'mac' => '00:0c:29:1d:6a:75' } }
+    end
+
+    it 'should return a successful response with an empty list if there are no macs' do
+      @conf_file_response_mock.stub_as_successful @conf_file_path
+
+      vmx_content = 'ide1:0.deviceType = "cdrom-image"
+pciBridge7.virtualDev = "pcieRootPort"
+pciBridge7.functions = "8"
+vmci0.present = "TRUE"
+roamingVM.exitBehavior = "go"
+tools.syncTime = "TRUE"'
+
+      @conf_file_io.string = vmx_content
+
+      File.should_receive(:open).with(@conf_file_path, 'r').
+                                 and_yield(@conf_file_io)
+
+      response = @vm.network_info
+      response.should be_a_successful_response
+      response.data.should == {}
+    end
+
+    it 'should return an unsuccessful response with an error if no conf file was found' do
+      @conf_file_response_mock.stub_as_unsuccessful
+
+      File.should_not_receive(:open)
+
+      @vm.network_info.should be_an_unsuccessful_response
+    end
+  end
+
   describe 'conf_file' do
     before do
       FakeFS.activate!

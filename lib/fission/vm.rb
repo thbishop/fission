@@ -143,6 +143,41 @@ module Fission
       Response.from_command(`#{command}`)
     end
 
+    # Public: Network information for a VM.  Includes interface name and
+    # associated mac address.
+    #
+    # Examples:
+    #
+    #   response = @vm.network_info.data
+    #   # => { 'ethernet0' => { 'mac' => '00:0c:29:1d:6a:64' },
+    #          'ethernet1' => { 'mac' => '00:0c:29:1d:6a:75'} }
+    #
+    # Returns a Fission ResponseObject with the result.
+    # If successful, the ResponseObject's data attribute will be a Hash with
+    # the interface identifiers as the keys and the associated mac address as
+    # the value.  If there are no network interfaces, the ResponseObject's data
+    # attribute will be an empty Hash.
+    def network_info
+      conf_file_response = conf_file
+      return conf_file_response unless conf_file_response.successful?
+
+      response = Response.new :code => 0, :data => {}
+
+      interface_pattern = /^ethernet\d+/
+      mac_pattern = /(\w\w[:-]\w\w[:-]\w\w[:-]\w\w[:-]\w\w[:-]\w\w)/
+
+      File.open conf_file_response.data, 'r' do |f|
+        f.grep(mac_pattern).each do |line|
+          int = line.scan(interface_pattern)[0]
+          mac = line.scan(mac_pattern)[0].first
+          response.data[int] = {}
+          response.data[int]['mac'] = mac
+        end
+      end
+
+      response
+    end
+
     # Public: Determines the path to the VM's config file ('.vmx').
     #
     # Examples
