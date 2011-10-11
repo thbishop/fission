@@ -214,6 +214,45 @@ describe Fission::VM do
     end
   end
 
+  describe 'mac_addresses' do
+    before do
+      @network_info_mock = mock('network_info')
+      @vm.should_receive(:network_info).and_return(@network_info_mock)
+    end
+
+    it 'should return a successful response with the list of mac addresses' do
+      network_data = { 'ethernet0' => { 'mac_address' => '00:0c:29:1d:6a:64',
+                                        'ip_address'  => '127.0.0.1' },
+                       'ethernet1' => { 'mac_address' => '00:0c:29:1d:6a:75',
+                                        'ip_address'  => '127.0.0.2' } }
+      @network_info_mock.stub_as_successful network_data
+
+      response = @vm.mac_addresses
+
+      response.should be_a_successful_response
+      response.data.should == ['00:0c:29:1d:6a:64', '00:0c:29:1d:6a:75']
+    end
+
+    it 'should return a successful response with an empty list if no mac addresses were found' do
+      @network_info_mock.stub_as_successful Hash.new
+
+      response = @vm.mac_addresses
+
+      response.should be_a_successful_response
+      response.data.should == []
+    end
+
+    it 'should return an unsuccessful response if there was an error getting the mac addresses' do
+      @network_info_mock.stub_as_unsuccessful
+
+      response = @vm.mac_addresses
+
+      response.should be_an_unsuccessful_response
+      response.data.should be_nil
+    end
+
+  end
+
   describe 'network_info' do
     before do
       @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)

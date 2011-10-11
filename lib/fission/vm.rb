@@ -143,6 +143,31 @@ module Fission
       Response.from_command(`#{command}`)
     end
 
+    # Public: MAC addresses for a VM.
+    #
+    # Examples:
+    #
+    #   @vm.mac_addresses.data
+    #   # => ['00:0c:29:1d:6a:64', '00:0c:29:1d:6a:75']
+    #
+    # Returns a Fission Response object with the result.
+    # If successful, the Response object's data attribute will be an Array of
+    # the MAC addresses found.  If there were no MAC addresses found, the
+    # Response object's data attribute will be an empty Array.
+    # If unsuccessful, the Reponse object's data attribute will be nil.
+    def mac_addresses
+      network_response = network_info
+
+      if network_response.successful?
+        response = Response.new :code => 0
+        response.data = network_response.data.values.collect { |n| n['mac_address'] }
+      else
+        response = network_response
+      end
+
+      response
+    end
+
     # Public: Network information for a VM.  Includes interface name and
     # associated mac address.
     #
