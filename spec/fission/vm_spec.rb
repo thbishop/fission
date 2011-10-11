@@ -602,6 +602,25 @@ ethernet1.generatedAddressenable = "TRUE"'
         File.open(File.join(Fission::VM.path('foo'), "foo#{ext}"), 'w') { |f| f.write 'foo.vmdk'}
       end
 
+      vmx_content = 'ide1:0.deviceType = "cdrom-image"
+nvram = "foo.nvram"
+ethernet0.present = "TRUE"
+ethernet1.address = "00:0c:29:1d:6a:75"
+ethernet0.connectionType = "nat"
+ethernet0.generatedAddress = "00:0c:29:1d:6a:64"
+ethernet0.virtualDev = "e1000"
+tools.remindInstall = "TRUE"
+ethernet0.wakeOnPcktRcv = "FALSE"
+ethernet0.addressType = "generated"
+uuid.action = "keep"
+ethernet0.linkStatePropagation.enable = "TRUE"
+ethernet0.generatedAddressenable = "TRUE"
+ethernet1.generatedAddressenable = "TRUE"'
+
+      File.open(File.join(Fission::VM.path('foo'), "foo.vmx"), 'w') do |f|
+        f.write vmx_content
+      end
+
       ['.vmx', '.vmxf'].each do |ext|
         File.should_receive(:binary?).
              with(File.join(Fission::VM.path('bar'), "bar#{ext}")).
@@ -669,6 +688,39 @@ ethernet1.generatedAddressenable = "TRUE"'
         File.read(File.join(Fission::VM.path('bar'), "bar#{ext}")).should_not match /foo/
         File.read(File.join(Fission::VM.path('bar'), "bar#{ext}")).should match /bar/
       end
+    end
+
+    it 'should disable VMware tools warning in the conf file' do
+      File.should_receive(:binary?).
+           with(File.join(Fission::VM.path('bar'), "bar.vmdk")).
+           and_return(true)
+      Fission::VM.clone @source_vm, @target_vm
+
+      pattern = /^tools\.remindInstall = "FALSE"/
+
+      File.read(File.join(Fission::VM.path('bar'), "bar.vmx")).should match pattern
+    end
+
+    it 'should remove auto generated MAC addresses from the conf file' do
+      File.should_receive(:binary?).
+           with(File.join(Fission::VM.path('bar'), "bar.vmdk")).
+           and_return(true)
+      Fission::VM.clone @source_vm, @target_vm
+
+      pattern = /^ethernet\.+generatedAddress.+/
+
+      File.read(File.join(Fission::VM.path('bar'), "bar.vmx")).should_not match pattern
+    end
+
+    it 'should setup the conf file to generate a new uuid' do
+      File.should_receive(:binary?).
+           with(File.join(Fission::VM.path('bar'), "bar.vmdk")).
+           and_return(true)
+      Fission::VM.clone @source_vm, @target_vm
+
+      pattern = /^uuid\.action = "create"/
+
+      File.read(File.join(Fission::VM.path('bar'), "bar.vmx")).should match pattern
     end
 
     it "should not try to update the vmdk file if it's not a sparse disk" do

@@ -488,7 +488,38 @@ module Fission
           text = (File.read file).gsub from, to
           File.open(file, 'w'){ |f| f.print text }
         end
+
+        clean_up_conf_file(file) if ext == '.vmx'
       end
+    end
+
+    # Private: Cleans up the conf file (*.vmx) for a newly cloned VM.  This
+    # includes removing generated MAC addresses, setting up for a new UUID, and
+    # disable VMware tools warning.
+    #
+    # conf_file_path - Aboslute path to the VM's conf file (.vmx).
+    #
+    # Examples
+    #
+    #   VM.clean_up_conf_file '/vms/foo/foo.vmx'
+    #
+    # Returns nothing.
+    def self.clean_up_conf_file(conf_file_path)
+      conf_items_patterns = [ /^tools\.remindInstall.*\n/,
+                              /^uuid\.action.*\n/,
+                              /^ethernet\.+generatedAddress.*\n/ ]
+
+      content = File.read conf_file_path
+
+      conf_items_patterns.each do |pattern|
+        content.gsub(pattern, '').strip
+      end
+
+      content << "\n"
+      content << "tools.remindInstall = \"FALSE\"\n"
+      content << "uuid.action = \"create\"\n"
+
+      File.open(conf_file_path, 'w') { |f| f.print content }
     end
 
     # Private: Helper for getting the configured vmrun_cmd value.
