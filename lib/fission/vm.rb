@@ -148,15 +148,28 @@ module Fission
     #
     # Examples:
     #
+    #   # if IP addresses are found in the VMware Fusion DHCP lease file
     #   response = @vm.network_info.data
-    #   # => { 'ethernet0' => { 'mac' => '00:0c:29:1d:6a:64' },
-    #          'ethernet1' => { 'mac' => '00:0c:29:1d:6a:75'} }
+    #   # => { 'ethernet0' => { 'mac_address' => '00:0c:29:1d:6a:64',
+    #                           'ip_address'  => '127.0.0.1' },
+    #          'ethernet1' => { 'mac_address' => '00:0c:29:1d:6a:75',
+    #                           'ip_address'  => '127.0.0.2' } }
     #
-    # Returns a Fission ResponseObject with the result.
-    # If successful, the ResponseObject's data attribute will be a Hash with
-    # the interface identifiers as the keys and the associated mac address as
-    # the value.  If there are no network interfaces, the ResponseObject's data
-    # attribute will be an empty Hash.
+    #   # if IP addresses are not found in the VMware Fusion DHCP lease file
+    #   response = @vm.network_info.data
+    #   # => { 'ethernet0' => { 'mac_address' => '00:0c:29:1d:6a:64',
+    #                           'ip_address'  => nil },
+    #          'ethernet1' => { 'mac_address' => '00:0c:29:1d:6a:75',
+    #                           'ip_address'  => nil } }
+    #
+    # Returns a Fission Response object with the result.
+    # If successful, the Response object's data attribute will be a Hash with
+    # the interface identifiers as the keys and the associated MAC address.  If
+    # an IP address was found in the VMware Fusion DHCP lease file, then it will
+    # be included.  If an IP address was not found, then the IP address value
+    # will be nil.  If there are no network interfaces, the Response object's
+    # data attribute will be an empty Hash.  If there is an error obtaining the
+    # information, then an unsuccessful Response object will be returned.
     def network_info
       conf_file_response = conf_file
       return conf_file_response unless conf_file_response.successful?
@@ -171,7 +184,20 @@ module Fission
           int = line.scan(interface_pattern)[0]
           mac = line.scan(mac_pattern)[0].first
           response.data[int] = {}
-          response.data[int]['mac'] = mac
+          response.data[int]['mac_address'] = mac
+
+          lease_response = Fission::Lease.find_by_mac_address mac
+
+          if lease_response.successful?
+            response.data[int]['ip_address'] = nil
+
+            if lease_response.data
+              response.data[int]['ip_address'] = lease_response.data.ip_address
+            end
+          else
+            return lease_response
+          end
+
         end
       end
 
