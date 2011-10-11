@@ -42,6 +42,11 @@ describe Fission::Config do
       end
     end
 
+    it 'should use the fusion default lease file' do
+      @config = Fission::Config.new
+      @config.attributes['lease_file'].should == '/var/db/vmware/vmnet-dhcpd-vmnet8.leases'
+    end
+
   end
 
   describe '[]' do

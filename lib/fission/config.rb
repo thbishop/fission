@@ -22,6 +22,7 @@ module Fission
         @attributes['vm_dir'] = File.expand_path('~/Documents/Virtual Machines.localized/')
       end
 
+      @attributes['lease_file'] = '/var/db/vmware/vmnet-dhcpd-vmnet8.leases'
       @attributes['vmrun_bin'] = '/Library/Application Support/VMware Fusion/vmrun'
       @attributes['vmrun_cmd'] = "#{@attributes['vmrun_bin'].gsub(' ', '\ ')} -T fusion"
       @attributes['plist_file'] = File.expand_path('~/Library/Preferences/com.vmware.fusion.plist')
