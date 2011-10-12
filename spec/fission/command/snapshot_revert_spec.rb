@@ -41,7 +41,7 @@ describe Fission::Command::SnapshotRevert do
         @exists_response_mock.stub_as_successful true
         Fission::VM.should_receive(:exists?).with(@target_vm.first).
                                              and_return(@exists_response_mock)
-        Fission::Fusion.should_receive(:is_running?).and_return(@fusion_running_response_mock)
+        Fission::Fusion.should_receive(:running?).and_return(@fusion_running_response_mock)
       end
 
       it 'should output an error and exit if the fusion app is running' do

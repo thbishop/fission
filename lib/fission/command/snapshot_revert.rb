@@ -14,7 +14,7 @@ module Fission
 
         ensure_vm_exists vm_name
 
-        fusion_running_response = Fusion.is_running?
+        fusion_running_response = Fusion.running?
 
         if fusion_running_response.successful?
           if fusion_running_response.data

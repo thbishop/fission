@@ -83,7 +83,7 @@ describe Fission::Command::Start do
 
       describe 'with --headless' do
         before do
-          Fission::Fusion.should_receive(:is_running?).and_return(@fusion_running_response_mock)
+          Fission::Fusion.should_receive(:running?).and_return(@fusion_running_response_mock)
           Fission::VM.should_receive(:new).with(@target_vm.first).and_return(@vm_mock)
         end
 

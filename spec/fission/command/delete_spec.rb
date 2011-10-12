@@ -38,7 +38,7 @@ describe Fission::Command::Delete do
         @fusion_running_response_mock.stub_as_successful false
         @vm_mock.should_receive(:delete).and_return(@delete_response_mock)
 
-        Fission::Fusion.should_receive(:is_running?).and_return(@fusion_running_response_mock)
+        Fission::Fusion.should_receive(:running?).and_return(@fusion_running_response_mock)
         Fission::VM.should_receive(:new).with(@target_vm.first).and_return(@vm_mock)
 
         command = Fission::Command::Delete.new @target_vm
@@ -62,7 +62,7 @@ describe Fission::Command::Delete do
         @fusion_running_response_mock.stub_as_successful false
         @vm_mock.should_receive(:delete).and_return(@delete_response_mock)
 
-        Fission::Fusion.should_receive(:is_running?).and_return(@fusion_running_response_mock)
+        Fission::Fusion.should_receive(:running?).and_return(@fusion_running_response_mock)
         Fission::VM.should_receive(:new).with(@target_vm.first).and_return(@vm_mock)
 
         command = Fission::Command::Delete.new @target_vm
@@ -85,7 +85,7 @@ describe Fission::Command::Delete do
         @all_running_response_mock.stub_as_successful []
         @fusion_running_response_mock.stub_as_successful true
 
-        Fission::Fusion.should_receive(:is_running?).and_return(@fusion_running_response_mock)
+        Fission::Fusion.should_receive(:running?).and_return(@fusion_running_response_mock)
 
         command = Fission::Command::Delete.new @target_vm
         lambda { command.execute }.should raise_error SystemExit
@@ -122,7 +122,7 @@ describe Fission::Command::Delete do
           @all_running_response_mock.stub_as_successful ['bar']
           @fusion_running_response_mock.stub_as_successful true
 
-          Fission::Fusion.should_receive(:is_running?).and_return(@fusion_running_response_mock)
+          Fission::Fusion.should_receive(:running?).and_return(@fusion_running_response_mock)
           command = Fission::Command::Delete.new @target_vm << '--force'
           command.execute
 

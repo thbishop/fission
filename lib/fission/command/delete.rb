@@ -37,7 +37,7 @@ module Fission
           output_and_exit "There was an error determining if the VM is running.  The error was:\n#{response.output}", response.code
         end
 
-        fusion_running_response = Fusion.is_running?
+        fusion_running_response = Fusion.running?
 
         if fusion_running_response.successful?
           if fusion_running_response.data

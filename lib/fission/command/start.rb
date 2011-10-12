@@ -37,7 +37,7 @@ module Fission
         start_args = {}
 
         if @options.headless
-          fusion_running_response = Fusion.is_running?
+          fusion_running_response = Fusion.running?
 
           if fusion_running_response.successful?
             if fusion_running_response.data
