@@ -10,16 +10,29 @@ module Fission
 
         response = VM.all_running
         if response.successful?
-          all_running_vms = response.data
+          all_running_vm_names = response.data.collect { |v| v.name }
         else
           output_and_exit "There was an error getting the list of running VMs.  The error was:\n#{response.output}", response.code
         end
 
-        longest_vm_name = all_vms.max { |a,b| a.length <=> b.length }
+        vm_names = all_vms.collect { |v| v.name }
+
+        longest_vm_name = vm_names.max { |a,b| a.length <=> b.length }
 
         all_vms.each do |vm|
-          status = all_running_vms.include?(vm) ? '[running]' : '[not running]'
-          output_printf "%-#{longest_vm_name.length}s   %s\n", vm, status
+          if all_running_vm_names.include? vm.name
+            status = '[running]'
+          else
+            state_response = vm.state
+
+            if state_response.successful?
+              status = "[#{state_response.data}]"
+            else
+              status = "[unknown] (#{state_response.output})"
+            end
+          end
+
+          output_printf "%-#{longest_vm_name.length}s   %s\n", vm.name, status
         end
       end
 

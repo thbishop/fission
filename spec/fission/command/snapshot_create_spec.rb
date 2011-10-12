@@ -8,6 +8,8 @@ describe Fission::Command::SnapshotCreate do
     Fission::VM.stub!(:new).and_return(@vm_mock)
     @snap_create_response_mock = mock('snap_create_response')
     @snap_list_response_mock = mock('snap_list_response')
+
+    @vm_mock.stub(:state).and_return(@state_response_mock)
   end
 
   describe 'execute' do
@@ -40,11 +42,10 @@ describe Fission::Command::SnapshotCreate do
         @exists_response_mock.stub_as_successful true
         Fission::VM.should_receive(:exists?).with(@target_vm.first).
                                              and_return(@exists_response_mock)
-        Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
       end
 
       it 'should output an error and exit if the VM is not running' do
-        @all_running_response_mock.stub_as_successful []
+        @state_response_mock.stub_as_successful 'not running'
 
         command = Fission::Command::SnapshotCreate.new @target_vm << 'snap_1'
         lambda { command.execute }.should raise_error SystemExit
@@ -54,7 +55,7 @@ describe Fission::Command::SnapshotCreate do
       end
 
       it 'should output an error and exit if there is was an error getting the list of snapshots' do
-        @all_running_response_mock.stub_as_successful [@target_vm.first]
+        @state_response_mock.stub_as_successful 'running'
         @snap_list_response_mock.stub_as_unsuccessful
 
         @vm_mock.should_receive(:snapshots).and_return(@snap_list_response_mock)
@@ -66,7 +67,7 @@ describe Fission::Command::SnapshotCreate do
       end
 
       it "should output an error and exit if there is already a snapshot with the provided name"  do
-        @all_running_response_mock.stub_as_successful [@target_vm.first]
+        @state_response_mock.stub_as_successful 'running'
         @snap_list_response_mock.stub_as_successful ['snap_1']
 
         @vm_mock.should_receive(:snapshots).and_return(@snap_list_response_mock)
@@ -78,7 +79,7 @@ describe Fission::Command::SnapshotCreate do
       end
 
       it 'should output an error and exit if there is an error getting the list of running VMs' do
-        @all_running_response_mock.stub_as_unsuccessful
+        @state_response_mock.stub_as_unsuccessful
 
         command = Fission::Command::SnapshotCreate.new @target_vm << 'snap_1'
         lambda { command.execute }.should raise_error SystemExit
@@ -87,7 +88,7 @@ describe Fission::Command::SnapshotCreate do
       end
 
       it 'should create a new snapshot with the provided name' do
-        @all_running_response_mock.stub_as_successful [@target_vm.first]
+        @state_response_mock.stub_as_successful 'running'
         @snap_create_response_mock.stub_as_successful []
         @snap_list_response_mock.stub_as_successful []
 
@@ -103,7 +104,7 @@ describe Fission::Command::SnapshotCreate do
       end
 
       it 'should output an error and exit if there was an error creating the snapshot' do
-        @all_running_response_mock.stub_as_successful [@target_vm.first]
+        @state_response_mock.stub_as_successful 'running'
         @snap_create_response_mock.stub_as_unsuccessful
         @snap_list_response_mock.stub_as_successful []
 

@@ -17,12 +17,12 @@ module Fission
           output_and_exit 'Incorrect arguments for suspend command', 1
         end
 
-        vms_to_suspend.each do |vm_name|
-          output "Suspending '#{vm_name}'"
-          response = VM.new(vm_name).suspend
+        vms_to_suspend.each do |vm|
+          output "Suspending '#{vm.name}'"
+          response = vm.suspend
 
           if response.successful?
-            output "VM '#{vm_name}' suspended"
+            output "VM '#{vm.name}' suspended"
           else
             output_and_exit "There was an error suspending the VM.  The error was:\n#{response.output}", response.code
           end
@@ -40,18 +40,19 @@ module Fission
 
           ensure_vm_exists vm_name
 
-          response = VM.all_running
+          vm = VM.new vm_name
+          state_response = vm.state
 
-          if response.successful?
-            unless response.data.include?(vm_name)
+          if state_response.successful?
+            if state_response.data != 'running'
               output ''
               output_and_exit "VM '#{vm_name}' is not running", 1
             end
           else
-            output_and_exit "There was an error getting the list of running VMs.  The error was:\n#{response.output}", response.code
+            output_and_exit "There was an error getting the list of running VMs.  The error was:\n#{state_response.output}", state_response.code
           end
 
-          vms = [vm_name]
+          vms = [vm]
         end
 
         vms

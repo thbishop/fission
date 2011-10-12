@@ -258,7 +258,7 @@ module Fission
 
       return running_response unless running_response.successful?
 
-      if running_response.data.include? name
+      if running_response.data.collect { |v| v.name }.include? name
         response.data = 'running'
       else
         suspended_response = suspended?
@@ -298,7 +298,7 @@ module Fission
 
       return running_response unless running_response.successful?
 
-      if running_response.data.include? name
+      if running_response.data.collect { |v| v.name }.include? name
         response.data = false
       else
         if File.file?(File.join(self.class.path(name), "#{name}.vmem"))
@@ -366,16 +366,17 @@ module Fission
     #
     #   Fission::VM.all
     #
-    # Returns a Fission ResponseObject with the result.
-    # If successful, the ResponseObject's data attribute will be an array with
-    # the VM names (String).
+    # Returns a Fission Response object with the result.
+    # If successful, the Response's data attribute will be an Array of VM
+    # objects.
+    # If unsuccessful, the Response's data attribute will be nil.
     def self.all
       vm_dirs = Dir[File.join Fission.config['vm_dir'], '*.vmwarevm'].select do |d|
         File.directory? d
       end
 
       response = Response.new :code => 0
-      response.data = vm_dirs.map { |d| File.basename d, '.vmwarevm' }
+      response.data = vm_dirs.collect { |d| new(File.basename d, '.vmwarevm') }
 
       response
     end
@@ -386,9 +387,10 @@ module Fission
     #
     #   Fission::VM.all_running
     #
-    # Returns a Fission ResponseObject with the result.
-    # If successful, the ResponseObject's data attribute will be an arry with
-    # the names of the VMs (String) which are running.
+    # Returns a Fission Response object with the result.
+    # If successful, the Response's data attribute will be an Array of VM
+    # objects which are running.
+    # If unsuccessful, the Response's data attribute will be nil.
     def self.all_running
       command = "#{Fission.config['vmrun_cmd']} list"
 
@@ -401,7 +403,9 @@ module Fission
           vm.include?('.vmx') && File.exists?(vm) && File.extname(vm) == '.vmx'
         end
 
-        response.data = vms.map { |vm| File.basename(File.dirname(vm), '.vmwarevm') }
+        response.data = vms.collect do |vm|
+          new File.basename(File.dirname(vm), '.vmwarevm')
+        end
       else
         response.output = output
       end

@@ -5,7 +5,10 @@ describe Fission::Command::Start do
 
   before do
     @target_vm = ['foo']
+    Fission::VM.stub(:new).and_return(@vm_mock)
     @start_response_mock = mock('start_response')
+
+    @vm_mock.stub(:state).and_return(@state_response_mock)
   end
 
   describe 'execute' do
@@ -29,12 +32,10 @@ describe Fission::Command::Start do
         @exists_response_mock.stub_as_successful true
         Fission::VM.should_receive(:exists?).with(@target_vm.first).
                                              and_return(@exists_response_mock)
-        Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
       end
 
       it "should output and exit if the vm is already running" do
-        @all_running_response_mock.stub_as_successful @target_vm
-
+        @state_response_mock.stub_as_successful 'running'
 
         command = Fission::Command::Start.new @target_vm
         lambda { command.execute }.should raise_error SystemExit
@@ -43,7 +44,7 @@ describe Fission::Command::Start do
       end
 
       it 'should output an error and exit if there was an error getting the list of running VMs' do
-        @all_running_response_mock.stub_as_unsuccessful
+        @state_response_mock.stub_as_unsuccessful
 
         command = Fission::Command::Start.new @target_vm
         lambda { command.execute }.should raise_error SystemExit
@@ -52,12 +53,10 @@ describe Fission::Command::Start do
       end
 
       it 'should try to start the vm if it is not running' do
-        @all_running_response_mock.stub_as_successful []
+        @state_response_mock.stub_as_successful 'not running'
         @start_response_mock.stub_as_successful true
 
         @vm_mock.should_receive(:start).and_return(@start_response_mock)
-
-        Fission::VM.should_receive(:new).with(@target_vm.first).and_return(@vm_mock)
 
         command = Fission::Command::Start.new @target_vm
         command.execute
@@ -67,12 +66,10 @@ describe Fission::Command::Start do
       end
 
       it 'should output an error and exit if there was an error starting the vm' do
-        @all_running_response_mock.stub_as_successful []
+        @state_response_mock.stub_as_successful 'not running'
         @start_response_mock.stub_as_unsuccessful
 
         @vm_mock.should_receive(:start).and_return(@start_response_mock)
-
-        Fission::VM.should_receive(:new).with(@target_vm.first).and_return(@vm_mock)
 
         command = Fission::Command::Start.new @target_vm
         lambda { command.execute }.should raise_error SystemExit
@@ -84,11 +81,10 @@ describe Fission::Command::Start do
       describe 'with --headless' do
         before do
           Fission::Fusion.should_receive(:running?).and_return(@fusion_running_response_mock)
-          Fission::VM.should_receive(:new).with(@target_vm.first).and_return(@vm_mock)
+          @state_response_mock.stub_as_successful 'not running'
         end
 
         it 'should start the vm headless' do
-          @all_running_response_mock.stub_as_successful []
           @fusion_running_response_mock.stub_as_successful false
           @start_response_mock.stub_as_successful
 
@@ -102,7 +98,6 @@ describe Fission::Command::Start do
         end
 
         it 'should output an error and exit if the fusion app is running' do
-          @all_running_response_mock.stub_as_successful []
           @fusion_running_response_mock.stub_as_successful true
 
           @vm_mock.should_not_receive(:start)

@@ -5,6 +5,7 @@ describe Fission::Command::Delete do
 
   before do
     @target_vm = ['foo']
+    @vm_1 = Fission::VM.new 'foo'
     @delete_response_mock = mock('delete_response')
   end
 
@@ -26,16 +27,18 @@ describe Fission::Command::Delete do
 
     describe 'when the VM exits' do
       before do
+        @vm_1.stub(:state).and_return(@state_response_mock)
         @exists_response_mock.stub_as_successful true
+        Fission::VM.should_receive(:new).with('foo').and_return(@vm_1)
         Fission::VM.should_receive(:exists?).with(@target_vm.first).
                                              and_return(@exists_response_mock)
-        Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
       end
 
       it "should try to delete the vm if it exists" do
+        @state_response_mock.stub_as_successful 'not running'
         @delete_response_mock.stub_as_successful
-        @all_running_response_mock.stub_as_successful []
         @fusion_running_response_mock.stub_as_successful false
+
         @vm_mock.should_receive(:delete).and_return(@delete_response_mock)
 
         Fission::Fusion.should_receive(:running?).and_return(@fusion_running_response_mock)
@@ -48,7 +51,7 @@ describe Fission::Command::Delete do
       end
 
       it 'should output an error and exit if there was an error getting the list of running VMs' do
-        @all_running_response_mock.stub_as_unsuccessful
+        @state_response_mock.stub_as_unsuccessful
 
         command = Fission::Command::Delete.new @target_vm
         lambda { command.execute }.should raise_error SystemExit
@@ -58,10 +61,10 @@ describe Fission::Command::Delete do
 
       it 'should output an error and exit if there was an error deleting the VM' do
         @delete_response_mock.stub_as_unsuccessful
-        @all_running_response_mock.stub_as_successful []
+        @state_response_mock.stub_as_successful 'not running'
         @fusion_running_response_mock.stub_as_successful false
-        @vm_mock.should_receive(:delete).and_return(@delete_response_mock)
 
+        @vm_mock.should_receive(:delete).and_return(@delete_response_mock)
         Fission::Fusion.should_receive(:running?).and_return(@fusion_running_response_mock)
         Fission::VM.should_receive(:new).with(@target_vm.first).and_return(@vm_mock)
 
@@ -72,7 +75,8 @@ describe Fission::Command::Delete do
       end
 
       it 'should output an error and exit if the VM is running' do
-        @all_running_response_mock.stub_as_successful ['foo', 'bar']
+        @state_response_mock.stub_as_successful 'running'
+        @vm_1.should_receive(:state).and_return(@state_response_mock)
 
         command = Fission::Command::Delete.new @target_vm
         lambda { command.execute }.should raise_error SystemExit
@@ -82,7 +86,7 @@ describe Fission::Command::Delete do
       end
 
       it 'should output an error and exit if the fusion app is running' do
-        @all_running_response_mock.stub_as_successful []
+        @state_response_mock.stub_as_successful 'not running'
         @fusion_running_response_mock.stub_as_successful true
 
         Fission::Fusion.should_receive(:running?).and_return(@fusion_running_response_mock)
@@ -106,7 +110,7 @@ describe Fission::Command::Delete do
           @stop_cmd_mock = mock('stop_cmd')
 
           @stop_cmd_mock.should_receive(:execute)
-          @all_running_response_mock.stub_as_successful ['foo', 'bar']
+          @state_response_mock.stub_as_successful 'running'
 
           Fission::Command::Stop.should_receive(:new).with(@target_vm).
                                                       and_return(@stop_cmd_mock)
@@ -119,7 +123,7 @@ describe Fission::Command::Delete do
         end
 
         it 'should output a warning about fusion metadata issue and then delete the VM' do
-          @all_running_response_mock.stub_as_successful ['bar']
+          @state_response_mock.stub_as_successful 'not running'
           @fusion_running_response_mock.stub_as_successful true
 
           Fission::Fusion.should_receive(:running?).and_return(@fusion_running_response_mock)

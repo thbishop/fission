@@ -5,7 +5,11 @@ describe Fission::Command::Stop do
 
   before do
     @target_vm = ['foo']
+    Fission::VM.stub(:new).and_return(@vm_mock)
     @stop_response_mock = mock('stop_response')
+
+    @vm_mock.stub(:state).and_return(@state_response_mock)
+    @vm_mock.stub(:name).and_return(@target_vm.first)
   end
 
   describe 'execute' do
@@ -30,11 +34,10 @@ describe Fission::Command::Stop do
         @exists_response_mock.stub_as_successful true
         Fission::VM.should_receive(:exists?).with(@target_vm.first).
                                              and_return(@exists_response_mock)
-        Fission::VM.should_receive(:all_running).and_return(@all_running_response_mock)
       end
 
       it "should output and exit if the vm is not running" do
-        @all_running_response_mock.stub_as_successful []
+        @state_response_mock.stub_as_successful 'not running'
 
         command = Fission::Command::Stop.new @target_vm
         lambda { command.execute }.should raise_error SystemExit
@@ -43,7 +46,7 @@ describe Fission::Command::Stop do
       end
 
       it 'should output an error and exit if there was an error getting the list of running VMs' do
-        @all_running_response_mock.stub_as_unsuccessful
+        @state_response_mock.stub_as_unsuccessful
 
         command = Fission::Command::Stop.new @target_vm
         lambda { command.execute }.should raise_error SystemExit
@@ -52,13 +55,10 @@ describe Fission::Command::Stop do
       end
 
       it 'should try to stop the vm if it is running' do
-        @all_running_response_mock.stub_as_successful [@target_vm.first]
+        @state_response_mock.stub_as_successful 'running'
 
         @stop_response_mock.should_receive(:successful?).and_return(true)
         @vm_mock.should_receive(:stop).and_return(@stop_response_mock)
-
-        Fission::VM.should_receive(:new).with(@target_vm.first).
-                                         and_return(@vm_mock)
 
         command = Fission::Command::Stop.new @target_vm
         command.execute
@@ -68,13 +68,10 @@ describe Fission::Command::Stop do
       end
 
       it 'should output an error and exit if there was an error stopping the vm' do
-        @all_running_response_mock.stub_as_successful [@target_vm.first]
+        @state_response_mock.stub_as_successful 'running'
         @stop_response_mock.stub_as_unsuccessful
 
         @vm_mock.should_receive(:stop).and_return(@stop_response_mock)
-
-        Fission::VM.should_receive(:new).with(@target_vm.first).
-                                         and_return(@vm_mock)
 
         command = Fission::Command::Stop.new @target_vm
         lambda { command.execute }.should raise_error SystemExit

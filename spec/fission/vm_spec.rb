@@ -405,14 +405,17 @@ ethernet1.generatedAddressenable = "TRUE"'
 
   describe 'state' do
     before do
+      @vm_1 = Fission::VM.new 'foo'
+      @vm_2 = Fission::VM.new 'bar'
+
       @all_running_response_mock = mock('all_running')
       @suspended_response_mock = mock('suspended')
+
+      Fission::VM.stub(:all_running).and_return(@all_running_response_mock)
     end
 
     it "should return a successful response and 'not running' when the VM is off" do
-      @all_running_response_mock.stub_as_successful ['bar']
-
-      Fission::VM.stub(:all_running).and_return(@all_running_response_mock)
+      @all_running_response_mock.stub_as_successful [@vm_2]
 
       response = @vm.state
       response.should be_a_successful_response
@@ -420,9 +423,7 @@ ethernet1.generatedAddressenable = "TRUE"'
     end
 
     it "should return a successful resopnse and 'running' when the VM is running" do
-      @all_running_response_mock.stub_as_successful ['foo', 'bar']
-
-      Fission::VM.stub(:all_running).and_return(@all_running_response_mock)
+      @all_running_response_mock.stub_as_successful [@vm_1, @vm_2]
 
       response = @vm.state
       response.should be_a_successful_response
@@ -430,10 +431,9 @@ ethernet1.generatedAddressenable = "TRUE"'
     end
 
     it "should return a successful response and 'suspended' when the VM is suspended" do
-      @all_running_response_mock.stub_as_successful ['bar']
+      @all_running_response_mock.stub_as_successful [@vm_2]
       @suspended_response_mock.stub_as_successful true
 
-      Fission::VM.stub(:all_running).and_return(@all_running_response_mock)
       @vm.stub(:suspended?).and_return(@suspended_response_mock)
 
       response = @vm.state
@@ -444,18 +444,15 @@ ethernet1.generatedAddressenable = "TRUE"'
     it 'should return an unsuccessful response if there was an error getting the running VMs' do
       @all_running_response_mock.stub_as_unsuccessful
 
-      Fission::VM.stub(:all_running).and_return(@all_running_response_mock)
-
       response = @vm.state
       response.should be_an_unsuccessful_response
       response.data.should be_nil
     end
 
     it 'should return an unsuccessful repsonse if there was an error determining if the VM is suspended' do
-      @all_running_response_mock.stub_as_successful ['bar']
+      @all_running_response_mock.stub_as_successful [@vm_2]
       @suspended_response_mock.stub_as_unsuccessful
 
-      Fission::VM.stub(:all_running).and_return(@all_running_response_mock)
       @vm.stub(:suspended?).and_return(@suspended_response_mock)
 
       response = @vm.state
@@ -469,6 +466,9 @@ ethernet1.generatedAddressenable = "TRUE"'
       FakeFS.activate!
       @vm_root_dir = Fission::VM.path('foo')
       FileUtils.mkdir_p(@vm_root_dir)
+
+      @vm_1 = Fission::VM.new 'foo'
+      @vm_2 = Fission::VM.new 'bar'
       @all_running_response_mock = mock('all_running')
     end
 
@@ -496,7 +496,7 @@ ethernet1.generatedAddressenable = "TRUE"'
     it 'should return a successful response and false if the vm is running' do
       FileUtils.touch(File.join(@vm_root_dir, 'foo.vmem'))
 
-      @all_running_response_mock.stub_as_successful ['foo', 'bar']
+      @all_running_response_mock.stub_as_successful [@vm_1, @vm_2]
       Fission::VM.stub(:all_running).and_return(@all_running_response_mock)
 
       response = @vm.suspended?
@@ -578,7 +578,12 @@ ethernet1.generatedAddressenable = "TRUE"'
   end
 
   describe "self.all" do
-    it "should return a successful object with the list of VMs" do
+    before do
+      @vm_1_mock = mock('vm_1')
+      @vm_2_mock = mock('vm_2')
+    end
+
+    it "should return a successful object with the list of VM objects" do
       vm_root = Fission.config['vm_dir']
       Dir.should_receive(:[]).
           and_return(["#{File.join vm_root, 'foo.vmwarevm' }", "#{File.join vm_root, 'bar.vmwarevm' }"])
@@ -589,10 +594,12 @@ ethernet1.generatedAddressenable = "TRUE"'
       File.should_receive(:directory?).with("#{File.join vm_root, 'bar.vmwarevm'}").
                                        and_return(true)
 
+      Fission::VM.should_receive(:new).with('foo').and_return(@vm_1_mock)
+      Fission::VM.should_receive(:new).with('bar').and_return(@vm_2_mock)
+
       response = Fission::VM.all
-      response.successful?.should == true
-      response.output.should == ''
-      response.data.should == ['foo', 'bar']
+      response.should be_a_successful_response
+      response.data.should == [@vm_1_mock, @vm_2_mock]
     end
 
     it "should return a successful object and not return an item in the list if it isn't a directory" do
@@ -606,9 +613,12 @@ ethernet1.generatedAddressenable = "TRUE"'
       File.should_receive(:directory?).
            with("#{File.join vm_root, 'baz.vmwarevm'}").and_return(false)
 
+      Fission::VM.should_receive(:new).with('foo').and_return(@vm_1_mock)
+      Fission::VM.should_receive(:new).with('bar').and_return(@vm_2_mock)
+
       response = Fission::VM.all
       response.should be_a_successful_response
-      response.data.should == ['foo', 'bar']
+      response.data.should == [@vm_1_mock, @vm_2_mock]
     end
 
     it "should only query for items with an extension of .vmwarevm" do
@@ -620,6 +630,13 @@ ethernet1.generatedAddressenable = "TRUE"'
   end
 
   describe 'self.all_running' do
+    before do
+      @vm_1 = Fission::VM.new 'foo'
+      @vm_2 = Fission::VM.new 'bar'
+      @vm_3 = Fission::VM.new 'baz'
+      @vm_names_and_objs = { 'foo' => @vm_1, 'bar' => @vm_2, 'baz' => @vm_3 }
+    end
+
     it 'should return a successful response object with the list of running vms' do
       list_output = "Total running VMs: 2\n/vm/foo.vmwarevm/foo.vmx\n"
       list_output << "/vm/bar.vmwarevm/bar.vmx\n/vm/baz.vmwarevm/baz.vmx\n"
@@ -631,11 +648,14 @@ ethernet1.generatedAddressenable = "TRUE"'
       [ 'foo', 'bar', 'baz'].each do |vm|
         File.should_receive(:exists?).with("/vm/#{vm}.vmwarevm/#{vm}.vmx").
                                       and_return(true)
+
+        Fission::VM.should_receive(:new).with(vm).
+                                         and_return(@vm_names_and_objs[vm])
       end
 
       response = Fission::VM.all_running
       response.should be_a_successful_response
-      response.data.should == ['foo', 'bar', 'baz']
+      response.data.should == [@vm_1, @vm_2, @vm_3]
     end
 
     it 'should return a successful response object with the VM dir name if it differs from the .vmx file name' do
@@ -645,6 +665,8 @@ ethernet1.generatedAddressenable = "TRUE"'
         list_output << "/vm/#{dir}.vmwarevm/#{file}.vmx\n"
         File.should_receive(:exists?).with("/vm/#{dir}.vmwarevm/#{file}.vmx").
                                       and_return(true)
+        Fission::VM.should_receive(:new).with(dir).
+                                         and_return(@vm_names_and_objs[dir])
       end
 
       $?.should_receive(:exitstatus).and_return(0)
@@ -654,7 +676,7 @@ ethernet1.generatedAddressenable = "TRUE"'
 
       response = Fission::VM.all_running
       response.should be_a_successful_response
-      response.data.should == ['foo', 'bar', 'baz']
+      response.data.should == [@vm_1, @vm_2, @vm_3]
     end
 
     it 'should return an unsuccessful response object if unable to get the list of running vms' do

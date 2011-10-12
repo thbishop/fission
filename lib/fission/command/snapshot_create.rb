@@ -14,18 +14,17 @@ module Fission
 
         ensure_vm_exists vm_name
 
-        response = VM.all_running
+        vm = VM.new vm_name
+        state_response = vm.state
 
-        if response.successful?
-          unless response.data.include? vm_name
+        if state_response.successful?
+          if state_response.data != 'running'
             output "VM '#{vm_name}' is not running"
             output_and_exit 'A snapshot cannot be created unless the VM is running', 1
           end
         else
-          output_and_exit "There was an error determining if this VM is running.  The error was:\n#{response.output}", response.code
+          output_and_exit "There was an error determining if this VM is running.  The error was:\n#{state_response.output}", state_response.code
         end
-
-        vm = VM.new vm_name
 
         snaps_response = vm.snapshots
         if snaps_response.successful?
