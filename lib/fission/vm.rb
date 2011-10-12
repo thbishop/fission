@@ -229,6 +229,88 @@ module Fission
       response
     end
 
+    # Public: Provides the state of the VM.
+    #
+    # Examples
+    #
+    #   @vm.state.data
+    #   # => 'running'
+    #
+    #   @vm.state.data
+    #   # => 'not running'
+    #
+    #   @vm.state.data
+    #   # => 'suspended'
+    #
+    # Returns a Fission Response object with the result.
+    # If the Response is successful, the Response object's data attribute will
+    # be a String of the state.  If the VM is currently powered on, the state
+    # will be 'running'.  If the VM is not running and a .vmem file is not
+    # found in the VM's directory, it is considered to be 'not running'.  If the
+    # VM is not running and a .vmem file is found in the VM's directory, it is
+    # considered to be 'suspended.'
+    # If the Response is unsuccessful, the Response object's data attribute will
+    # be nil.
+    def state
+      response = Response.new :code => 0
+
+      running_response = self.class.all_running
+
+      return running_response unless running_response.successful?
+
+      if running_response.data.include? name
+        response.data = 'running'
+      else
+        suspended_response = suspended?
+
+        return suspended_response unless suspended_response.successful?
+
+        if suspended_response.data
+          response.data = 'suspended'
+        else
+          response.data = 'not running'
+        end
+      end
+
+      response
+    end
+
+    # Public: Determines if a VM is suspended.  This is based on if the VM is
+    # running and whether or not there is an associated .vmem file in the VM
+    # directory.  The .vmem file needs to match the of the VM for the VM to
+    # be considered suspended (i.e. 'foo.vmem' for the 'foo' VM).
+    #
+    # Examples
+    #
+    #   @vm.suspended?.data
+    #   # => true
+    #
+    # Returns a Fission Response object with the result.
+    # If the Response is successful the Response object's data attribute will
+    # be a Boolean.  If the VM is found to be running, this will not take the
+    # .vmem file into consideration.
+    # If the Response is unsuccessful, the Response object's data attribute will
+    # be nil.
+    def suspended?
+      response = Response.new :code => 0, :data => false
+
+      running_response = self.class.all_running
+
+      return running_response unless running_response.successful?
+
+      if running_response.data.include? name
+        response.data = false
+      else
+        if File.file?(File.join(self.class.path(name), "#{name}.vmem"))
+          response.data = true
+        else
+          response.data = false
+        end
+      end
+
+      response
+    end
+
     # Public: Determines the path to the VM's config file ('.vmx').
     #
     # Examples

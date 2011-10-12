@@ -403,6 +403,118 @@ ethernet1.generatedAddressenable = "TRUE"'
     end
   end
 
+  describe 'state' do
+    before do
+      @all_running_response_mock = mock('all_running')
+      @suspended_response_mock = mock('suspended')
+    end
+
+    it "should return a successful response and 'not running' when the VM is off" do
+      @all_running_response_mock.stub_as_successful ['bar']
+
+      Fission::VM.stub(:all_running).and_return(@all_running_response_mock)
+
+      response = @vm.state
+      response.should be_a_successful_response
+      response.data.should == 'not running'
+    end
+
+    it "should return a successful resopnse and 'running' when the VM is running" do
+      @all_running_response_mock.stub_as_successful ['foo', 'bar']
+
+      Fission::VM.stub(:all_running).and_return(@all_running_response_mock)
+
+      response = @vm.state
+      response.should be_a_successful_response
+      response.data.should == 'running'
+    end
+
+    it "should return a successful response and 'suspended' when the VM is suspended" do
+      @all_running_response_mock.stub_as_successful ['bar']
+      @suspended_response_mock.stub_as_successful true
+
+      Fission::VM.stub(:all_running).and_return(@all_running_response_mock)
+      @vm.stub(:suspended?).and_return(@suspended_response_mock)
+
+      response = @vm.state
+      response.should be_a_successful_response
+      response.data.should == 'suspended'
+    end
+
+    it 'should return an unsuccessful response if there was an error getting the running VMs' do
+      @all_running_response_mock.stub_as_unsuccessful
+
+      Fission::VM.stub(:all_running).and_return(@all_running_response_mock)
+
+      response = @vm.state
+      response.should be_an_unsuccessful_response
+      response.data.should be_nil
+    end
+
+    it 'should return an unsuccessful repsonse if there was an error determining if the VM is suspended' do
+      @all_running_response_mock.stub_as_successful ['bar']
+      @suspended_response_mock.stub_as_unsuccessful
+
+      Fission::VM.stub(:all_running).and_return(@all_running_response_mock)
+      @vm.stub(:suspended?).and_return(@suspended_response_mock)
+
+      response = @vm.state
+      response.should be_an_unsuccessful_response
+      response.data.should be_nil
+    end
+  end
+
+  describe 'suspended?' do
+    before do
+      FakeFS.activate!
+      @vm_root_dir = Fission::VM.path('foo')
+      FileUtils.mkdir_p(@vm_root_dir)
+      @all_running_response_mock = mock('all_running')
+    end
+
+    after do
+      FakeFS.deactivate!
+      FakeFS::FileSystem.clear
+    end
+
+    describe 'when the vm is not running' do
+      it 'should return a successful response and true if a .vmem file exists in the vm dir' do
+        FileUtils.touch(File.join(@vm_root_dir, 'foo.vmem'))
+
+        response = @vm.suspended?
+        response.should be_a_successful_response
+        response.data.should == true
+      end
+
+      it 'should return a successful response and false if a .vmem file is not found in the vm dir' do
+        response = @vm.suspended?
+        response.should be_a_successful_response
+        response.data.should == false
+      end
+    end
+
+    it 'should return a successful response and false if the vm is running' do
+      FileUtils.touch(File.join(@vm_root_dir, 'foo.vmem'))
+
+      @all_running_response_mock.stub_as_successful ['foo', 'bar']
+      Fission::VM.stub(:all_running).and_return(@all_running_response_mock)
+
+      response = @vm.suspended?
+      response.should be_a_successful_response
+      response.data.should == false
+    end
+
+    it 'should return an unsuccessful repsponse if there is an error getting the list of running vms' do
+      @all_running_response_mock.stub_as_unsuccessful
+      Fission::VM.stub(:all_running).and_return(@all_running_response_mock)
+
+      response = @vm.suspended?
+      response.should be_an_unsuccessful_response
+      response.data.should be_nil
+    end
+
+  end
+
   describe 'conf_file' do
     before do
       FakeFS.activate!
