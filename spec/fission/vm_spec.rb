@@ -214,6 +214,29 @@ describe Fission::VM do
     end
   end
 
+  describe 'exists?' do
+    before do
+      @exists_response = mock('exists')
+      Fission::VM.stub(:exists?).and_return(@exists_response)
+    end
+
+    it 'should return true if the VM exists' do
+      @exists_response.stub_as_successful true
+
+      response = Fission::VM.new('foo').exists?
+      response.should be_a_successful_response
+      response.data.should == true
+    end
+
+    it 'should return false if the VM does not exist' do
+      @exists_response.stub_as_successful false
+
+      response = Fission::VM.new('foo').exists?
+      response.should be_a_successful_response
+      response.data.should == false
+    end
+  end
+
   describe 'mac_addresses' do
     before do
       @network_info_mock = mock('network_info')

@@ -275,6 +275,21 @@ module Fission
       response
     end
 
+    # Public: Determines if the VM exists or not.  This method only looks in the
+    # VM directory.
+    #
+    # Examples
+    #
+    #   @vm.exists?.data
+    #   # => true
+    #
+    # Returns a Fission Response object with the result.
+    # If successful, the Response's data attribute will be a Boolean of
+    # whether the VM exists or not.
+    def exists?
+      self.class.exists? name
+    end
+
     # Public: Determines if a VM is suspended.  This is based on if the VM is
     # running and whether or not there is an associated .vmem file in the VM
     # directory.  The .vmem file needs to match the of the VM for the VM to
