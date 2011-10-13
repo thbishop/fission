@@ -36,17 +36,16 @@ module Fission
             vms = response.data
           end
         else
-          vm_name = @args.first
+          vm = VM.new @args.first
 
-          ensure_vm_exists vm_name
+          ensure_vm_exists vm
 
-          vm = VM.new vm_name
           state_response = vm.state
 
           if state_response.successful?
             if state_response.data != 'running'
               output ''
-              output_and_exit "VM '#{vm_name}' is not running", 1
+              output_and_exit "VM '#{vm.name}' is not running", 1
             end
           else
             output_and_exit "There was an error getting the list of running VMs.  The error was:\n#{state_response.output}", state_response.code

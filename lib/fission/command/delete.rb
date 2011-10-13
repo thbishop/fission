@@ -17,11 +17,10 @@ module Fission
           output_and_exit 'Incorrect arguments for delete command', 1
         end
 
-        vm_name = @args.first
+        vm = VM.new @args.first
 
-        ensure_vm_exists vm_name
+        ensure_vm_exists vm
 
-        vm = Fission::VM.new vm_name
         state_response = vm.state
 
         if state_response.successful?
@@ -29,7 +28,7 @@ module Fission
             output 'VM is currently running'
             if @options.force
               output 'Going to stop it'
-              Command::Stop.new([vm_name]).execute
+              Command::Stop.new([vm.name]).execute
             else
               output_and_exit "Either stop/suspend the VM or use '--force' and try again.", 1
             end
@@ -53,7 +52,7 @@ module Fission
           end
         end
 
-        delete_response = VM.new(vm_name).delete
+        delete_response = vm.delete
 
         if delete_response.successful?
           output ''

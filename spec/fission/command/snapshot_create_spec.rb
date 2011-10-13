@@ -6,9 +6,12 @@ describe Fission::Command::SnapshotCreate do
   before do
     @target_vm = ['foo']
     Fission::VM.stub!(:new).and_return(@vm_mock)
+
     @snap_create_response_mock = mock('snap_create_response')
     @snap_list_response_mock = mock('snap_list_response')
 
+    @vm_mock.stub(:exists?).and_return(@exists_response_mock)
+    @vm_mock.stub(:name).and_return(@target_vm.first)
     @vm_mock.stub(:state).and_return(@state_response_mock)
   end
 
@@ -28,8 +31,6 @@ describe Fission::Command::SnapshotCreate do
 
     it "should output an error and exit if it can't find the target vm" do
       @exists_response_mock.stub_as_successful false
-      Fission::VM.should_receive(:exists?).with(@target_vm.first).
-                                           and_return(@exists_response_mock)
 
       command = Fission::Command::SnapshotCreate.new @target_vm << 'snap_1'
       lambda { command.execute }.should raise_error SystemExit
@@ -40,8 +41,6 @@ describe Fission::Command::SnapshotCreate do
     describe 'when the VM exists' do
       before do
         @exists_response_mock.stub_as_successful true
-        Fission::VM.should_receive(:exists?).with(@target_vm.first).
-                                             and_return(@exists_response_mock)
       end
 
       it 'should output an error and exit if the VM is not running' do

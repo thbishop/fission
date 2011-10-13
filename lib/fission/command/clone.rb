@@ -17,33 +17,32 @@ module Fission
           output_and_exit 'Incorrect arguments for clone command', 1
         end
 
-        source_vm = @args.first
-        target_vm = @args[1]
+        source_vm = Fission::VM.new @args.first
+        target_vm = Fission::VM.new @args[1]
 
         ensure_vm_exists source_vm
 
-        exists_response = VM.exists? target_vm
+        exists_response = target_vm.exists?
 
         if exists_response.successful?
           if exists_response.data
-            output_and_exit "The target VM '#{target_vm}' already exists", 1
+            output_and_exit "The target VM '#{target_vm.name}' already exists", 1
           end
         end
 
-        clone_response = VM.clone source_vm, target_vm
+        clone_response = VM.clone source_vm.name, target_vm.name
 
         if clone_response.successful?
           output ''
           output 'Clone complete!'
 
           if @options.start
-            output "Starting '#{target_vm}'"
-            vm = VM.new target_vm
+            output "Starting '#{target_vm.name}'"
 
-            start_response = vm.start
+            start_response = target_vm.start
 
             if start_response.successful?
-              output "VM '#{target_vm}' started"
+              output "VM '#{target_vm.name}' started"
             else
               output_and_exit "There was an error starting the VM.  The error was:\n#{start_response.output}", start_response.code
             end

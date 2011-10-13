@@ -10,11 +10,9 @@ module Fission
           output_and_exit 'Incorrect arguments for stop command', 1
         end
 
-        vm_name = @args.first
+        vm = VM.new @args.first
 
-        ensure_vm_exists vm_name
-
-        vm = VM.new vm_name
+        ensure_vm_exists vm
 
         state_response = vm.state
 

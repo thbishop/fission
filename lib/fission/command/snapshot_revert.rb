@@ -10,9 +10,10 @@ module Fission
           output_and_exit 'Incorrect arguments for snapshot revert command', 1
         end
 
-        vm_name, snap_name = @args.take 2
+        vm = VM.new @args[0]
+        snap_name = @args[1]
 
-        ensure_vm_exists vm_name
+        ensure_vm_exists vm
 
         fusion_running_response = Fusion.running?
 
@@ -22,8 +23,6 @@ module Fission
             output_and_exit 'Please exit the Fusion GUI and try again', 1
           end
         end
-
-        vm = VM.new vm_name
 
         snapshots_response = vm.snapshots
 

@@ -10,11 +10,10 @@ module Fission
           output_and_exit 'Incorrect arguments for snapshot list command', 1
         end
 
-        vm_name = @args.first
+        vm = VM.new @args.first
 
-        ensure_vm_exists vm_name
+        ensure_vm_exists vm
 
-        vm = VM.new vm_name
         response = vm.snapshots
 
         if response.successful?
@@ -23,7 +22,7 @@ module Fission
           if snaps.any?
             output snaps.join("\n")
           else
-            output "No snapshots found for VM '#{vm_name}'"
+            output "No snapshots found for VM '#{vm.name}'"
           end
         else
           output_and_exit "There was an error listing the snapshots.  The error was:\n#{response.output}", response.code

@@ -10,16 +10,16 @@ module Fission
           output_and_exit 'Incorrect arguments for snapshot create command', 1
         end
 
-        vm_name, snap_name = @args.take 2
+        vm = VM.new @args[0]
+        snap_name = @args[1]
 
-        ensure_vm_exists vm_name
+        ensure_vm_exists vm
 
-        vm = VM.new vm_name
         state_response = vm.state
 
         if state_response.successful?
           if state_response.data != 'running'
-            output "VM '#{vm_name}' is not running"
+            output "VM '#{vm.name}' is not running"
             output_and_exit 'A snapshot cannot be created unless the VM is running', 1
           end
         else
@@ -29,7 +29,7 @@ module Fission
         snaps_response = vm.snapshots
         if snaps_response.successful?
           if snaps_response.data.include? snap_name
-            output_and_exit "VM '#{vm_name}' already has a snapshot named '#{snap_name}'", 1
+            output_and_exit "VM '#{vm.name}' already has a snapshot named '#{snap_name}'", 1
           end
         else
           output_and_exit "There was an error getting the list of snapshots.  The error was:\n#{snaps_response.output}", snaps_response.code

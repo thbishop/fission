@@ -8,8 +8,9 @@ describe Fission::Command::Stop do
     Fission::VM.stub(:new).and_return(@vm_mock)
     @stop_response_mock = mock('stop_response')
 
-    @vm_mock.stub(:state).and_return(@state_response_mock)
+    @vm_mock.stub(:exists?).and_return(@exists_response_mock)
     @vm_mock.stub(:name).and_return(@target_vm.first)
+    @vm_mock.stub(:state).and_return(@state_response_mock)
   end
 
   describe 'execute' do
@@ -20,9 +21,6 @@ describe Fission::Command::Stop do
     it "should output an error and exit if it can't find the vm" do
       @exists_response_mock.stub_as_successful false
 
-      Fission::VM.should_receive(:exists?).with(@target_vm.first).
-                                           and_return(@exists_response_mock)
-
       command = Fission::Command::Stop.new @target_vm
       lambda { command.execute }.should raise_error SystemExit
 
@@ -32,8 +30,6 @@ describe Fission::Command::Stop do
     describe 'when the VM exists' do
       before do
         @exists_response_mock.stub_as_successful true
-        Fission::VM.should_receive(:exists?).with(@target_vm.first).
-                                             and_return(@exists_response_mock)
       end
 
       it "should output and exit if the vm is not running" do
