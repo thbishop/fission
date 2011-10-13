@@ -2,7 +2,6 @@ require File.expand_path('../../spec_helper.rb', __FILE__)
 
 describe Fission::Lease do
   before do
-    @lease_file_io = StringIO.new
     @lease_info = [ { :ip_address   => '172.16.248.197',
                       :mac_address  => '00:0c:29:2b:af:50',
                       :start        => '2011/10/11 01:50:58',
@@ -20,7 +19,7 @@ describe Fission::Lease do
                       :start        => '2010/02/16 23:16:05',
                       :end          => '2010/02/16 23:46:05' } ]
 
-    lease_file_content = '# This is a comment
+    @lease_file_content = '# This is a comment
 # And here is another
 lease 172.16.248.197 {
     starts 2 2011/10/11 01:50:58;
@@ -42,7 +41,6 @@ lease 172.16.248.129 {
     ends 2 2010/02/16 23:46:05;
     hardware ethernet 00:0c:29:0a:e9:b3;
 }'
-    @lease_file_io.string = lease_file_content
   end
 
   describe 'new' do
@@ -87,14 +85,15 @@ lease 172.16.248.129 {
 
   describe 'all' do
     it 'should query the configured lease file' do
-      File.should_receive(:open).with(Fission.config['lease_file'], 'r').
-                                 and_yield(StringIO.new)
+      File.should_receive(:read).with(Fission.config['lease_file']).
+                                 and_return('')
+
       Fission::Lease.all
     end
 
     it 'should return a successful response with the list of the found leases' do
-      File.should_receive(:open).with(Fission.config['lease_file'], 'r').
-                                 and_yield(@lease_file_io)
+      File.should_receive(:read).with(Fission.config['lease_file']).
+                                 and_return(@lease_file_content)
 
       example_leases = @lease_info.collect do |lease|
         Fission::Lease.new :ip_address  => lease[:ip_address],
@@ -118,8 +117,8 @@ lease 172.16.248.129 {
     end
 
     it 'should return a successful response with an empty list if there are no leases found' do
-      File.should_receive(:open).with(Fission.config['lease_file'], 'r').
-                                 and_yield(StringIO.new)
+      File.should_receive(:read).with(Fission.config['lease_file']).
+                                 and_return('')
       response = Fission::Lease.all
       response.should be_a_successful_response
       response.data.should == []
@@ -138,8 +137,8 @@ lease 172.16.248.129 {
   describe 'find_by_mac_address' do
     describe 'when able to get all of the leases' do
       before do
-        File.should_receive(:open).with(Fission.config['lease_file'], 'r').
-          and_yield(@lease_file_io)
+        File.should_receive(:read).with(Fission.config['lease_file']).
+                                   and_return(@lease_file_content)
       end
 
       it 'should return a response with the lease associated with the provided mac address' do

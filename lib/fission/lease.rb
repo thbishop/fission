@@ -47,8 +47,8 @@ module Fission
       leases = []
       response = Response.new
 
-      if File.file?(Fission.config['lease_file'])
-        content = File.open(Fission.config['lease_file'], 'r') { |f| f.read }
+      if File.file? Fission.config['lease_file']
+        content = File.read Fission.config['lease_file']
 
         content.split('}').each do |entry|
           lease = Lease.new
