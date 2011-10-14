@@ -379,6 +379,20 @@ module Fission
       response
     end
 
+    # Public: Provides the expected path to a VM's directory.  This does not
+    # imply that the VM exists.
+    #
+    # name - The name of the VM to provide the path for.
+    #
+    # Examples
+    #   @vm.path
+    #   # => '/vm/foo.vmwarevm'
+    #
+    # Returns the path (String) to the VM's directory.
+    def path
+      self.class.path name
+    end
+
     # Public: Provides all of the VMs which are located in the VM directory.
     #
     # Examples
@@ -451,8 +465,8 @@ module Fission
       Response.new :code => 0, :data => (File.directory? path(vm_name))
     end
 
-    # Public: Provides the expected path to a VM.  This does not imply that the
-    # VM exists.
+    # Public: Provides the expected path to a VM's directory.  This does not
+    # imply that the VM exists.
     #
     # name - The name of the VM to provide the path for.
     #

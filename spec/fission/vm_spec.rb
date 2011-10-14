@@ -426,6 +426,13 @@ ethernet1.generatedAddressenable = "TRUE"'
     end
   end
 
+  describe 'path' do
+    it 'should return the path of the VM' do
+      vm_path = File.join(Fission.config['vm_dir'], 'foo.vmwarevm').gsub '\\', ''
+      Fission::VM.new('foo').path.should == vm_path
+    end
+  end
+
   describe 'state' do
     before do
       @vm_1 = Fission::VM.new 'foo'
