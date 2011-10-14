@@ -83,7 +83,7 @@ lease 172.16.248.129 {
     end
   end
 
-  describe 'all' do
+  describe 'self.all' do
     it 'should query the configured lease file' do
       File.should_receive(:read).with(Fission.config['lease_file']).
                                  and_return('')
@@ -134,7 +134,7 @@ lease 172.16.248.129 {
 
   end
 
-  describe 'find_by_mac_address' do
+  describe 'self.find_by_mac_address' do
     describe 'when able to get all of the leases' do
       before do
         File.should_receive(:read).with(Fission.config['lease_file']).
