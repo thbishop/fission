@@ -10,28 +10,30 @@ module Fission
     # Public: Gets/Sets the data (can be any of type as needed).
     attr_accessor :data
 
-    # Public: Initialize a ResponseObject.
+    # Public: Initialize a Response object.
     #
     # args - Hash of arguments:
-    #       :code   - Integer which denotes the code of the ResponseObject.
-    #                 This is similar in concept to comman line exit codes.  The
+    #       :code   - Integer which denotes the code of the Response.  This is
+    #                 similar in concept to command line exit codes.  The
     #                 convention is that 0 denotes success and any other value
     #                 is unsuccessful (default: 1).
-    #       :output - String which denotes the output of the ResponseObject.
-    #                 The convention is that this should only be used when the
-    #                 ResponseObject is unsuccessful (default: '').
-    #       :data   - Any valid ruby object type.  This is used to convey any
+    #       :output - String which denotes the output of the Response.  The
+    #                 convention is that this should only be used when the
+    #                 Response is unsuccessful (default: '').
+    #       :data   - Any valid ruby object.  This is used to convey any
     #                 data that needs to be used by a caller.  The convention
-    #                 is that this should only be used when the ResponseObject
-    #                 is successful (default nil).
+    #                 is that this should only be used when the Response is
+    #                 successful (default nil).
     #
     # Examples
     #
-    #   ResponseObject.new :code => 0, :data => [1, 2, 3, 4]
+    #   Response.new :code => 0, :data => [1, 2, 3, 4]
     #
-    #   ResponseObject.new :code => 0, :data => true
+    #   Response.new :code => 0, :data => true
     #
-    #   ResponseObject.new :code => 5, :output => 'Something went wrong'
+    #   Response.new :code => 5, :output => 'Something went wrong'
+    #
+    # Returns a new Response instance.
     def initialize(args={})
       @code = args.fetch :code, 1
       @output = args.fetch :output, ''
@@ -60,9 +62,10 @@ module Fission
     #
     # output - This should be the output of the command.
     #
-    # Returns a ResponseObject.  The ResponseObject's code attribute will be set
-    # to the value of '$?'.  The ResponseObjects's output will be set to the
-    # provided output if, and only if, the ResponseObject is unsuccessful.
+    # Returns a Response.
+    # The Response's code attribute will be set to the value of '$?'.  The
+    # Response's output attribute will be set to the provided output if, and
+    # only if, the Response is unsuccessful.
     def self.from_command(output)
       response = new :code => $?.exitstatus
       response.output = output unless response.successful?

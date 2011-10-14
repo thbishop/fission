@@ -39,10 +39,11 @@ module Fission
     #
     #   Fission::Lease.all
     #
-    # Returns a Response object.  If the Response is successful, the data
-    # attribute of the Response will be an Array of Lease objects.  If the
-    # Response is successful and there are no leases found, then the data
-    # attribute of the Response will be an empty Array.
+    # Returns a Response with the result.
+    # If successful, the Response's data attribute will be an Array of Lease
+    # objects.  If no leases are found, then the Response's data attribute will
+    # be an empty Array.
+    # If there is an error, an unsuccessful Response will be returned.
     def self.all
       response = Response.new
 
@@ -72,10 +73,11 @@ module Fission
     #
     #   Fission::Lease.find_by_mac
     #
-    # Returns a Response object.  If the Response is successful and the MAC
-    # address was found, the data attribute of the Response object will be a
-    # Lease object.  If the MAC address was not found, then the data attribute
-    # of the Response object will be nil.
+    # Returns a Response with the result.
+    # If successful, the Response's data attribute will be a Lease object if the
+    # MAC address was found.  The Response's data attribute will be nil if the
+    # MAC address was not found.
+    # If there is an error, an unsuccessful Response will be returned.
     def self.find_by_mac_address(mac_address)
       all_response = all
 
@@ -99,7 +101,8 @@ module Fission
     #   Lease.parse my_lease_entry
     #
     #
-    # Returns a Lease object with the found attributes populated.
+    # Returns a Lease object which is populated with the attribute that were
+    # found.
     def self.parse(lease_entry)
       lease = Lease.new
 

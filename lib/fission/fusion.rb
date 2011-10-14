@@ -8,10 +8,9 @@ module Fission
     #   Fission::Fusion.running?
     #   # => true
     #
-    # Returns a Fission Response object.
-    # If the Response object is successful, the data attribute will be a
-    # Boolean.  If the Response object is unsuccessful, the data attribute will
-    # be nil.
+    # Returns a Response with the result.
+    # If successful, the Response's data attribute will be a Boolean.
+    # If there is an error, an unsuccessful Response will be returned.
     def self.running?
       command = "ps -ef | grep -v grep | grep -c "
       command << "#{Fission.config['gui_bin'].gsub(' ', '\ ')} 2>&1"

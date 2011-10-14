@@ -1,7 +1,7 @@
 module Fission
   class VM
 
-    # Public: Returns the name (String).
+    # Public: Gets the name of the VM as a String.
     attr_reader :name
 
     def initialize(name)
@@ -17,8 +17,9 @@ module Fission
     #
     #   @vm.create_snapshot('foo_snap_1')
     #
-    # Returns a Fission ResponseObject with the result.
-    # If successful, the ResponseObject's data attribute will be nil.
+    # Returns a Response with the result.
+    # If successful, the Response's data attribute will be nil.
+    # If there is an error, an unsuccessful Response will be returned.
     def create_snapshot(name)
       conf_file_response = conf_file
       return conf_file_response unless conf_file_response.successful?
@@ -37,8 +38,9 @@ module Fission
     #
     #   @vm.revert_to_snapshot('foo_snap_1')
     #
-    # Returns a Fission ResponseObject with the result.
-    # If successful, the ResponseObject's data attribute will be nil.
+    # Returns a Response with the result.
+    # If successful, the Response's data attribute will be nil.
+    # If there is an error, an unsuccessful Response will be returned.
     def revert_to_snapshot(name)
       conf_file_response = conf_file
       return conf_file_response unless conf_file_response.successful?
@@ -55,9 +57,10 @@ module Fission
     #
     #   @vm.snapshots
     #
-    # Returns a Fission ResponseObject with the result.
-    # If successful, the RepsonseObject's data attribute will be an array of 
-    # the snapshot names (String)
+    # Returns a Response with the result.
+    # If successful, the Repsonse's data attribute will be an Array of the
+    # snapshot names (String).
+    # If there is an error, an unsuccessful Response will be returned.
     def snapshots
       conf_file_response = conf_file
       return conf_file_response unless conf_file_response.successful?
@@ -92,8 +95,9 @@ module Fission
     #
     #   @vm.start(:headless => true)
     #
-    # Returns a Fission ResponseObject with the result.
-    # If successful, the ResponseObject's data attribute will be nil.
+    # Returns a Response with the result.
+    # If successful, the Response's data attribute will be nil.
+    # If there is an error, an unsuccessful Response will be returned.
     def start(args={})
       conf_file_response = conf_file
       return conf_file_response unless conf_file_response.successful?
@@ -113,8 +117,9 @@ module Fission
     #
     #   @vm.stop
     #
-    # Returns a Fission ResponseObject with the result.
-    # If successful, the ResponseObject's data attribute will be nil.
+    # Returns a Response with the result.
+    # If successful, the Response's data attribute will be nil.
+    # If there is an error, an unsuccessful Response will be returned.
     def stop
       conf_file_response = conf_file
       return conf_file_response unless conf_file_response.successful?
@@ -131,8 +136,9 @@ module Fission
     #
     #   @vm.suspend
     #
-    # Returns a Fission ResponseObject with the result.
-    # If successful, the ResponseObject's data attribute will be nil.
+    # Returns a Response with the result.
+    # If successful, the Response's data attribute will be nil.
+    # If there is an error, an unsuccessful Response will be returned.
     def suspend
       conf_file_response = conf_file
       return conf_file_response unless conf_file_response.successful?
@@ -150,11 +156,11 @@ module Fission
     #   @vm.mac_addresses.data
     #   # => ['00:0c:29:1d:6a:64', '00:0c:29:1d:6a:75']
     #
-    # Returns a Fission Response object with the result.
-    # If successful, the Response object's data attribute will be an Array of
-    # the MAC addresses found.  If there were no MAC addresses found, the
-    # Response object's data attribute will be an empty Array.
-    # If unsuccessful, the Reponse object's data attribute will be nil.
+    # Returns a Response with the result.
+    # If successful, the Response's data attribute will be an Array of the MAC
+    # addresses found.  If no MAC addresses are found, the Response's data
+    # attribute will be an empty Array.
+    # If there is an error, an unsuccessful Response will be returned.
     def mac_addresses
       network_response = network_info
 
@@ -168,8 +174,8 @@ module Fission
       response
     end
 
-    # Public: Network information for a VM.  Includes interface name and
-    # associated mac address.
+    # Public: Network information for a VM.  Includes interface name, associated
+    # MAC address, and IP address (if applicable).
     #
     # Examples:
     #
@@ -187,14 +193,14 @@ module Fission
     #          'ethernet1' => { 'mac_address' => '00:0c:29:1d:6a:75',
     #                           'ip_address'  => nil } }
     #
-    # Returns a Fission Response object with the result.
-    # If successful, the Response object's data attribute will be a Hash with
-    # the interface identifiers as the keys and the associated MAC address.  If
-    # an IP address was found in the VMware Fusion DHCP lease file, then it will
+    # Returns a Response with the result.
+    # If successful, the Response's data attribute will be a Hash with the
+    # interface identifiers as the keys and the associated MAC address.  If an
+    # IP address was found in the VMware Fusion DHCP lease file, then it will
     # be included.  If an IP address was not found, then the IP address value
-    # will be nil.  If there are no network interfaces, the Response object's
-    # data attribute will be an empty Hash.  If there is an error obtaining the
-    # information, then an unsuccessful Response object will be returned.
+    # will be nil.  If there are no network interfaces, the Response's data
+    # attribute will be an empty Hash.
+    # If there is an error, an unsuccessful Response will be returned.
     def network_info
       conf_file_response = conf_file
       return conf_file_response unless conf_file_response.successful?
@@ -242,15 +248,13 @@ module Fission
     #   @vm.state.data
     #   # => 'suspended'
     #
-    # Returns a Fission Response object with the result.
-    # If the Response is successful, the Response object's data attribute will
+    # Returns a Response with the result.
+    # If the Response is successful, the Response's data attribute will
     # be a String of the state.  If the VM is currently powered on, the state
-    # will be 'running'.  If the VM is not running and a .vmem file is not
-    # found in the VM's directory, it is considered to be 'not running'.  If the
-    # VM is not running and a .vmem file is found in the VM's directory, it is
-    # considered to be 'suspended.'
-    # If the Response is unsuccessful, the Response object's data attribute will
-    # be nil.
+    # will be 'running'.  If the VM is deemed to be suspended, the state will be
+    # 'suspended'.  If the VM is not running and not deemed to be suspended, the
+    # state will be 'not running'.
+    # If there is an error, an unsuccessful Response will be returned.
     def state
       response = Response.new :code => 0
 
@@ -283,29 +287,29 @@ module Fission
     #   @vm.exists?.data
     #   # => true
     #
-    # Returns a Fission Response object with the result.
+    # Returns a Response with the result.
     # If successful, the Response's data attribute will be a Boolean of
     # whether the VM exists or not.
+    # If there is an error, an unsuccessful Response will be returned.
     def exists?
       self.class.exists? name
     end
 
-    # Public: Determines if a VM is suspended.  This is based on if the VM is
-    # running and whether or not there is an associated .vmem file in the VM
-    # directory.  The .vmem file needs to match the of the VM for the VM to
-    # be considered suspended (i.e. 'foo.vmem' for the 'foo' VM).
+    # Public: Determines if a VM is suspended.
     #
     # Examples
     #
     #   @vm.suspended?.data
     #   # => true
     #
-    # Returns a Fission Response object with the result.
-    # If the Response is successful the Response object's data attribute will
-    # be a Boolean.  If the VM is found to be running, this will not take the
-    # .vmem file into consideration.
-    # If the Response is unsuccessful, the Response object's data attribute will
-    # be nil.
+    # Returns a Response with the result.
+    # If successful, the Response's data attribute will be a Boolean.  If the VM
+    # is not running, then this method will look for a '.vmem' file in the VM's
+    # directory.  If a '.vmem' file exists and it matches the name of the VM,
+    # then the VM is considered to be suspended.  If the VM is running or if a
+    # matching '.vmem' file is not found, then the VM is not considered to be
+    # suspended.
+    # If there is an error, an unsuccessful Response will be returned.
     def suspended?
       response = Response.new :code => 0, :data => false
 
@@ -332,19 +336,19 @@ module Fission
     #
     #   @vm.conf_file
     #
-    # Returns a Fission ResponseObject with the result.
+    # Returns a Response with the result.
+    # If successful, the Response's data attribute will be a String which will be
+    # escaped for spaces (' ').
     # If there is a single '.vmx' file in the VM's directory, regardless if
-    # the name of '.vmx' file matches the VM name, the ResponseObject's data
-    # attribute will the path to the '.vmx' file (String).
+    # the name of '.vmx' file matches the VM name, the Response's data
+    # attribute will the be the path to the '.vmx' file.
     # If there are multiple '.vmx' files found in the VM's directory, there are
-    # a couple of different outcomes.
+    # a couple of different possible outcomes.
     # If one of the file names matches the VM directory name, then the
-    # ReponseObject's data attribute will be the path to the matching '.vmx'
-    # file (String).
-    # If none of the file names match the VM directory name, then the
-    # ReponseObject's data attribute will be set to nil as this is deemed an
-    # error condition.
-    # When a path (String) is returned, it will be escaped for spaces (' ').
+    # Response's data attribute will be the path to the matching '.vmx' file.
+    # If none of the file names match the VM directory name, then this is deemed
+    # an error condition and an unsuccessful Response will be returned.
+    # If there is an error, an unsuccessful Response will be returned.
     def conf_file
       vmx_path = File.join(self.class.path(@name), "*.vmx")
       conf_files = Dir.glob(vmx_path)
@@ -381,10 +385,11 @@ module Fission
     #
     #   Fission::VM.all
     #
-    # Returns a Fission Response object with the result.
+    # Returns a Response with the result.
     # If successful, the Response's data attribute will be an Array of VM
-    # objects.
-    # If unsuccessful, the Response's data attribute will be nil.
+    # objects.  If no VMs are found, the Response's data attribute will be an
+    # empty Array.
+    # If there is an error, an unsuccessful Response will be returned.
     def self.all
       vm_dirs = Dir[File.join Fission.config['vm_dir'], '*.vmwarevm'].select do |d|
         File.directory? d
@@ -402,10 +407,11 @@ module Fission
     #
     #   Fission::VM.all_running
     #
-    # Returns a Fission Response object with the result.
+    # Returns a Response with the result.
     # If successful, the Response's data attribute will be an Array of VM
-    # objects which are running.
-    # If unsuccessful, the Response's data attribute will be nil.
+    # objects which are running.  If no VMs are running, the Response's data
+    # attribute will be an empty Array.
+    # If there is an error, an unsuccessful Response will be returned.
     def self.all_running
       command = "#{Fission.config['vmrun_cmd']} list"
 
@@ -437,14 +443,16 @@ module Fission
     #
     #   Fission::VM.exists? 'foo'
     #
-    # Returns a Fission ResponseObject with the result.
-    # If successful, the ResponseObject's data attribute will be a Boolean of
+    # Returns a Response with the result.
+    # If successful, the Response's data attribute will be a Boolean of
     # whether the VM exists or not.
+    # If there is an error, an unsuccessful Response will be returned.
     def self.exists?(vm_name)
       Response.new :code => 0, :data => (File.directory? path(vm_name))
     end
 
-    # Public: Provides the path to a VM.
+    # Public: Provides the expected path to a VM.  This does not imply that the
+    # VM exists.
     #
     # name - The name of the VM to provide the path for.
     #
@@ -468,8 +476,9 @@ module Fission
     #
     #   Fission::VM.clone 'foo', 'bar'
     #
-    # Returns a Fission ResponseObject with the result.
-    # If successful, the ResponseObject's data attribute will be nil.
+    # Returns a Response with the result.
+    # If successful, the Response's data attribute will be nil.
+    # If there is an error, an unsuccessful Response will be returned.
     def self.clone(source_vm, target_vm)
       FileUtils.cp_r path(source_vm), path(target_vm)
 
@@ -492,8 +501,9 @@ module Fission
     #
     #   @vm.delete
     #
-    # Returns a Fission ResponseObject with the result.
-    # If successful, the ResponseObject's data attribute will be nil.
+    # Returns a Response with the result.
+    # If successful, the Response's data attribute will be nil.
+    # If there is an error, an unsuccessful Response will be returned.
     def delete
       FileUtils.rm_rf VM.path(@name)
       Metadata.delete_vm_info(VM.path(@name))
