@@ -44,40 +44,18 @@ module Fission
     # Response is successful and there are no leases found, then the data
     # attribute of the Response will be an empty Array.
     def self.all
-      leases = []
       response = Response.new
 
       if File.file? Fission.config['lease_file']
         content = File.read Fission.config['lease_file']
 
-        content.split('}').each do |entry|
-          lease = Lease.new
-
-          entry.split("\n").each do |line|
-            next if line =~ /^#/
-
-              line.gsub! ';', ''
-
-            case line.strip
-            when /^lease/
-              lease.ip_address = line.split(' ')[1]
-            when /^starts/
-              lease.start = DateTime.parse(line.split(' ')[2..3].join(' '))
-            when /^end/
-            lease.end = DateTime.parse(line.split(' ')[2..3].join(' '))
-            when /^hardware/
-              lease.mac_address = line.split(' ')[2]
-            end
-
-          end
-
-          leases << lease
+        response.data = content.split('}').collect do |entry|
+          parse entry
         end
 
         content = nil
 
         response.code = 0
-        response.data = leases
       else
         response.code = 1
         response.output = "Unable to find the lease file '#{Fission.config['lease_file']}'"
@@ -109,6 +87,43 @@ module Fission
       end
 
       response
+    end
+
+    private
+    # Private: Parses information out of a DHCP lease entry.
+    #
+    # entry - String of lease entry text.
+    #
+    # Examples
+    #
+    #   Lease.parse my_lease_entry
+    #
+    #
+    # Returns a Lease object with the found attributes populated.
+    def self.parse(lease_entry)
+      lease = Lease.new
+
+      lease_entry.gsub! ';', ''
+
+      lease_entry.split("\n").each do |line|
+        next if line =~ /^#/
+
+        line.strip!
+
+        case line.strip
+        when /^lease/
+          lease.ip_address = line.split(' ')[1]
+        when /^starts/
+          lease.start = DateTime.parse(line.split(' ')[2..3].join(' '))
+        when /^end/
+          lease.end = DateTime.parse(line.split(' ')[2..3].join(' '))
+        when /^hardware/
+          lease.mac_address = line.split(' ')[2]
+        end
+      end
+
+      lease
+
     end
 
   end
