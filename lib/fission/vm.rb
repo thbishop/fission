@@ -262,7 +262,7 @@ module Fission
 
       return running_response unless running_response.successful?
 
-      if running_response.data.collect { |v| v.name }.include? name
+      if running_response.data.collect { |v| v.name }.include? @name
         response.data = 'running'
       else
         suspended_response = suspended?
@@ -292,7 +292,7 @@ module Fission
     # whether the VM exists or not.
     # If there is an error, an unsuccessful Response will be returned.
     def exists?
-      self.class.exists? name
+      self.class.exists? @name
     end
 
     # Public: Determines if a VM is suspended.
@@ -317,10 +317,10 @@ module Fission
 
       return running_response unless running_response.successful?
 
-      if running_response.data.collect { |v| v.name }.include? name
+      if running_response.data.collect { |v| v.name }.include? @name
         response.data = false
       else
-        if File.file?(File.join(self.class.path(name), "#{name}.vmem"))
+        if File.file?(File.join(self.class.path(name), "#{@name}.vmem"))
           response.data = true
         else
           response.data = false
@@ -390,7 +390,7 @@ module Fission
     #
     # Returns the path (String) to the VM's directory.
     def path
-      self.class.path name
+      self.class.path @name
     end
 
     # Public: Provides all of the VMs which are located in the VM directory.
