@@ -308,19 +308,15 @@ module Fission
     # suspended.
     # If there is an error, an unsuccessful Response will be returned.
     def suspended?
-      response = Response.new :code => 0, :data => false
-
-      running_response = self.class.all_running
+      running_response = running?
 
       return running_response unless running_response.successful?
 
-      if running_response.data.collect { |v| v.name }.include? @name
-        response.data = false
-      else
+      response = Response.new :code => 0, :data => false
+
+      unless running_response.data
         if File.file?(File.join(self.class.path(name), "#{@name}.vmem"))
           response.data = true
-        else
-          response.data = false
         end
       end
 

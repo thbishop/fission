@@ -527,9 +527,10 @@ ethernet1.generatedAddressenable = "TRUE"'
 
       @vm_1 = Fission::VM.new 'foo'
       @vm_2 = Fission::VM.new 'bar'
-      @all_running_response_mock = mock('all_running')
 
-      Fission::VM.stub(:all_running).and_return(@all_running_response_mock)
+      @running_response_mock = mock('running?')
+
+      @vm.stub(:running?).and_return(@running_response_mock)
     end
 
     after do
@@ -539,7 +540,7 @@ ethernet1.generatedAddressenable = "TRUE"'
 
     describe 'when the vm is not running' do
       before do
-        @all_running_response_mock.stub_as_successful []
+        @running_response_mock.stub_as_successful false
       end
 
       it 'should return a successful response and true if a .vmem file exists in the vm dir' do
@@ -560,7 +561,7 @@ ethernet1.generatedAddressenable = "TRUE"'
     it 'should return a successful response and false if the vm is running' do
       FileUtils.touch(File.join(@vm_root_dir, 'foo.vmem'))
 
-      @all_running_response_mock.stub_as_successful [@vm_1, @vm_2]
+      @running_response_mock.stub_as_successful true
 
       response = @vm.suspended?
       response.should be_a_successful_response
@@ -568,7 +569,7 @@ ethernet1.generatedAddressenable = "TRUE"'
     end
 
     it 'should return an unsuccessful repsponse if there is an error getting the list of running vms' do
-      @all_running_response_mock.stub_as_unsuccessful
+      @running_response_mock.stub_as_unsuccessful
 
       response = @vm.suspended?
       response.should be_an_unsuccessful_response
