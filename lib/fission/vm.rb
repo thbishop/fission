@@ -327,6 +327,30 @@ module Fission
       response
     end
 
+    # Public: Determines if a VM is running.
+    #
+    # Examples
+    #
+    #   @vm.running?.data
+    #   # => true
+    #
+    # Returns a Response with the result.
+    # If successful, the Response's data attribute will be a Boolean.
+    # If there is an error, an unsuccessful Response will be returned.
+    def running?
+      response = Response.new :code => 0, :data => false
+
+      all_running_response = self.class.all_running
+
+      return all_running_response unless all_running_response.successful?
+
+      if all_running_response.data.collect { |v| v.name }.include? @name
+        response.data = true
+      end
+
+      response
+    end
+
     # Public: Determines the path to the VM's config file ('.vmx').
     #
     # Examples

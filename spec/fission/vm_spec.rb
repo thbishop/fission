@@ -487,6 +487,38 @@ ethernet1.generatedAddressenable = "TRUE"'
     end
   end
 
+  describe 'running?' do
+    before do
+      @all_running_response_mock = mock('all_running')
+
+      Fission::VM.stub(:all_running).and_return(@all_running_response_mock)
+    end
+
+    it 'should return a successful response and false when the vm is not running' do
+      @all_running_response_mock.stub_as_successful []
+      response = @vm.running?
+      response.should be_a_successful_response
+      response.data.should == false
+    end
+
+    it 'should return a successful response and true if the vm is running' do
+      @all_running_response_mock.stub_as_successful [Fission::VM.new('foo')]
+
+      response = @vm.running?
+      response.should be_a_successful_response
+      response.data.should == true
+    end
+
+    it 'should return an unsuccessful repsponse if there is an error getting the list of running vms' do
+      @all_running_response_mock.stub_as_unsuccessful
+
+      response = @vm.running?
+      response.should be_an_unsuccessful_response
+      response.data.should be_nil
+    end
+
+  end
+
   describe 'suspended?' do
     before do
       FakeFS.activate!
