@@ -16,7 +16,7 @@ describe Fission::VM do
   end
 
   describe 'start' do
-    it 'should start the VM and return a successful response object' do
+    it 'should start the VM and return a successful response' do
       @conf_file_response_mock.stub_as_successful @conf_file_path
       @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(0)
@@ -58,7 +58,7 @@ describe Fission::VM do
   end
 
   describe 'stop' do
-    it 'should return a successul response object' do
+    it 'should return a successful response' do
       @conf_file_response_mock.stub_as_successful @conf_file_path
       @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(0)
@@ -89,7 +89,7 @@ describe Fission::VM do
   end
 
   describe 'suspend' do
-    it 'should output that it was successful' do
+    it 'should return a successful response' do
       @conf_file_response_mock.stub_as_successful @conf_file_path
       @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(0)
@@ -107,7 +107,7 @@ describe Fission::VM do
       @vm.suspend.should be_an_unsuccessful_response
     end
 
-    it 'it should output that it was unsuccessful' do
+    it 'it should return an unsuccessful response if unable to suspend the vm' do
       @conf_file_response_mock.stub_as_successful @conf_file_path
       @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(1)
@@ -120,7 +120,7 @@ describe Fission::VM do
   end
 
   describe 'snapshots' do
-    it 'should return the list of snapshots' do
+    it 'should return a successful response with the list of snapshots' do
       @conf_file_response_mock.stub_as_successful @conf_file_path
       @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(0)
@@ -671,7 +671,7 @@ ethernet1.generatedAddressenable = "TRUE"'
       @vm_names_and_objs = { 'foo' => @vm_1, 'bar' => @vm_2, 'baz' => @vm_3 }
     end
 
-    it 'should return a successful response object with the list of running vms' do
+    it 'should return a successful response with the list of running vms' do
       list_output = "Total running VMs: 2\n/vm/foo.vmwarevm/foo.vmx\n"
       list_output << "/vm/bar.vmwarevm/bar.vmx\n/vm/baz.vmwarevm/baz.vmx\n"
 
@@ -692,7 +692,7 @@ ethernet1.generatedAddressenable = "TRUE"'
       response.data.should == [@vm_1, @vm_2, @vm_3]
     end
 
-    it 'should return a successful response object with the VM dir name if it differs from the .vmx file name' do
+    it 'should return a successful response with the VM dir name if it differs from the .vmx file name' do
       vm_dir_file = { 'foo' => 'foo', 'bar' => 'diff', 'baz' => 'baz'}
       list_output = "Total running VMs: 3\n"
       vm_dir_file.each_pair do |dir, file|
@@ -713,7 +713,7 @@ ethernet1.generatedAddressenable = "TRUE"'
       response.data.should == [@vm_1, @vm_2, @vm_3]
     end
 
-    it 'should return an unsuccessful response object if unable to get the list of running vms' do
+    it 'should return an unsuccessful response if unable to get the list of running vms' do
       $?.should_receive(:exitstatus).and_return(1)
       Fission::VM.should_receive(:`).
                   with("#{@vmrun_cmd} list").
@@ -864,7 +864,7 @@ ethernet1.generatedAddressenable = "TRUE"'
       File.read("#{@target_path}/bar.vmdk").should match /foo/
     end
 
-    it 'should return a successful response object if clone was successful' do
+    it 'should return a successful response if clone was successful' do
       Fission::VM.clone(@source_vm, @target_vm).should be_a_successful_response
     end
 
