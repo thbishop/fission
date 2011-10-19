@@ -15,13 +15,9 @@ module Fission
 
         ensure_vm_exists vm
 
-        fusion_running_response = Fusion.running?
-
-        if fusion_running_response.successful?
-          if fusion_running_response.data
-            output 'It looks like the Fusion GUI is currently running'
-            output_and_exit 'Please exit the Fusion GUI and try again', 1
-          end
+        if Fusion.running?
+          output 'It looks like the Fusion GUI is currently running'
+          output_and_exit 'Please exit the Fusion GUI and try again', 1
         end
 
         snapshots_response = vm.snapshots

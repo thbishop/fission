@@ -35,11 +35,10 @@ describe Fission::Command::Delete do
       it "should try to delete the vm if it exists" do
         @state_response_mock.stub_as_successful 'not running'
         @delete_response_mock.stub_as_successful
-        @fusion_running_response_mock.stub_as_successful false
 
         @vm_mock.should_receive(:delete).and_return(@delete_response_mock)
 
-        Fission::Fusion.should_receive(:running?).and_return(@fusion_running_response_mock)
+        Fission::Fusion.should_receive(:running?).and_return(false)
 
         command = Fission::Command::Delete.new @target_vm
         command.execute
@@ -59,10 +58,9 @@ describe Fission::Command::Delete do
       it 'should output an error and exit if there was an error deleting the VM' do
         @delete_response_mock.stub_as_unsuccessful
         @state_response_mock.stub_as_successful 'not running'
-        @fusion_running_response_mock.stub_as_successful false
 
         @vm_mock.should_receive(:delete).and_return(@delete_response_mock)
-        Fission::Fusion.should_receive(:running?).and_return(@fusion_running_response_mock)
+        Fission::Fusion.should_receive(:running?).and_return(false)
 
         command = Fission::Command::Delete.new @target_vm
         lambda { command.execute }.should raise_error SystemExit
@@ -82,9 +80,8 @@ describe Fission::Command::Delete do
 
       it 'should output an error and exit if the fusion app is running' do
         @state_response_mock.stub_as_successful 'not running'
-        @fusion_running_response_mock.stub_as_successful true
 
-        Fission::Fusion.should_receive(:running?).and_return(@fusion_running_response_mock)
+        Fission::Fusion.should_receive(:running?).and_return(true)
 
         command = Fission::Command::Delete.new @target_vm
         lambda { command.execute }.should raise_error SystemExit
@@ -118,9 +115,8 @@ describe Fission::Command::Delete do
 
         it 'should output a warning about fusion metadata issue and then delete the VM' do
           @state_response_mock.stub_as_successful 'not running'
-          @fusion_running_response_mock.stub_as_successful true
 
-          Fission::Fusion.should_receive(:running?).and_return(@fusion_running_response_mock)
+          Fission::Fusion.should_receive(:running?).and_return(true)
           command = Fission::Command::Delete.new @target_vm << '--force'
           command.execute
 

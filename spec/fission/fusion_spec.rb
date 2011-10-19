@@ -10,17 +10,13 @@ describe Fission::Fusion do
     it 'should return a successful response and true if the fusion app is running' do
       Fission::Fusion.should_receive(:`).with(@cmd).
                                          and_return("1\n")
-      response = Fission::Fusion.running?
-      response.successful?.should == true
-      response.data.should == true
+      Fission::Fusion.running?.should == true
     end
 
     it 'should return a successful response and false if the fusion app is not running' do
       Fission::Fusion.should_receive(:`).with(@cmd).
                                          and_return("0\n")
-      response = Fission::Fusion.running?
-      response.successful?.should == true
-      response.data.should == false
+      Fission::Fusion.running?.should == false
     end
   end
 end

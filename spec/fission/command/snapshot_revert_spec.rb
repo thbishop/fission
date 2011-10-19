@@ -39,11 +39,10 @@ describe Fission::Command::SnapshotRevert do
     describe 'when the VM exists' do
       before do
         @vm_mock.stub(:exists?).and_return(true)
-        Fission::Fusion.should_receive(:running?).and_return(@fusion_running_response_mock)
       end
 
       it 'should output an error and exit if the fusion app is running' do
-        @fusion_running_response_mock.stub_as_successful true
+        Fission::Fusion.should_receive(:running?).and_return(true)
 
         command = Fission::Command::SnapshotRevert.new @target_vm << 'snap_1'
         lambda { command.execute }.should raise_error SystemExit
@@ -54,7 +53,7 @@ describe Fission::Command::SnapshotRevert do
 
       describe 'when the Fusion app is not running' do
         before do
-          @fusion_running_response_mock.stub_as_successful false
+          Fission::Fusion.should_receive(:running?).and_return(false)
           @vm_mock.should_receive(:snapshots).and_return(@snap_list_response_mock)
         end
 

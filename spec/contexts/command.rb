@@ -6,7 +6,6 @@ shared_context 'command_setup' do
 
     @all_running_response_mock = mock('all_running_response')
     @state_response_mock = mock('state_response')
-    @fusion_running_response_mock = mock('fusion_running_response_mock')
     @vm_mock = mock('vm_mock')
   end
 

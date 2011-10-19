@@ -78,14 +78,13 @@ describe Fission::Command::Start do
 
       describe 'with --headless' do
         before do
-          Fission::Fusion.should_receive(:running?).and_return(@fusion_running_response_mock)
           @state_response_mock.stub_as_successful 'not running'
         end
 
         it 'should start the vm headless' do
-          @fusion_running_response_mock.stub_as_successful false
           @start_response_mock.stub_as_successful
 
+          Fission::Fusion.should_receive(:running?).and_return(false)
           @vm_mock.should_receive(:start).and_return(@start_response_mock)
 
           command = Fission::Command::Start.new @target_vm << '--headless'
@@ -96,8 +95,7 @@ describe Fission::Command::Start do
         end
 
         it 'should output an error and exit if the fusion app is running' do
-          @fusion_running_response_mock.stub_as_successful true
-
+          Fission::Fusion.should_receive(:running?).and_return(true)
           @vm_mock.should_not_receive(:start)
 
           command = Fission::Command::Start.new @target_vm << '--headless'

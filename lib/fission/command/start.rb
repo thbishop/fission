@@ -36,17 +36,13 @@ module Fission
         start_args = {}
 
         if @options.headless
-          fusion_running_response = Fusion.running?
-
-          if fusion_running_response.successful?
-            if fusion_running_response.data
-              output 'It looks like the Fusion GUI is currently running'
-              output 'A VM cannot be started in headless mode when the Fusion GUI is running'
-              output_and_exit "Exit the Fusion GUI and try again", 1
-            end
-          else
-            start_args[:headless] = true
+          if Fusion.running?
+            output 'It looks like the Fusion GUI is currently running'
+            output 'A VM cannot be started in headless mode when the Fusion GUI is running'
+            output_and_exit "Exit the Fusion GUI and try again", 1
           end
+        else
+          start_args[:headless] = true
         end
 
         response = vm.start start_args

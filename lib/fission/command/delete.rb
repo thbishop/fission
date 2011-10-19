@@ -37,18 +37,14 @@ module Fission
           output_and_exit "There was an error determining if the VM is running.  The error was:\n#{state_response.output}", state_response.code
         end
 
-        fusion_running_response = Fusion.running?
+        if Fusion.running?
+          output 'It looks like the Fusion GUI is currently running'
 
-        if fusion_running_response.successful?
-          if fusion_running_response.data
-            output 'It looks like the Fusion GUI is currently running'
-
-            if @options.force
-              output 'The Fusion metadata for the VM may not be removed completely'
-            else
-              output "Either exit the Fusion GUI or use '--force' and try again"
-              output_and_exit "NOTE: Forcing a VM deletion with the Fusion GUI running may not clean up all of the VM metadata", 1
-            end
+          if @options.force
+            output 'The Fusion metadata for the VM may not be removed completely'
+          else
+            output "Either exit the Fusion GUI or use '--force' and try again"
+            output_and_exit "NOTE: Forcing a VM deletion with the Fusion GUI running may not clean up all of the VM metadata", 1
           end
         end
 
