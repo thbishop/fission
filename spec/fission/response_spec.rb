@@ -10,12 +10,12 @@ describe Fission::Response do
       Fission::Response.new.code.should == 1
     end
 
-    it 'should allow you to set the output' do
-      Fission::Response.new(:output => 'foobar').output.should == 'foobar'
+    it 'should allow you to set the message' do
+      Fission::Response.new(:message => 'foobar').message.should == 'foobar'
     end
 
-    it 'should set the output to an empty string if not provided' do
-      Fission::Response.new.output.should == ''
+    it 'should set the message to an empty string if not provided' do
+      Fission::Response.new.message.should == ''
     end
 
     it 'should set the data to nil if not provided' do
@@ -42,11 +42,11 @@ describe Fission::Response do
     end
   end
 
-  describe 'output' do
-    it 'should allow you to set the output' do
+  describe 'message' do
+    it 'should allow you to set the message' do
       @response = Fission::Response.new
-      @response.output = 'foobar'
-      @response.output.should == 'foobar'
+      @response.message = 'foobar'
+      @response.message.should == 'foobar'
     end
   end
 
@@ -68,13 +68,13 @@ describe Fission::Response do
       Fission::Response.from_command('').code.should == 55
     end
 
-    it 'should set the output if the command was unsuccessful' do
+    it 'should set the message if the command was unsuccessful' do
       $?.should_receive(:exitstatus).and_return(55)
-      Fission::Response.from_command('foo').output.should == 'foo'
+      Fission::Response.from_command('foo').message.should == 'foo'
     end
-    it 'should not set the output if the command was successful' do
+    it 'should not set the message if the command was successful' do
       $?.should_receive(:exitstatus).and_return(0)
-      Fission::Response.from_command('foo').output.should == ''
+      Fission::Response.from_command('foo').message.should == ''
     end
 
   end

@@ -42,11 +42,11 @@ module Fission
             if start_response.successful?
               output "VM '#{target_vm.name}' started"
             else
-              output_and_exit "There was an error starting the VM.  The error was:\n#{start_response.output}", start_response.code
+              output_and_exit "There was an error starting the VM.  The error was:\n#{start_response.message}", start_response.code
             end
           end
         else
-          output_and_exit "There was an error cloning the VM.  The error was:\n#{clone_response.output}", clone_response.code
+          output_and_exit "There was an error cloning the VM.  The error was:\n#{clone_response.message}", clone_response.code
         end
       end
 

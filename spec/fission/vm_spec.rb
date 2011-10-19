@@ -569,7 +569,7 @@ ethernet1.generatedAddressenable = "TRUE"'
     it 'should return an unsuccessful response with an error if no vmx file was found' do
       response = Fission::VM.new('foo').conf_file
       response.successful?.should == false
-      response.output.should match /Unable to find a config file for VM 'foo' \(in '#{File.join(@vm_root_dir, '\*\.vmx')}'\)/m
+      response.message.should match /Unable to find a config file for VM 'foo' \(in '#{File.join(@vm_root_dir, '\*\.vmx')}'\)/m
       response.data.should be_nil
     end
 
@@ -604,7 +604,7 @@ ethernet1.generatedAddressenable = "TRUE"'
         response = Fission::VM.new('foo').conf_file
         response.successful?.should == false
         error_regex = /Multiple config files found for VM 'foo' \('bar\.vmx', 'baz\.vmx' in '#{@vm_root_dir}'/m
-        response.output.should match error_regex
+        response.message.should match error_regex
         response.data.should be_nil
       end
     end

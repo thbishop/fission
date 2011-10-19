@@ -12,7 +12,7 @@ module Fission
         if response.successful?
           all_running_vm_names = response.data.collect { |v| v.name }
         else
-          output_and_exit "There was an error getting the list of running VMs.  The error was:\n#{response.output}", response.code
+          output_and_exit "There was an error getting the list of running VMs.  The error was:\n#{response.message}", response.code
         end
 
         vm_names = all_vms.collect { |v| v.name }
@@ -28,7 +28,7 @@ module Fission
             if state_response.successful?
               status = "[#{state_response.data}]"
             else
-              status = "[unknown] (#{state_response.output})"
+              status = "[unknown] (#{state_response.message})"
             end
           end
 

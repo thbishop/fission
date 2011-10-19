@@ -25,7 +25,7 @@ module Fission
             output "No snapshots found for VM '#{vm.name}'"
           end
         else
-          output_and_exit "There was an error listing the snapshots.  The error was:\n#{response.output}", response.code
+          output_and_exit "There was an error listing the snapshots.  The error was:\n#{response.message}", response.code
         end
       end
 

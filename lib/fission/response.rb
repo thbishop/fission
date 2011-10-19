@@ -4,8 +4,8 @@ module Fission
     # Public: Gets/Sets the code (Integer).
     attr_accessor :code
 
-    # Public: Gets/Sets the output (String).
-    attr_accessor :output
+    # Public: Gets/Sets the message (String).
+    attr_accessor :message
 
     # Public: Gets/Sets the data (can be any of type as needed).
     attr_accessor :data
@@ -17,7 +17,7 @@ module Fission
     #                 similar in concept to command line exit codes.  The
     #                 convention is that 0 denotes success and any other value
     #                 is unsuccessful (default: 1).
-    #       :output - String which denotes the output of the Response.  The
+    #       :message - String which denotes the message of the Response.  The
     #                 convention is that this should only be used when the
     #                 Response is unsuccessful (default: '').
     #       :data   - Any valid ruby object.  This is used to convey any
@@ -31,12 +31,12 @@ module Fission
     #
     #   Response.new :code => 0, :data => true
     #
-    #   Response.new :code => 5, :output => 'Something went wrong'
+    #   Response.new :code => 5, :message => 'Something went wrong'
     #
     # Returns a new Response instance.
     def initialize(args={})
       @code = args.fetch :code, 1
-      @output = args.fetch :output, ''
+      @message = args.fetch :message, ''
       @data = args.fetch :data, nil
     end
 
@@ -57,18 +57,18 @@ module Fission
       @code == 0
     end
 
-    # Public: Helper method to create a new response object when running a
+    # Public: Helper method to create a new Response object when running a
     # command line tool.
     #
-    # output - This should be the output of the command.
+    # cmd_output - This should be the output of the command.
     #
     # Returns a Response.
     # The Response's code attribute will be set to the value of '$?'.  The
-    # Response's output attribute will be set to the provided output if, and
-    # only if, the Response is unsuccessful.
-    def self.from_command(output)
+    # Response's message attribute will be set to the provided command output
+    # if, and only if, the Response is unsuccessful.
+    def self.from_command(cmd_output)
       response = new :code => $?.exitstatus
-      response.output = output unless response.successful?
+      response.message = cmd_output unless response.successful?
       response
     end
 

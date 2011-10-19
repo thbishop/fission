@@ -34,7 +34,7 @@ module Fission
             end
           end
         else
-          output_and_exit "There was an error determining if the VM is running.  The error was:\n#{state_response.output}", state_response.code
+          output_and_exit "There was an error determining if the VM is running.  The error was:\n#{state_response.message}", state_response.code
         end
 
         if Fusion.running?
@@ -54,7 +54,7 @@ module Fission
           output ''
           output "Deletion complete!"
         else
-          output_and_exit "There was an error deleting the VM.  The error was:\n#{delete_response.output}", delete_response.code
+          output_and_exit "There was an error deleting the VM.  The error was:\n#{delete_response.message}", delete_response.code
         end
       end
 

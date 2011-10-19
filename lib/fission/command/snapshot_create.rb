@@ -23,7 +23,7 @@ module Fission
             output_and_exit 'A snapshot cannot be created unless the VM is running', 1
           end
         else
-          output_and_exit "There was an error determining if this VM is running.  The error was:\n#{state_response.output}", state_response.code
+          output_and_exit "There was an error determining if this VM is running.  The error was:\n#{state_response.message}", state_response.code
         end
 
         snaps_response = vm.snapshots
@@ -32,7 +32,7 @@ module Fission
             output_and_exit "VM '#{vm.name}' already has a snapshot named '#{snap_name}'", 1
           end
         else
-          output_and_exit "There was an error getting the list of snapshots.  The error was:\n#{snaps_response.output}", snaps_response.code
+          output_and_exit "There was an error getting the list of snapshots.  The error was:\n#{snaps_response.message}", snaps_response.code
         end
 
         output "Creating snapshot"
@@ -41,7 +41,7 @@ module Fission
         if response.successful?
           output "Snapshot '#{snap_name}' created"
         else
-          output_and_exit "There was an error creating the snapshot.  The error was:\n#{response.output}", response.code
+          output_and_exit "There was an error creating the snapshot.  The error was:\n#{response.message}", response.code
         end
       end
 

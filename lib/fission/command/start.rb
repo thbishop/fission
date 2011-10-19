@@ -29,7 +29,7 @@ module Fission
             output_and_exit "VM '#{vm.name}' is already running", 0
           end
         else
-          output_and_exit "There was an error determining if the VM is already running.  The error was:\n#{state_response.output}", state_response.code
+          output_and_exit "There was an error determining if the VM is already running.  The error was:\n#{state_response.message}", state_response.code
         end
 
         output "Starting '#{vm.name}'"
@@ -50,7 +50,7 @@ module Fission
         if response.successful?
           output "VM '#{vm.name}' started"
         else
-          output_and_exit "There was a problem starting the VM.  The error was:\n#{response.output}", response.code
+          output_and_exit "There was a problem starting the VM.  The error was:\n#{response.message}", response.code
         end
       end
 

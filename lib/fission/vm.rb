@@ -75,7 +75,7 @@ module Fission
         snaps = output.split("\n").select { |s| !s.include? 'Total snapshots:' }
         response.data = snaps.map { |s| s.strip }
       else
-        response.output = output
+        response.message = output
       end
 
       response
@@ -354,7 +354,7 @@ module Fission
       case conf_files.count
       when 0
         response.code = 1
-        response.output = "Unable to find a config file for VM '#{@name}' (in '#{vmx_path}')"
+        response.message = "Unable to find a config file for VM '#{@name}' (in '#{vmx_path}')"
       when 1
         response.code = 0
         response.data = conf_files.first
@@ -367,7 +367,7 @@ module Fission
           output = "Multiple config files found for VM '#{@name}' ("
           output << conf_files.sort.map { |f| "'#{File.basename(f)}'" }.join(', ')
           output << " in '#{File.dirname(vmx_path)}')"
-          response.output = output
+          response.message = output
         end
       end
 
@@ -439,7 +439,7 @@ module Fission
           new File.basename(File.dirname(vm), '.vmwarevm')
         end
       else
-        response.output = output
+        response.message = output
       end
 
       response

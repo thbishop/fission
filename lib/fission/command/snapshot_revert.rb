@@ -29,7 +29,7 @@ module Fission
             output_and_exit "Unable to find the snapshot '#{snap_name}'", 1
           end
         else
-          output_and_exit "There was an error getting the list of snapshots.  The error was:\n#{snapshots_response.output}", snapshots_response.code
+          output_and_exit "There was an error getting the list of snapshots.  The error was:\n#{snapshots_response.message}", snapshots_response.code
         end
 
         output "Reverting to snapshot '#{snap_name}'"
@@ -38,7 +38,7 @@ module Fission
         if response.successful?
           output "Reverted to snapshot '#{snap_name}'"
         else
-          output_and_exit "There was an error reverting to the snapshot.  The error was:\n#{response.output}", response.code
+          output_and_exit "There was an error reverting to the snapshot.  The error was:\n#{response.message}", response.code
         end
       end
 

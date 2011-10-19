@@ -7,14 +7,14 @@ module ResponseHelpers
 
   def stub_as_successful(data=nil)
     stub_response_mock_with :code => 0,
-                            :output => '',
+                            :message => '',
                             :successful? => true,
                             :data => data
   end
 
   def stub_as_unsuccessful
     stub_response_mock_with :code => 1,
-                            :output => 'it blew up',
+                            :message => 'it blew up',
                             :successful? => false,
                             :data => nil
   end

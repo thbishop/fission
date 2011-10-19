@@ -59,7 +59,7 @@ module Fission
         response.code = 0
       else
         response.code = 1
-        response.output = "Unable to find the lease file '#{Fission.config['lease_file']}'"
+        response.message = "Unable to find the lease file '#{Fission.config['lease_file']}'"
       end
 
       response

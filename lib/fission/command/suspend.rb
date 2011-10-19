@@ -24,7 +24,7 @@ module Fission
           if response.successful?
             output "VM '#{vm.name}' suspended"
           else
-            output_and_exit "There was an error suspending the VM.  The error was:\n#{response.output}", response.code
+            output_and_exit "There was an error suspending the VM.  The error was:\n#{response.message}", response.code
           end
         end
       end
@@ -48,7 +48,7 @@ module Fission
               output_and_exit "VM '#{vm.name}' is not running", 1
             end
           else
-            output_and_exit "There was an error getting the list of running VMs.  The error was:\n#{state_response.output}", state_response.code
+            output_and_exit "There was an error getting the list of running VMs.  The error was:\n#{state_response.message}", state_response.code
           end
 
           vms = [vm]
