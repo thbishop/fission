@@ -9,12 +9,12 @@ describe Fission::CommandHelpers do
   end
 
   describe 'ensure_vm_exists' do
-    it 'should output and exit if the VM does not exist' do
-      @exists_response_mock.stub_as_successful false
-      @vm_mock.should_receive(:exists?).and_return(@exists_response_mock)
-
+    before do
       @vm_mock.stub(:name).and_return('foo')
+    end
 
+    it 'should output and exit if the VM does not exist' do
+      @vm_mock.should_receive(:exists?).and_return(false)
       @object.should_receive(:output_and_exit).
               with("Unable to find the VM 'foo' (#{Fission::VM.path('foo')})", 1)
 
@@ -22,10 +22,7 @@ describe Fission::CommandHelpers do
     end
 
     it 'should do nothing if the VM exists' do
-      @exists_response_mock.stub_as_successful true
-      @vm_mock.should_receive(:exists?).and_return(@exists_response_mock)
-
-      @vm_mock.stub(:name).and_return('foo')
+      @vm_mock.should_receive(:exists?).and_return(true)
       @object.should_not_receive(:output_and_exit)
       @object.should_not_receive(:output)
 

@@ -8,7 +8,6 @@ describe Fission::Command::Suspend do
     Fission::VM.stub(:new).and_return(@vm_mock)
     @suspend_response_mock = mock('suspend_response')
 
-    @vm_mock.stub(:exists?).and_return(@exists_response_mock)
     @vm_mock.stub(:name).and_return(@target_vm.first)
     @vm_mock.stub(:state).and_return(@state_response_mock)
   end
@@ -19,7 +18,7 @@ describe Fission::Command::Suspend do
     it_should_not_accept_arguments_of [], 'suspend'
 
     it "should output an error and exit if it can't find the VM" do
-      @exists_response_mock.stub_as_successful false
+      @vm_mock.stub(:exists?).and_return(false)
 
       command = Fission::Command::Suspend.new @target_vm
       lambda { command.execute }.should raise_error SystemExit
@@ -29,7 +28,7 @@ describe Fission::Command::Suspend do
 
     describe 'when the VM exists' do
       before do
-        @exists_response_mock.stub_as_successful true
+        @vm_mock.stub(:exists?).and_return(true)
       end
 
       it "should output and exit if the vm is not running" do

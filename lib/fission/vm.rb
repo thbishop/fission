@@ -279,20 +279,17 @@ module Fission
       response
     end
 
-    # Public: Determines if the VM exists or not.  This method only looks in the
-    # VM directory.
+    # Public: Determines if the VM exists or not.  This method looks for the
+    # VM's conf file ('.vmx') to determine if the VM exists or not.
     #
     # Examples
     #
-    #   @vm.exists?.data
+    #   @vm.exists?
     #   # => true
     #
-    # Returns a Response with the result.
-    # If successful, the Response's data attribute will be a Boolean of
-    # whether the VM exists or not.
-    # If there is an error, an unsuccessful Response will be returned.
+    # Returns a Boolean.
     def exists?
-      self.class.exists? @name
+      conf_file.successful?
     end
 
     # Public: Determines if a VM is suspended.
@@ -446,23 +443,6 @@ module Fission
       end
 
       response
-    end
-
-    # Public: Determines if a VM exists or not.  This method only looks in the
-    # VM directory.
-    #
-    # name - The name of the VM to look for.
-    #
-    # Examples
-    #
-    #   Fission::VM.exists? 'foo'
-    #
-    # Returns a Response with the result.
-    # If successful, the Response's data attribute will be a Boolean of
-    # whether the VM exists or not.
-    # If there is an error, an unsuccessful Response will be returned.
-    def self.exists?(vm_name)
-      Response.new :code => 0, :data => (File.directory? path(vm_name))
     end
 
     # Public: Provides the expected path to a VM's directory.  This does not

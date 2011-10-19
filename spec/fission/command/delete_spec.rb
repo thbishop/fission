@@ -9,7 +9,6 @@ describe Fission::Command::Delete do
 
     @delete_response_mock = mock('delete_response')
 
-    @vm_mock.stub(:exists?).and_return(@exists_response_mock)
     @vm_mock.stub(:name).and_return(@target_vm.first)
     @vm_mock.stub(:state).and_return(@state_response_mock)
   end
@@ -20,7 +19,7 @@ describe Fission::Command::Delete do
     it_should_not_accept_arguments_of [], 'delete'
 
     it "should output an error and exit if it can't find the target vm" do
-      @exists_response_mock.stub_as_successful false
+      @vm_mock.stub(:exists?).and_return(false)
 
       command = Fission::Command::Delete.new @target_vm
       lambda { command.execute }.should raise_error SystemExit
@@ -30,7 +29,7 @@ describe Fission::Command::Delete do
 
     describe 'when the VM exists' do
       before do
-        @exists_response_mock.stub_as_successful true
+        @vm_mock.stub(:exists?).and_return(true)
       end
 
       it "should try to delete the vm if it exists" do

@@ -24,10 +24,8 @@ module Fission
 
         exists_response = target_vm.exists?
 
-        if exists_response.successful?
-          if exists_response.data
-            output_and_exit "The target VM '#{target_vm.name}' already exists", 1
-          end
+        if target_vm.exists?
+          output_and_exit "The target VM '#{target_vm.name}' already exists", 1
         end
 
         clone_response = VM.clone source_vm.name, target_vm.name

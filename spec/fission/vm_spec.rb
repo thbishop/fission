@@ -216,24 +216,20 @@ describe Fission::VM do
 
   describe 'exists?' do
     before do
-      @exists_response = mock('exists')
-      Fission::VM.stub(:exists?).and_return(@exists_response)
+      @conf_file_response = mock('exists')
+      @vm.stub(:conf_file).and_return(@conf_file_response)
     end
 
     it 'should return true if the VM exists' do
-      @exists_response.stub_as_successful true
+      @conf_file_response.stub_as_successful '/vms/foo/foo.vmx'
 
-      response = Fission::VM.new('foo').exists?
-      response.should be_a_successful_response
-      response.data.should == true
+      @vm.exists?.should == true
     end
 
     it 'should return false if the VM does not exist' do
-      @exists_response.stub_as_successful false
+      @conf_file_response.stub_as_unsuccessful
 
-      response = Fission::VM.new('foo').exists?
-      response.should be_a_successful_response
-      response.data.should == false
+      @vm.exists?.should == false
     end
   end
 
@@ -732,26 +728,6 @@ ethernet1.generatedAddressenable = "TRUE"'
     it "should return the path of the vm" do
       vm_path = File.join(Fission.config['vm_dir'], 'foo.vmwarevm').gsub '\\', ''
       Fission::VM.path('foo').should == vm_path
-    end
-  end
-
-  describe "self.exists?" do
-    it "should return true if the vm exists" do
-      FakeFS do
-        FileUtils.mkdir_p Fission::VM.path('foo')
-        response = Fission::VM.exists?('foo')
-        response.should be_a_successful_response
-        response.data.should == true
-      end
-    end
-
-    it 'should return false if the vm does not exist' do
-      FakeFS do
-        FileUtils.rm_r Fission::VM.path('foo')
-        response = Fission::VM.exists?('foo')
-        response.should be_a_successful_response
-        response.data.should == false
-      end
     end
   end
 

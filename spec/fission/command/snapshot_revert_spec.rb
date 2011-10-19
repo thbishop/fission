@@ -10,7 +10,6 @@ describe Fission::Command::SnapshotRevert do
     @snap_list_response_mock = mock('snap_list_response')
     @snap_revert_response_mock = mock('snap_revert_response')
 
-    @vm_mock.stub(:exists?).and_return(@exists_response_mock)
     @vm_mock.stub(:name).and_return(@target_vm.first)
   end
 
@@ -29,7 +28,7 @@ describe Fission::Command::SnapshotRevert do
     end
 
     it "should output an error and exit if it can't find the target vm" do
-      @exists_response_mock.stub_as_successful false
+      @vm_mock.stub(:exists?).and_return(false)
 
       command = Fission::Command::SnapshotRevert.new @target_vm << 'snap_1'
       lambda { command.execute }.should raise_error SystemExit
@@ -39,7 +38,7 @@ describe Fission::Command::SnapshotRevert do
 
     describe 'when the VM exists' do
       before do
-        @exists_response_mock.stub_as_successful true
+        @vm_mock.stub(:exists?).and_return(true)
         Fission::Fusion.should_receive(:running?).and_return(@fusion_running_response_mock)
       end
 

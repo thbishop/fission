@@ -14,14 +14,9 @@ module Fission
     # with an exit code of 1.
     # If the VM exists, nothing will be output.
     def ensure_vm_exists(vm)
-      exists_response = vm.exists?
-
-      if exists_response.successful?
-        unless exists_response.data
-          output_and_exit "Unable to find the VM '#{vm.name}' (#{VM.path(vm.name)})", 1
-        end
+      unless vm.exists?
+        output_and_exit "Unable to find the VM '#{vm.name}' (#{VM.path(vm.name)})", 1
       end
-
     end
 
   end

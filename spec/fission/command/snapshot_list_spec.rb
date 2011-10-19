@@ -9,7 +9,6 @@ describe Fission::Command::SnapshotList do
 
     @snap_list_response_mock = mock('snap_list_response')
 
-    @vm_mock.stub(:exists?).and_return(@exists_response_mock)
     @vm_mock.stub(:name).and_return(@target_vm.first)
   end
 
@@ -19,7 +18,7 @@ describe Fission::Command::SnapshotList do
     it_should_not_accept_arguments_of [], 'snapshot list'
 
     it "should output an error and exit if it can't find the target vm" do
-      @exists_response_mock.stub_as_successful false
+      @vm_mock.stub(:exists?).and_return(false)
 
       command = Fission::Command::SnapshotList.new @target_vm
       lambda { command.execute }.should raise_error SystemExit
@@ -29,7 +28,7 @@ describe Fission::Command::SnapshotList do
 
     describe 'when the VM exists' do
       before do
-        @exists_response_mock.stub_as_successful true
+        @vm_mock.stub(:exists?).and_return(true)
         @vm_mock.should_receive(:snapshots).and_return(@snap_list_response_mock)
       end
 
