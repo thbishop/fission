@@ -334,11 +334,11 @@ module Fission
     # If successful, the Response's data attribute will be a Boolean.
     # If there is an error, an unsuccessful Response will be returned.
     def running?
-      response = Response.new :code => 0, :data => false
-
       all_running_response = self.class.all_running
 
       return all_running_response unless all_running_response.successful?
+
+      response = Response.new :code => 0, :data => false
 
       if all_running_response.data.collect { |v| v.name }.include? @name
         response.data = true
