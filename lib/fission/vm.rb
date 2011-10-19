@@ -256,24 +256,20 @@ module Fission
     # state will be 'not running'.
     # If there is an error, an unsuccessful Response will be returned.
     def state
-      response = Response.new :code => 0
-
-      running_response = self.class.all_running
+      running_response = running?
 
       return running_response unless running_response.successful?
 
-      if running_response.data.collect { |v| v.name }.include? @name
+      response = Response.new :code => 0, :data => 'not running'
+
+      if running_response.data
         response.data = 'running'
       else
         suspended_response = suspended?
 
         return suspended_response unless suspended_response.successful?
 
-        if suspended_response.data
-          response.data = 'suspended'
-        else
-          response.data = 'not running'
-        end
+        response.data = 'suspended' if suspended_response.data
       end
 
       response
