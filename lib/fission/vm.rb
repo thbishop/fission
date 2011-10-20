@@ -62,6 +62,10 @@ module Fission
     # snapshot names (String).
     # If there is an error, an unsuccessful Response will be returned.
     def snapshots
+      unless exists?
+        return Response.new :code => 1, :message => 'VM does not exist'
+      end
+
       conf_file_response = conf_file
       return conf_file_response unless conf_file_response.successful?
 

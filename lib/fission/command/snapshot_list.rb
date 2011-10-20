@@ -12,8 +12,6 @@ module Fission
 
         vm = VM.new @args.first
 
-        ensure_vm_exists vm
-
         response = vm.snapshots
 
         if response.successful?

@@ -13,51 +13,39 @@ describe Fission::Command::SnapshotList do
   end
 
   describe 'execute' do
+    before do
+      @vm_mock.stub(:snapshots).and_return(@snap_list_response_mock)
+    end
+
     subject { Fission::Command::SnapshotList }
 
     it_should_not_accept_arguments_of [], 'snapshot list'
 
-    it "should output an error and exit if it can't find the target vm" do
-      @vm_mock.stub(:exists?).and_return(false)
+    it 'should output the list of snapshots if any exist' do
+      @snap_list_response_mock.stub_as_successful ['snap 1', 'snap 2', 'snap 3']
+
+      command = Fission::Command::SnapshotList.new @target_vm
+      command.execute
+
+      @string_io.string.should match /snap 1\nsnap 2\nsnap 3\n/
+    end
+
+    it 'should output that it could not find any snapshots if none exist' do
+      @snap_list_response_mock.stub_as_successful []
+
+      command = Fission::Command::SnapshotList.new @target_vm
+      command.execute
+
+      @string_io.string.should match /No snapshots found for VM '#{@target_vm.first}'/
+    end
+
+    it 'should output an error and exit if there was an error getting the list of snapshots' do
+      @snap_list_response_mock.stub_as_unsuccessful
 
       command = Fission::Command::SnapshotList.new @target_vm
       lambda { command.execute }.should raise_error SystemExit
 
-      @string_io.string.should match /Unable to find the VM '#{@target_vm.first}'/
-    end
-
-    describe 'when the VM exists' do
-      before do
-        @vm_mock.stub(:exists?).and_return(true)
-        @vm_mock.should_receive(:snapshots).and_return(@snap_list_response_mock)
-      end
-
-      it 'should output the list of snapshots if any exist' do
-        @snap_list_response_mock.stub_as_successful ['snap 1', 'snap 2', 'snap 3']
-
-        command = Fission::Command::SnapshotList.new @target_vm
-        command.execute
-
-        @string_io.string.should match /snap 1\nsnap 2\nsnap 3\n/
-      end
-
-      it 'should output that it could not find any snapshots if none exist' do
-        @snap_list_response_mock.stub_as_successful []
-
-        command = Fission::Command::SnapshotList.new @target_vm
-        command.execute
-
-        @string_io.string.should match /No snapshots found for VM '#{@target_vm.first}'/
-      end
-
-      it 'should output an error and exit if there was an error getting the list of snapshots' do
-        @snap_list_response_mock.stub_as_unsuccessful
-
-        command = Fission::Command::SnapshotList.new @target_vm
-        lambda { command.execute }.should raise_error SystemExit
-
-        @string_io.string.should match /There was an error listing the snapshots.+it blew up.+/m
-      end
+      @string_io.string.should match /There was an error listing the snapshots.+it blew up.+/m
     end
 
   end

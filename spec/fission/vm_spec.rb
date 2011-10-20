@@ -235,8 +235,21 @@ describe Fission::VM do
   end
 
   describe 'snapshots' do
+    before do
+      @vm.stub(:exists?).and_return(true)
+      @vm.stub(:conf_file).and_return(@conf_file_response_mock)
+    end
+
+    it "should return an unsuccessful repsonse when the vm doesn't exist" do
+      @vm.stub(:exists?).and_return(false)
+
+      response = @vm.snapshots
+      response.should be_an_unsuccessful_response 'VM does not exist'
+    end
+
     it 'should return a successful response with the list of snapshots' do
       @conf_file_response_mock.stub_as_successful @conf_file_path
+
       @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(0)
       @vm.should_receive(:`).
@@ -250,13 +263,15 @@ describe Fission::VM do
 
     it 'should return an unsuccessful response if unable to figure out the conf file' do
       @conf_file_response_mock.stub_as_unsuccessful
+
       @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
 
       @vm.snapshots.should be_an_unsuccessful_response
     end
 
-    it 'should print an error and exit if there was a problem getting the list of snapshots' do
+    it 'should return an unsuccessful response if there was a problem getting the list of snapshots' do
       @conf_file_response_mock.stub_as_successful @conf_file_path
+
       @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(1)
       @vm.should_receive(:`).
