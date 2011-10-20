@@ -22,48 +22,40 @@ describe Fission::VM do
       @vm.stub(:exists?).and_return(true)
       @vm.stub(:running?).and_return(@running_response_mock)
       @vm.stub(:conf_file).and_return(@conf_file_response_mock)
+      @running_response_mock.stub_as_successful false
+      @conf_file_response_mock.stub_as_successful @conf_file_path
     end
 
     it "should return an unsuccessful response if the vm doesn't exist" do
       @vm.stub(:exists?).and_return(false)
-
-      response = @vm.start
-      response.should be_an_unsuccessful_response 'VM does not exist'
+      @vm.start.should be_an_unsuccessful_response 'VM does not exist'
     end
 
     it 'should return an unsuccessful response if the vm is already running' do
       @running_response_mock.stub_as_successful true
-
-      response = @vm.start
-      response.should be_an_unsuccessful_response 'VM is already running'
+      @vm.start.should be_an_unsuccessful_response 'VM is already running'
     end
 
     it 'should return an unsuccessful response if unable to determine if running' do
       @running_response_mock.stub_as_unsuccessful
-
-      response = @vm.start
-      response.should be_an_unsuccessful_response
+      @vm.start.should be_an_unsuccessful_response
     end
 
     it 'should return an unsuccessful response if unable to figure out the conf file' do
-      @running_response_mock.stub_as_successful false
       @conf_file_response_mock.stub_as_unsuccessful
-
       @vm.start.should be_an_unsuccessful_response
     end
 
     describe 'when the fusion gui is not running' do
       before do
-        @running_response_mock.stub_as_successful false
         Fission::Fusion.stub(:running?).and_return(false)
-        @conf_file_response_mock.stub_as_successful @conf_file_path
       end
 
       it 'should start the VM and return a successful response' do
         $?.should_receive(:exitstatus).and_return(0)
         @vm.should_receive(:`).
-          with("#{@vmrun_cmd} start #{@conf_file_path.gsub(' ', '\ ')} gui 2>&1").
-          and_return("it's all good")
+            with("#{@vmrun_cmd} start #{@conf_file_path.gsub(' ', '\ ')} gui 2>&1").
+            and_return("it's all good")
 
         @vm.start.should be_a_successful_response
       end
@@ -71,8 +63,8 @@ describe Fission::VM do
       it 'should successfully start the vm headless' do
         $?.should_receive(:exitstatus).and_return(0)
         @vm.should_receive(:`).
-          with("#{@vmrun_cmd} start #{@conf_file_path.gsub(' ', '\ ')} nogui 2>&1").
-          and_return("it's all good")
+            with("#{@vmrun_cmd} start #{@conf_file_path.gsub(' ', '\ ')} nogui 2>&1").
+            and_return("it's all good")
 
         @vm.start(:headless => true).should be_a_successful_response
       end
@@ -80,8 +72,8 @@ describe Fission::VM do
       it 'should return an unsuccessful response if there was an error starting the VM' do
         $?.should_receive(:exitstatus).and_return(1)
         @vm.should_receive(:`).
-          with("#{@vmrun_cmd} start #{@conf_file_path.gsub(' ', '\ ')} gui 2>&1").
-          and_return("it blew up")
+            with("#{@vmrun_cmd} start #{@conf_file_path.gsub(' ', '\ ')} gui 2>&1").
+            and_return("it blew up")
 
         @vm.start.should be_an_unsuccessful_response
       end
@@ -89,9 +81,7 @@ describe Fission::VM do
 
     describe 'when the fusion gui is running' do
       before do
-        @running_response_mock.stub_as_successful false
         Fission::Fusion.stub(:running?).and_return(true)
-        @conf_file_response_mock.stub_as_successful @conf_file_path
       end
 
       it 'should return an unsuccessful response if starting headless' do
@@ -114,40 +104,31 @@ describe Fission::VM do
       @vm.stub(:exists?).and_return(true)
       @vm.stub(:running?).and_return(@running_response_mock)
       @vm.stub(:conf_file).and_return(@conf_file_response_mock)
+      @running_response_mock.stub_as_successful true
+      @conf_file_response_mock.stub_as_successful @conf_file_path
     end
 
     it "should return an unsuccessful response if the vm doesn't exist" do
       @vm.stub(:exists?).and_return(false)
-
-      response = @vm.stop
-      response.should be_an_unsuccessful_response 'VM does not exist'
+      @vm.stop.should be_an_unsuccessful_response 'VM does not exist'
     end
 
     it 'should return an unsuccessful response if the vm is not running' do
       @running_response_mock.stub_as_successful false
-
-      response = @vm.stop
-      response.should be_an_unsuccessful_response 'VM is not running'
+      @vm.stop.should be_an_unsuccessful_response 'VM is not running'
     end
 
     it 'should return an unsuccessful response if unable to determine if running' do
       @running_response_mock.stub_as_unsuccessful
-
-      response = @vm.stop
-      response.should be_an_unsuccessful_response
+      @vm.stop.should be_an_unsuccessful_response
     end
 
     it 'should return an unsuccessful response if unable to figure out the conf file' do
-      @running_response_mock.stub_as_successful true
       @conf_file_response_mock.stub_as_unsuccessful
-
       @vm.stop.should be_an_unsuccessful_response
     end
 
     it 'should return a successful response' do
-      @running_response_mock.stub_as_successful true
-      @conf_file_response_mock.stub_as_successful @conf_file_path
-
       $?.should_receive(:exitstatus).and_return(0)
       @vm.should_receive(:`).
           with("#{@vmrun_cmd} stop #{@conf_file_path.gsub ' ', '\ '} 2>&1").
@@ -157,10 +138,6 @@ describe Fission::VM do
     end
 
     it 'it should return an unsuccessful response if unable to stop the vm' do
-      @running_response_mock.stub_as_successful true
-      @conf_file_response_mock.stub_as_successful @conf_file_path
-
-      @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(1)
       @vm.should_receive(:`).
           with("#{@vmrun_cmd} stop #{@conf_file_path.gsub ' ', '\ '} 2>&1").
@@ -177,41 +154,31 @@ describe Fission::VM do
       @vm.stub(:exists?).and_return(true)
       @vm.stub(:running?).and_return(@running_response_mock)
       @vm.stub(:conf_file).and_return(@conf_file_response_mock)
+      @running_response_mock.stub_as_successful true
+      @conf_file_response_mock.stub_as_successful @conf_file_path
     end
 
     it "should return an unsuccessful response if the vm doesn't exist" do
       @vm.stub(:exists?).and_return(false)
-
-      response = @vm.suspend
-      response.should be_an_unsuccessful_response 'VM does not exist'
+      @vm.suspend.should be_an_unsuccessful_response 'VM does not exist'
     end
 
     it 'should return an unsuccessful response if the vm is not running' do
       @running_response_mock.stub_as_successful false
-
-      response = @vm.suspend
-      response.should be_an_unsuccessful_response 'VM is not running'
+      @vm.suspend.should be_an_unsuccessful_response 'VM is not running'
     end
 
     it 'should return an unsuccessful response if unable to determine if running' do
       @running_response_mock.stub_as_unsuccessful
-
-      response = @vm.suspend
-      response.should be_an_unsuccessful_response
+      @vm.suspend.should be_an_unsuccessful_response
     end
 
     it 'should return an unsuccessful response if unable to figure out the conf file' do
-      @running_response_mock.stub_as_successful true
       @conf_file_response_mock.stub_as_unsuccessful
-
       @vm.suspend.should be_an_unsuccessful_response
     end
 
     it 'should return a successful response' do
-      @running_response_mock.stub_as_successful true
-      @conf_file_response_mock.stub_as_successful @conf_file_path
-
-      @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(0)
       @vm.should_receive(:`).
           with("#{@vmrun_cmd} suspend #{@conf_file_path.gsub ' ', '\ '} 2>&1").
@@ -221,10 +188,6 @@ describe Fission::VM do
     end
 
     it 'it should return an unsuccessful response if unable to suspend the vm' do
-      @running_response_mock.stub_as_successful true
-      @conf_file_response_mock.stub_as_successful @conf_file_path
-
-      @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(1)
       @vm.should_receive(:`).
           with("#{@vmrun_cmd} suspend #{@conf_file_path.gsub ' ', '\ '} 2>&1").
@@ -238,19 +201,15 @@ describe Fission::VM do
     before do
       @vm.stub(:exists?).and_return(true)
       @vm.stub(:conf_file).and_return(@conf_file_response_mock)
+      @conf_file_response_mock.stub_as_successful @conf_file_path
     end
 
     it "should return an unsuccessful repsonse when the vm doesn't exist" do
       @vm.stub(:exists?).and_return(false)
-
-      response = @vm.snapshots
-      response.should be_an_unsuccessful_response 'VM does not exist'
+      @vm.snapshots.should be_an_unsuccessful_response 'VM does not exist'
     end
 
     it 'should return a successful response with the list of snapshots' do
-      @conf_file_response_mock.stub_as_successful @conf_file_path
-
-      @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(0)
       @vm.should_receive(:`).
           with("#{@vmrun_cmd} listSnapshots #{@conf_file_path.gsub ' ', '\ '} 2>&1").
@@ -263,16 +222,10 @@ describe Fission::VM do
 
     it 'should return an unsuccessful response if unable to figure out the conf file' do
       @conf_file_response_mock.stub_as_unsuccessful
-
-      @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
-
       @vm.snapshots.should be_an_unsuccessful_response
     end
 
     it 'should return an unsuccessful response if there was a problem getting the list of snapshots' do
-      @conf_file_response_mock.stub_as_successful @conf_file_path
-
-      @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(1)
       @vm.should_receive(:`).
           with("#{@vmrun_cmd} listSnapshots #{@conf_file_path.gsub ' ', '\ '} 2>&1").
@@ -299,9 +252,7 @@ describe Fission::VM do
 
     it "should return an unsuccessful response if the vm doesn't exist" do
       @vm.stub(:exists?).and_return(false)
-
-      response = @vm.create_snapshot 'snap_1'
-      response.should be_an_unsuccessful_response 'VM does not exist'
+      @vm.create_snapshot('snap_1').should be_an_unsuccessful_response 'VM does not exist'
     end
 
     it 'should return an unsuccessful response if the vm is not running' do
@@ -314,14 +265,11 @@ describe Fission::VM do
 
     it 'should return an unsuccessful response if unable to determine if running' do
       @running_response_mock.stub_as_unsuccessful
-
-      response = @vm.create_snapshot 'snap_1'
-      response.should be_an_unsuccessful_response
+      @vm.create_snapshot('snap_1').should be_an_unsuccessful_response
     end
 
     it 'should return an unsuccessful response if unable to figure out the conf file' do
       @conf_file_response_mock.stub_as_unsuccessful
-
       @vm.create_snapshot('snap_1').should be_an_unsuccessful_response
     end
     it 'should return a successful response and create a snapshot' do
@@ -335,14 +283,12 @@ describe Fission::VM do
 
     it 'should return an unsuccessful response if the snapshot name is a duplicate' do
       @snapshots_response_mock.stub_as_successful ['snap_1']
-
       response = @vm.create_snapshot 'snap_1'
       response.should be_an_unsuccessful_response "There is already a snapshot named 'snap_1'."
     end
 
     it 'should return an unsuccessful response if there was a problem listing the existing snapshots' do
       @snapshots_response_mock.stub_as_unsuccessful
-
       @vm.create_snapshot('snap_1').should be_an_unsuccessful_response
     end
 
@@ -371,9 +317,7 @@ describe Fission::VM do
 
     it "should return an unsuccessful response if the vm doesn't exist" do
       @vm.stub(:exists?).and_return(false)
-
-      response = @vm.revert_to_snapshot 'snap_1'
-      response.should be_an_unsuccessful_response 'VM does not exist'
+      @vm.revert_to_snapshot('snap_1').should be_an_unsuccessful_response 'VM does not exist'
     end
 
     it 'should return an unsuccessful response if the Fusion GUI is running' do
@@ -390,7 +334,6 @@ describe Fission::VM do
 
     it 'should return an unsuccessful response if unable to figure out the conf file' do
       @conf_file_response_mock.stub_as_unsuccessful
-
       @vm.revert_to_snapshot('snap_1').should be_an_unsuccessful_response
     end
 
@@ -405,14 +348,12 @@ describe Fission::VM do
 
     it 'should return an unsuccessful response if the snapshot cannot be found' do
       @snapshots_response_mock.stub_as_successful []
-
       response = @vm.revert_to_snapshot 'snap_1'
       response.should be_an_unsuccessful_response "Unable to find a snapshot named 'snap_1'."
     end
 
     it 'should return an unsuccessful response if unable to list the existing snapshots' do
       @snapshots_response_mock.stub_as_unsuccessful
-
       @vm.revert_to_snapshot('snap_1').should be_an_unsuccessful_response
     end
 
@@ -435,13 +376,11 @@ describe Fission::VM do
 
     it 'should return true if the VM exists' do
       @conf_file_response.stub_as_successful '/vms/foo/foo.vmx'
-
       @vm.exists?.should == true
     end
 
     it 'should return false if the VM does not exist' do
       @conf_file_response.stub_as_unsuccessful
-
       @vm.exists?.should == false
     end
   end
@@ -487,6 +426,8 @@ describe Fission::VM do
 
   describe 'network_info' do
     before do
+      @conf_file_response_mock.stub_as_successful @conf_file_path
+
       @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       @conf_file_io = StringIO.new
       @lease_1_response_mock = mock('lease_1_response')
@@ -537,7 +478,6 @@ ethernet1.generatedAddressenable = "TRUE"'
     end
 
     it 'should return a successful response with an empty list if there are no macs' do
-      @conf_file_response_mock.stub_as_successful @conf_file_path
 
       vmx_content = 'ide1:0.deviceType = "cdrom-image"
 pciBridge7.virtualDev = "pcieRootPort"
@@ -557,7 +497,6 @@ tools.syncTime = "TRUE"'
     end
 
     it 'should return a successful response without ip addresses if none were found' do
-      @conf_file_response_mock.stub_as_successful @conf_file_path
       @lease_1_response_mock.stub_as_successful nil
       @lease_2_response_mock.stub_as_successful nil
 
@@ -602,7 +541,6 @@ ethernet1.generatedAddressenable = "TRUE"'
     end
 
     it 'should return an unsuccessful response if there was an error getting the ip information' do
-      @conf_file_response_mock.stub_as_successful @conf_file_path
       @lease_1_response_mock.stub_as_unsuccessful
       @lease_2_response_mock.stub_as_successful nil
 
@@ -630,8 +568,7 @@ ethernet1.generatedAddressenable = "TRUE"'
                      with('00:0c:29:1d:6a:75').
                      and_return(@lease_2_response_mock)
 
-      response = @vm.network_info
-      response.should be_an_unsuccessful_response
+      @vm.network_info.should be_an_unsuccessful_response
     end
   end
 
@@ -651,11 +588,10 @@ ethernet1.generatedAddressenable = "TRUE"'
       @suspended_response_mock = mock('suspended')
 
       Fission::VM.stub(:all_running).and_return(@all_running_response_mock)
+      @all_running_response_mock.stub_as_successful [@vm_2]
     end
 
     it "should return a successful response and 'not running' when the VM is off" do
-      @all_running_response_mock.stub_as_successful [@vm_2]
-
       response = @vm.state
       response.should be_a_successful_response
       response.data.should == 'not running'
@@ -670,7 +606,6 @@ ethernet1.generatedAddressenable = "TRUE"'
     end
 
     it "should return a successful response and 'suspended' when the VM is suspended" do
-      @all_running_response_mock.stub_as_successful [@vm_2]
       @suspended_response_mock.stub_as_successful true
 
       @vm.stub(:suspended?).and_return(@suspended_response_mock)
@@ -682,21 +617,13 @@ ethernet1.generatedAddressenable = "TRUE"'
 
     it 'should return an unsuccessful response if there was an error getting the running VMs' do
       @all_running_response_mock.stub_as_unsuccessful
-
-      response = @vm.state
-      response.should be_an_unsuccessful_response
-      response.data.should be_nil
+      @vm.state.should be_an_unsuccessful_response
     end
 
     it 'should return an unsuccessful repsonse if there was an error determining if the VM is suspended' do
-      @all_running_response_mock.stub_as_successful [@vm_2]
       @suspended_response_mock.stub_as_unsuccessful
-
       @vm.stub(:suspended?).and_return(@suspended_response_mock)
-
-      response = @vm.state
-      response.should be_an_unsuccessful_response
-      response.data.should be_nil
+      @vm.state.should be_an_unsuccessful_response
     end
   end
 
@@ -724,10 +651,7 @@ ethernet1.generatedAddressenable = "TRUE"'
 
     it 'should return an unsuccessful repsponse if there is an error getting the list of running vms' do
       @all_running_response_mock.stub_as_unsuccessful
-
-      response = @vm.running?
-      response.should be_an_unsuccessful_response
-      response.data.should be_nil
+      @vm.running?.should be_an_unsuccessful_response
     end
 
   end
@@ -783,10 +707,7 @@ ethernet1.generatedAddressenable = "TRUE"'
 
     it 'should return an unsuccessful repsponse if there is an error getting the list of running vms' do
       @running_response_mock.stub_as_unsuccessful
-
-      response = @vm.suspended?
-      response.should be_an_unsuccessful_response
-      response.data.should be_nil
+      @vm.suspended?.should be_an_unsuccessful_response
     end
 
   end
@@ -816,7 +737,6 @@ ethernet1.generatedAddressenable = "TRUE"'
       response = Fission::VM.new('foo').conf_file
       response.successful?.should == false
       response.message.should match /Unable to find a config file for VM 'foo' \(in '#{File.join(@vm_root_dir, '\*\.vmx')}'\)/m
-      response.data.should be_nil
     end
 
     describe 'when the VM name and conf file name do not match' do
@@ -851,7 +771,6 @@ ethernet1.generatedAddressenable = "TRUE"'
         response.successful?.should == false
         error_regex = /Multiple config files found for VM 'foo' \('bar\.vmx', 'baz\.vmx' in '#{@vm_root_dir}'/m
         response.message.should match error_regex
-        response.data.should be_nil
       end
     end
 
@@ -1044,14 +963,12 @@ ethernet1.generatedAddressenable = "TRUE"'
 
     it "should return an unsuccessful response if the source vm doesn't exist" do
       @source_vm.stub(:exists?).and_return(false)
-
       response = Fission::VM.clone @source_vm.name, @target_vm.name
       response.should be_an_unsuccessful_response 'VM does not exist'
     end
 
     it "should return an unsuccessful response if the target vm exists" do
       @target_vm.stub(:exists?).and_return(true)
-
       response = Fission::VM.clone @source_vm.name, @target_vm.name
       response.should be_an_unsuccessful_response 'VM already exists'
     end
