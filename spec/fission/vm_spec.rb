@@ -1198,7 +1198,7 @@ ethernet1.generatedAddressenable = "TRUE"'
     it "should delete the target vm files" do
       Fission::Metadata.stub!(:delete_vm_info)
 
-      Fission::VM.new(@target_vm).delete
+      @vm.delete
 
       @vm_files.each do |file|
         File.exists?(File.join(Fission::VM.path(@target_vm), "#{@target_vm}#{file}")).should == false
@@ -1207,12 +1207,12 @@ ethernet1.generatedAddressenable = "TRUE"'
 
     it 'should delete the target vm metadata' do
       Fission::Metadata.should_receive(:delete_vm_info)
-      Fission::VM.new(@target_vm).delete
+      @vm.delete
     end
 
     it 'should return a successful reponsse object' do
       Fission::Metadata.stub!(:delete_vm_info)
-      Fission::VM.new(@target_vm).delete.should be_a_successful_response
+      @vm.delete.should be_a_successful_response
     end
 
   end
