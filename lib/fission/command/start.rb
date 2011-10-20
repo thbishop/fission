@@ -19,31 +19,10 @@ module Fission
 
         vm = VM.new @args.first
 
-        ensure_vm_exists vm
-
-        state_response = vm.state
-
-        if state_response.successful?
-          if state_response.data == 'running'
-            output ''
-            output_and_exit "VM '#{vm.name}' is already running", 0
-          end
-        else
-          output_and_exit "There was an error determining if the VM is already running.  The error was:\n#{state_response.message}", state_response.code
-        end
-
         output "Starting '#{vm.name}'"
         start_args = {}
 
-        if @options.headless
-          if Fusion.running?
-            output 'It looks like the Fusion GUI is currently running'
-            output 'A VM cannot be started in headless mode when the Fusion GUI is running'
-            output_and_exit "Exit the Fusion GUI and try again", 1
-          end
-        else
-          start_args[:headless] = true
-        end
+        start_args[:headless] = true if @options.headless
 
         response = vm.start start_args
 
