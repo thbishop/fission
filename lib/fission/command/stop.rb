@@ -4,11 +4,7 @@ module Fission
       include Fission::CommandHelpers
 
       def execute
-        unless @args.count == 1
-          output self.class.help
-          output ''
-          output_and_exit 'Incorrect arguments for stop command', 1
-        end
+        incorrect_arguments 'stop' unless @args.count == 1
 
         vm = VM.new @args.first
 

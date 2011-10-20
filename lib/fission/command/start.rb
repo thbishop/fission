@@ -11,11 +11,7 @@ module Fission
       def execute
         option_parser.parse! @args
 
-        if @args.empty?
-          output self.class.help
-          output ''
-          output_and_exit 'Incorrect arguments for start command', 1
-        end
+        incorrect_arguments 'start' if @args.empty?
 
         vm = VM.new @args.first
 

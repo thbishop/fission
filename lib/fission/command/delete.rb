@@ -11,11 +11,7 @@ module Fission
       def execute
         option_parser.parse! @args
 
-        if @args.count < 1
-          output self.class.help
-          output ''
-          output_and_exit 'Incorrect arguments for delete command', 1
-        end
+        incorrect_arguments 'delete' if @args.count < 1
 
         vm = VM.new @args.first
 

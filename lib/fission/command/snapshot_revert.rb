@@ -4,11 +4,7 @@ module Fission
       include Fission::CommandHelpers
 
       def execute
-        unless @args.count == 2
-          output self.class.help
-          output ''
-          output_and_exit 'Incorrect arguments for snapshot revert command', 1
-        end
+        incorrect_arguments 'snapshot revert' unless @args.count == 2
 
         vm = VM.new @args[0]
         snap_name = @args[1]

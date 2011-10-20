@@ -11,11 +11,7 @@ module Fission
       def execute
         option_parser.parse! @args
 
-        if @args.count != 1 && !@options.all
-          output self.class.help
-          output ''
-          output_and_exit 'Incorrect arguments for suspend command', 1
-        end
+        incorrect_arguments 'suspend' if @args.count != 1 && !@options.all
 
         vms_to_suspend.each do |vm|
           output "Suspending '#{vm.name}'"

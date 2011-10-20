@@ -11,11 +11,7 @@ module Fission
       def execute
         option_parser.parse! @args
 
-        unless @args.count > 1
-          output self.class.help
-          output ''
-          output_and_exit 'Incorrect arguments for clone command', 1
-        end
+        incorrect_arguments 'clone' unless @args.count > 1
 
         source_vm = Fission::VM.new @args.first
         target_vm = Fission::VM.new @args[1]
