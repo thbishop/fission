@@ -28,7 +28,7 @@ describe Fission::Command::Clone do
     end
 
     it 'should clone the vm' do
-      @clone_response_mock.stub_as_successful# true
+      @clone_response_mock.stub_as_successful
 
       command = Fission::Command::Clone.new @vm_info
       command.execute
