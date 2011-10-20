@@ -1150,8 +1150,15 @@ ethernet1.generatedAddressenable = "TRUE"'
 
   end
 
-  describe "delete" do
+  describe 'delete' do
     before do
+      @running_response_mock = mock('running?')
+      @running_response_mock.stub_as_successful false
+
+      @vm.stub(:exists?).and_return(true)
+      @vm.stub(:running?).and_return(@running_response_mock)
+      @vm.stub(:conf_file).and_return(@conf_file_response_mock)
+
       @target_vm = 'foo'
       @vm_files = %w{ .vmx .vmxf .vmdk -s001.vmdk -s002.vmdk .vmsd }
       FakeFS.activate!
@@ -1165,6 +1172,27 @@ ethernet1.generatedAddressenable = "TRUE"'
 
     after do
       FakeFS.deactivate!
+    end
+
+    it "should return an unsuccessful response if the vm doesn't exist" do
+      @vm.stub(:exists?).and_return(false)
+
+      response = @vm.delete
+      response.should be_an_unsuccessful_response 'VM does not exist'
+    end
+
+    it 'should return an unsuccessful response if the vm is running' do
+      @running_response_mock.stub_as_successful true
+
+      response = @vm.delete
+      response.should be_an_unsuccessful_response 'The VM must not be running in order to delete it.'
+    end
+
+    it 'should return an unsuccessful response if unable to determine if running' do
+      @running_response_mock.stub_as_unsuccessful
+
+      response = @vm.delete
+      response.should be_an_unsuccessful_response
     end
 
     it "should delete the target vm files" do

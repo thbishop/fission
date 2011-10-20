@@ -611,6 +611,18 @@ module Fission
     # If successful, the Response's data attribute will be nil.
     # If there is an error, an unsuccessful Response will be returned.
     def delete
+      unless exists?
+        return Response.new :code => 1, :message => 'VM does not exist'
+      end
+
+      running_response = running?
+      return running_response unless running_response.successful?
+
+      if running_response.data
+        message = 'The VM must not be running in order to delete it.'
+        return Response.new :code => 1, :message => message
+      end
+
       FileUtils.rm_rf VM.path(@name)
       Metadata.delete_vm_info(VM.path(@name))
 

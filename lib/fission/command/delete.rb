@@ -19,12 +19,10 @@ module Fission
 
         vm = VM.new @args.first
 
-        ensure_vm_exists vm
+        running_response = vm.running?
 
-        state_response = vm.state
-
-        if state_response.successful?
-          if state_response.data == 'running'
+        if running_response.successful?
+          if running_response.data
             output 'VM is currently running'
             if @options.force
               output 'Going to stop it'
@@ -34,7 +32,7 @@ module Fission
             end
           end
         else
-          output_and_exit "There was an error determining if the VM is running.  The error was:\n#{state_response.message}", state_response.code
+          output_and_exit "There was an error determining if the VM is running.  The error was:\n#{running_response.message}", running_response.code
         end
 
         if Fusion.running?
