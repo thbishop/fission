@@ -564,8 +564,8 @@ module Fission
     # effort.  This essentially is a directory copy with updates to relevant
     # files.  It's recommended to clone VMs which are not running.
     #
-    # source_vm - The name of the VM to clone.
-    # target_vm - The name of the VM to be created.
+    # source_vm_name - The name of the VM to clone.
+    # target_vm_name - The name of the VM to be created.
     #
     # Examples
     #
@@ -574,11 +574,22 @@ module Fission
     # Returns a Response with the result.
     # If successful, the Response's data attribute will be nil.
     # If there is an error, an unsuccessful Response will be returned.
-    def self.clone(source_vm, target_vm)
-      FileUtils.cp_r path(source_vm), path(target_vm)
+    def self.clone(source_vm_name, target_vm_name)
+      source_vm = new source_vm_name
+      target_vm = new target_vm_name
 
-      rename_vm_files source_vm, target_vm
-      update_config source_vm, target_vm
+      unless source_vm.exists?
+        return Response.new :code => 1, :message => 'VM does not exist'
+      end
+
+      if target_vm.exists?
+        return Response.new :code => 1, :message => 'VM already exists'
+      end
+
+      FileUtils.cp_r path(source_vm.name), path(target_vm.name)
+
+      rename_vm_files source_vm.name, target_vm.name
+      update_config source_vm.name, target_vm.name
 
       Response.new :code => 0
     end

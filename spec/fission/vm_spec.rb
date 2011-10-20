@@ -979,10 +979,11 @@ ethernet1.generatedAddressenable = "TRUE"'
 
   describe "self.clone" do
     before do
-      @source_vm = 'foo'
-      @target_vm = 'bar'
-      @source_path = Fission::VM.path @source_vm
-      @target_path = Fission::VM.path @target_vm
+      @source_vm = Fission::VM.new 'foo'
+      @target_vm = Fission::VM.new 'bar'
+      @source_path = Fission::VM.path @source_vm.name
+      @target_path = Fission::VM.path @target_vm.name
+
       @clone_response_mock = mock('clone_response')
       @vm_files = ['.vmx', '.vmxf', '.vmdk', '-s001.vmdk', '-s002.vmdk', '.vmsd']
 
@@ -991,12 +992,20 @@ ethernet1.generatedAddressenable = "TRUE"'
       FileUtils.mkdir_p @source_path
 
       @vm_files.each do |file|
-        FileUtils.touch "#{@source_path}/#{@source_vm}#{file}"
+        FileUtils.touch "#{@source_path}/#{@source_vm.name}#{file}"
       end
 
       ['.vmx', '.vmxf', '.vmdk'].each do |ext|
         File.open("#{@source_path}/foo#{ext}", 'w') { |f| f.write 'foo.vmdk'}
       end
+
+      @source_vm.stub(:exists?).and_return(true)
+      @target_vm.stub(:exists?).and_return(false)
+
+      Fission::VM.should_receive(:new).with(@source_vm.name).
+                  and_return(@source_vm)
+      Fission::VM.should_receive(:new).with(@target_vm.name).
+                  and_return(@target_vm)
 
       vmx_content = 'ide1:0.deviceType = "cdrom-image"
 nvram = "foo.nvram"
@@ -1013,18 +1022,18 @@ ethernet0.linkStatePropagation.enable = "TRUE"
 ethernet0.generatedAddressenable = "TRUE"
 ethernet1.generatedAddressenable = "TRUE"'
 
-      File.open("#{@source_path}/foo.vmx", 'w') do |f|
+      File.open("#{@source_path}/#{@source_vm.name}.vmx", 'w') do |f|
         f.write vmx_content
       end
 
       ['.vmx', '.vmxf'].each do |ext|
-        File.should_receive(:binary?).
-             with("#{@target_path}/bar#{ext}").
+        File.stub(:binary?).
+             with("#{@target_path}/#{@target_vm.name}#{ext}").
              and_return(false)
       end
 
-      File.should_receive(:binary?).
-           with("#{@target_path}/bar.vmdk").
+      File.stub(:binary?).
+           with("#{@target_path}/#{@target_vm.name}.vmdk").
            and_return(true)
     end
 
@@ -1033,8 +1042,22 @@ ethernet1.generatedAddressenable = "TRUE"'
       FakeFS::FileSystem.clear
     end
 
+    it "should return an unsuccessful response if the source vm doesn't exist" do
+      @source_vm.stub(:exists?).and_return(false)
+
+      response = Fission::VM.clone @source_vm.name, @target_vm.name
+      response.should be_an_unsuccessful_response 'VM does not exist'
+    end
+
+    it "should return an unsuccessful response if the target vm exists" do
+      @target_vm.stub(:exists?).and_return(true)
+
+      response = Fission::VM.clone @source_vm.name, @target_vm.name
+      response.should be_an_unsuccessful_response 'VM already exists'
+    end
+
     it 'should copy the vm files to the target' do
-      Fission::VM.clone @source_vm, @target_vm
+      Fission::VM.clone @source_vm.name, @target_vm.name
 
       File.directory?(@target_path).should == true
 
@@ -1046,12 +1069,12 @@ ethernet1.generatedAddressenable = "TRUE"'
     it "should copy the vm files to the target if a file name doesn't match the directory" do
       FileUtils.touch "#{@source_path}/other_name.nvram"
 
-      Fission::VM.clone @source_vm, @target_vm
+      Fission::VM.clone @source_vm.name, @target_vm.name
 
       File.directory?(@target_path).should == true
 
       @vm_files.each do |file|
-        File.file?("#{@target_path}/#{@target_vm}#{file}").should == true
+        File.file?("#{@target_path}/#{@target_vm.name}#{file}").should == true
       end
 
       File.file?("#{@target_path}/bar.nvram").should == true
@@ -1060,19 +1083,19 @@ ethernet1.generatedAddressenable = "TRUE"'
     it "should copy the vm files to the target if a sparse disk file name doesn't match the directory" do
       FileUtils.touch "#{@source_path}/other_name-s003.vmdk"
 
-      Fission::VM.clone @source_vm, @target_vm
+      Fission::VM.clone @source_vm.name, @target_vm.name
 
       File.directory?(@target_path).should == true
 
       @vm_files.each do |file|
-        File.file?("#{@target_path}/#{@target_vm}#{file}").should == true
+        File.file?("#{@target_path}/#{@target_vm.name}#{file}").should == true
       end
 
       File.file?("#{@target_path}/bar-s003.vmdk").should == true
     end
 
     it 'should update the target vm config files' do
-      Fission::VM.clone @source_vm, @target_vm
+      Fission::VM.clone @source_vm.name, @target_vm.name
 
       ['.vmx', '.vmxf'].each do |ext|
         File.read("#{@target_path}/bar#{ext}").should_not match /foo/
@@ -1081,7 +1104,7 @@ ethernet1.generatedAddressenable = "TRUE"'
     end
 
     it 'should disable VMware tools warning in the conf file' do
-      Fission::VM.clone @source_vm, @target_vm
+      Fission::VM.clone @source_vm.name, @target_vm.name
 
       pattern = /^tools\.remindInstall = "FALSE"/
 
@@ -1089,7 +1112,7 @@ ethernet1.generatedAddressenable = "TRUE"'
     end
 
     it 'should remove auto generated MAC addresses from the conf file' do
-      Fission::VM.clone @source_vm, @target_vm
+      Fission::VM.clone @source_vm.name, @target_vm.name
 
       pattern = /^ethernet\.+generatedAddress.+/
 
@@ -1097,7 +1120,7 @@ ethernet1.generatedAddressenable = "TRUE"'
     end
 
     it 'should setup the conf file to generate a new uuid' do
-      Fission::VM.clone @source_vm, @target_vm
+      Fission::VM.clone @source_vm.name, @target_vm.name
 
       pattern = /^uuid\.action = "create"/
 
@@ -1105,13 +1128,13 @@ ethernet1.generatedAddressenable = "TRUE"'
     end
 
     it "should not try to update the vmdk file if it's not a sparse disk" do
-      Fission::VM.clone @source_vm, @target_vm
+      Fission::VM.clone @source_vm.name, @target_vm.name
 
       File.read("#{@target_path}/bar.vmdk").should match /foo/
     end
 
     it 'should return a successful response if clone was successful' do
-      Fission::VM.clone(@source_vm, @target_vm).should be_a_successful_response
+      Fission::VM.clone(@source_vm.name, @target_vm.name).should be_a_successful_response
     end
 
     describe 'when a sparse disk is found' do
@@ -1119,7 +1142,7 @@ ethernet1.generatedAddressenable = "TRUE"'
         File.rspec_reset
         File.stub(:binary?).and_return(false)
 
-        Fission::VM.clone @source_vm, @target_vm
+        Fission::VM.clone @source_vm.name, @target_vm.name
 
         File.read("#{@target_path}/bar.vmdk").should match /bar/
       end

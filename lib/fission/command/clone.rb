@@ -20,14 +20,6 @@ module Fission
         source_vm = Fission::VM.new @args.first
         target_vm = Fission::VM.new @args[1]
 
-        ensure_vm_exists source_vm
-
-        exists_response = target_vm.exists?
-
-        if target_vm.exists?
-          output_and_exit "The target VM '#{target_vm.name}' already exists", 1
-        end
-
         clone_response = VM.clone source_vm.name, target_vm.name
 
         if clone_response.successful?
