@@ -12,19 +12,6 @@ module Fission
 
         vm = VM.new @args.first
 
-        ensure_vm_exists vm
-
-        state_response = vm.state
-
-        if state_response.successful?
-          if state_response.data != 'running'
-            output ''
-            output_and_exit "VM '#{vm.name}' is not running", 0
-          end
-        else
-          output_and_exit "There was an error determining if the VM is already running.  The error was:\n#{state_response.message}", state_response.code
-        end
-
         output "Stopping '#{vm.name}'"
         response = vm.stop
 
