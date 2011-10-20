@@ -40,7 +40,7 @@ module Fission
       return snapshots_response unless snapshots_response.successful?
 
       if snapshots_response.data.include? name
-        message = "There is already a snapshot named 'snap_1'."
+        message = "There is already a snapshot named '#{name}'."
         return Response.new :code => 1, :message => message
       end
 
