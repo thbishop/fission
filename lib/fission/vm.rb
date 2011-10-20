@@ -36,7 +36,6 @@ module Fission
       conf_file_response = conf_file
       return conf_file_response unless conf_file_response.successful?
 
-
       snapshots_response = snapshots
       return snapshots_response unless snapshots_response.successful?
 
@@ -63,8 +62,27 @@ module Fission
     # If successful, the Response's data attribute will be nil.
     # If there is an error, an unsuccessful Response will be returned.
     def revert_to_snapshot(name)
+      unless exists?
+        return Response.new :code => 1, :message => 'VM does not exist'
+      end
+
+      if Fusion.running?
+        message = 'It looks like the Fusion GUI is currently running.  '
+        message << 'A VM cannot be reverted to a snapshot when the Fusion GUI is running.  '
+        message << 'Exit the Fusion GUI and try again.'
+        return Response.new :code => 1, :message => message
+      end
+
       conf_file_response = conf_file
       return conf_file_response unless conf_file_response.successful?
+
+      snapshots_response = snapshots
+      return snapshots_response unless snapshots_response.successful?
+
+      unless snapshots_response.data.include? name
+        message = "Unable to find a snapshot named '#{name}'."
+        return Response.new :code => 1, :message => message
+      end
 
       command = "#{vmrun_cmd} revertToSnapshot "
       command << "#{conf_file_response.data} \"#{name}\" 2>&1"
