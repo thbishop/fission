@@ -404,6 +404,19 @@ module Fission
       response
     end
 
+    # Public: Determines if a VM has a suspend file ('.vmem') in it's directory.
+    # This only looks for a suspend file which matches the name of the VM.
+    #
+    # Examples
+    #
+    #   @vm.suspend_file_exists?
+    #   # => true
+    #
+    # Returns a Boolean.
+    def suspend_file_exists?
+      File.file?(File.join(path, "#{@name}.vmem"))
+    end
+
     # Public: Determines if a VM is running.
     #
     # Examples

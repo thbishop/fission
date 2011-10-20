@@ -656,6 +656,28 @@ ethernet1.generatedAddressenable = "TRUE"'
 
   end
 
+  describe 'suspend_file_exists?' do
+    before do
+      FakeFS.activate!
+      FileUtils.mkdir_p @vm.path
+    end
+
+    after do
+      FakeFS.deactivate!
+      FakeFS::FileSystem.clear
+    end
+
+    it 'should return true if the suspend file exists' do
+      FileUtils.touch(File.join(@vm.path, "#{@vm.name}.vmem"))
+      @vm.suspend_file_exists?.should == true
+    end
+
+    it 'should return false if the suspend file does not exist' do
+      @vm.suspend_file_exists?.should == false
+    end
+
+  end
+
   describe 'suspended?' do
     before do
       FakeFS.activate!
