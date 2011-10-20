@@ -18,8 +18,6 @@ describe Fission::Command::Stop do
     it_should_not_accept_arguments_of [], 'stop'
 
     it 'should stop the vm' do
-      @state_response_mock.stub_as_successful 'running'
-
       @stop_response_mock.should_receive(:successful?).and_return(true)
       @vm_mock.should_receive(:stop).and_return(@stop_response_mock)
 
@@ -31,7 +29,6 @@ describe Fission::Command::Stop do
     end
 
     it 'should output an error and exit if there was an error stopping the vm' do
-      @state_response_mock.stub_as_successful 'running'
       @stop_response_mock.stub_as_unsuccessful
 
       @vm_mock.should_receive(:stop).and_return(@stop_response_mock)
