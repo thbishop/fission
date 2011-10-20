@@ -396,7 +396,7 @@ module Fission
       response = Response.new :code => 0, :data => false
 
       unless running_response.data
-        if File.file?(File.join(self.class.path(name), "#{@name}.vmem"))
+        if File.file?(File.join(path, "#{@name}.vmem"))
           response.data = true
         end
       end
@@ -448,8 +448,9 @@ module Fission
     # an error condition and an unsuccessful Response will be returned.
     # If there is an error, an unsuccessful Response will be returned.
     def conf_file
-      vmx_path = File.join(self.class.path(@name), "*.vmx")
-      conf_files = Dir.glob(vmx_path)
+      vmx_path = File.join path, "*.vmx"
+      conf_files = Dir.glob vmx_path
+
       response = Response.new
 
       case conf_files.count
@@ -478,7 +479,7 @@ module Fission
     end
 
     # Public: Provides the expected path to a VM's directory.  This does not
-    # imply that the VM exists.
+    # imply that the VM or path exists.
     #
     # name - The name of the VM to provide the path for.
     #
@@ -488,7 +489,7 @@ module Fission
     #
     # Returns the path (String) to the VM's directory.
     def path
-      self.class.path @name
+      File.join Fission.config['vm_dir'], "#{@name}.vmwarevm"
     end
 
     # Public: Provides all of the VMs which are located in the VM directory.
@@ -546,19 +547,6 @@ module Fission
       response
     end
 
-    # Public: Provides the expected path to a VM's directory.  This does not
-    # imply that the VM exists.
-    #
-    # name - The name of the VM to provide the path for.
-    #
-    # Examples
-    #   Fission::VM.path 'foo'
-    #
-    # Returns the path (String) to the VM's directory.
-    def self.path(vm_name)
-      File.join Fission.config['vm_dir'], "#{vm_name}.vmwarevm"
-    end
-
     # Public: Creates a new VM which is a clone of an existing VM.  As Fusion
     # doesn't provide a native cloning mechanism, this is a best
     # effort.  This essentially is a directory copy with updates to relevant
@@ -586,7 +574,7 @@ module Fission
         return Response.new :code => 1, :message => 'VM already exists'
       end
 
-      FileUtils.cp_r path(source_vm.name), path(target_vm.name)
+      FileUtils.cp_r source_vm.path, target_vm.path
 
       rename_vm_files source_vm.name, target_vm.name
       update_config source_vm.name, target_vm.name
@@ -623,8 +611,8 @@ module Fission
         return Response.new :code => 1, :message => message
       end
 
-      FileUtils.rm_rf VM.path(@name)
-      Metadata.delete_vm_info(VM.path(@name))
+      FileUtils.rm_rf path
+      Metadata.delete_vm_info path
 
       Response.new :code => 0
     end
@@ -641,6 +629,8 @@ module Fission
     #
     # Returns nothing.
     def self.rename_vm_files(from, to)
+      to_vm = new to
+
       files_to_rename(from, to).each do |file|
         text_to_replace = File.basename(file, File.extname(file))
 
@@ -650,9 +640,9 @@ module Fission
           end
         end
 
-        unless File.exists?(File.join(path(to), file.gsub(text_to_replace, to)))
-          FileUtils.mv File.join(path(to), file),
-                       File.join(path(to), file.gsub(text_to_replace, to))
+        unless File.exists?(File.join(to_vm.path, file.gsub(text_to_replace, to)))
+          FileUtils.mv File.join(to_vm.path, file),
+                       File.join(to_vm.path, file.gsub(text_to_replace, to))
         end
       end
     end
@@ -672,10 +662,12 @@ module Fission
     # The paths which match the from name will preceed any other files found in
     # the newly cloned VM directory.
     def self.files_to_rename(from, to)
+      to_vm = new to
+
       files_which_match_source_vm = []
       other_files = []
 
-      Dir.entries(path(to)).each do |f|
+      Dir.entries(to_vm.path).each do |f|
         unless f == '.' || f == '..'
           f.include?(from) ? files_which_match_source_vm << f : other_files << f
         end
@@ -710,8 +702,10 @@ module Fission
     #
     # Returns nothing.
     def self.update_config(from, to)
+      to_vm = new to
+
       ['.vmx', '.vmxf', '.vmdk'].each do |ext|
-        file = File.join path(to), "#{to}#{ext}"
+        file = File.join to_vm.path, "#{to}#{ext}"
 
         unless File.binary?(file)
           text = (File.read file).gsub from, to

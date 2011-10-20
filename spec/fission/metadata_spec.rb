@@ -28,19 +28,19 @@ describe Fission::Metadata do
     end
 
     it 'should remove the vm item from the list if the vm path is in the list' do
-      @metadata.delete_vm_restart_document(Fission::VM.path('foo'))
+      @metadata.delete_vm_restart_document(Fission::VM.new('foo').path)
       @metadata.content.should == { 'PLRestartDocumentPaths' => ['/vm/bar.vmwarevm']}
     end
 
     it 'should not doing anything if the vm is not in the list' do
-      @metadata.delete_vm_restart_document(Fission::VM.path('baz'))
+      @metadata.delete_vm_restart_document(Fission::VM.new('baz').path)
       @metadata.content.should == @data
     end
 
     it 'should not do anything if the restart document list does not exist' do
       other_data = { 'OtherConfigItem' => ['foo', 'bar']}
       @metadata.content = other_data
-      @metadata.delete_vm_restart_document(Fission::VM.path('foo'))
+      @metadata.delete_vm_restart_document(Fission::VM.new('foo').path)
       @metadata.content.should == other_data
     end
   end
@@ -52,12 +52,12 @@ describe Fission::Metadata do
     end
 
     it 'should remove the vm item from the list' do
-      @metadata.delete_vm_favorite_entry(Fission::VM.path('foo'))
+      @metadata.delete_vm_favorite_entry(Fission::VM.new('foo').path)
       @metadata.content.should == { 'VMFavoritesListDefaults2' => [] }
     end
 
     it 'should not do anything if the vm is not in the list' do
-      @metadata.delete_vm_favorite_entry(Fission::VM.path('bar'))
+      @metadata.delete_vm_favorite_entry(Fission::VM.new('bar').path)
       @metadata.content.should == @data
     end
   end
@@ -73,13 +73,13 @@ describe Fission::Metadata do
     it 'should remove the vm from the restart document list' do
       @md_mock.should_receive(:delete_vm_restart_document).with('/vm/foo.vmwarevm')
       @md_mock.stub!(:delete_vm_favorite_entry)
-      Fission::Metadata.delete_vm_info(Fission::VM.path('foo'))
+      Fission::Metadata.delete_vm_info(Fission::VM.new('foo').path)
     end
 
     it 'should remove the vm from the favorite list' do
       @md_mock.should_receive(:delete_vm_favorite_entry).with('/vm/foo.vmwarevm')
       @md_mock.stub!(:delete_vm_restart_document)
-      Fission::Metadata.delete_vm_info(Fission::VM.path('foo'))
+      Fission::Metadata.delete_vm_info(Fission::VM.new('foo').path)
     end
   end
 

@@ -3,8 +3,8 @@ require File.expand_path('../../spec_helper.rb', __FILE__)
 describe Fission::VM do
   before do
     @vm = Fission::VM.new('foo')
-    @vm.stub!(:conf_file).and_return(File.join(Fission::VM.path('foo'), 'foo.vmx'))
-    @conf_file_path = File.join(Fission::VM.path('foo'), 'foo.vmx')
+    @vm.stub!(:conf_file).and_return(File.join(@vm.path, 'foo.vmx'))
+    @conf_file_path = File.join(@vm.path, 'foo.vmx')
     @vmrun_cmd = Fission.config['vmrun_cmd']
     @conf_file_response_mock = mock('conf_file_response')
   end
@@ -659,15 +659,16 @@ ethernet1.generatedAddressenable = "TRUE"'
   describe 'suspended?' do
     before do
       FakeFS.activate!
-      @vm_root_dir = Fission::VM.path('foo')
-      FileUtils.mkdir_p(@vm_root_dir)
 
       @vm_1 = Fission::VM.new 'foo'
       @vm_2 = Fission::VM.new 'bar'
 
+      @vm_root_dir = @vm_1.path
+
       @running_response_mock = mock('running?')
 
       @vm.stub(:running?).and_return(@running_response_mock)
+      FileUtils.mkdir_p @vm_root_dir
     end
 
     after do
@@ -715,7 +716,7 @@ ethernet1.generatedAddressenable = "TRUE"'
   describe 'conf_file' do
     before do
       FakeFS.activate!
-      @vm_root_dir = Fission::VM.path('foo')
+      @vm_root_dir = Fission::VM.new('foo').path
       FileUtils.mkdir_p(@vm_root_dir)
     end
 
@@ -889,19 +890,12 @@ ethernet1.generatedAddressenable = "TRUE"'
     end
   end
 
-  describe "self.path" do
-    it "should return the path of the vm" do
-      vm_path = File.join(Fission.config['vm_dir'], 'foo.vmwarevm').gsub '\\', ''
-      Fission::VM.path('foo').should == vm_path
-    end
-  end
-
   describe "self.clone" do
     before do
       @source_vm = Fission::VM.new 'foo'
       @target_vm = Fission::VM.new 'bar'
-      @source_path = Fission::VM.path @source_vm.name
-      @target_path = Fission::VM.path @target_vm.name
+      @source_path = @source_vm.path
+      @target_path = @target_vm.path
 
       @clone_response_mock = mock('clone_response')
       @vm_files = ['.vmx', '.vmxf', '.vmdk', '-s001.vmdk', '-s002.vmdk', '.vmsd']
@@ -921,10 +915,10 @@ ethernet1.generatedAddressenable = "TRUE"'
       @source_vm.stub(:exists?).and_return(true)
       @target_vm.stub(:exists?).and_return(false)
 
-      Fission::VM.should_receive(:new).with(@source_vm.name).
-                  and_return(@source_vm)
-      Fission::VM.should_receive(:new).with(@target_vm.name).
-                  and_return(@target_vm)
+      Fission::VM.stub(:new).with(@source_vm.name).
+                             and_return(@source_vm)
+      Fission::VM.stub(:new).with(@target_vm.name).
+                             and_return(@target_vm)
 
       vmx_content = 'ide1:0.deviceType = "cdrom-image"
 nvram = "foo.nvram"
@@ -1080,10 +1074,10 @@ ethernet1.generatedAddressenable = "TRUE"'
       @vm_files = %w{ .vmx .vmxf .vmdk -s001.vmdk -s002.vmdk .vmsd }
       FakeFS.activate!
 
-      FileUtils.mkdir_p Fission::VM.path(@target_vm)
+      FileUtils.mkdir_p Fission::VM.new(@target_vm).path
 
       @vm_files.each do |file|
-        FileUtils.touch File.join(Fission::VM.path(@target_vm), "#{@target_vm}#{file}")
+        FileUtils.touch File.join(Fission::VM.new(@target_vm).path, "#{@target_vm}#{file}")
       end
     end
 
@@ -1118,7 +1112,7 @@ ethernet1.generatedAddressenable = "TRUE"'
       @vm.delete
 
       @vm_files.each do |file|
-        File.exists?(File.join(Fission::VM.path(@target_vm), "#{@target_vm}#{file}")).should == false
+        File.exists?(File.join(Fission::VM.new(@target_vm).path, "#{@target_vm}#{file}")).should == false
       end
     end
 
