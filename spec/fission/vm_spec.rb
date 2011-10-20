@@ -171,8 +171,46 @@ describe Fission::VM do
   end
 
   describe 'suspend' do
+    before do
+      @running_response_mock = mock('running?')
+
+      @vm.stub(:exists?).and_return(true)
+      @vm.stub(:running?).and_return(@running_response_mock)
+      @vm.stub(:conf_file).and_return(@conf_file_response_mock)
+    end
+
+    it "should return an unsuccessful response if the vm doesn't exist" do
+      @vm.stub(:exists?).and_return(false)
+
+      response = @vm.suspend
+      response.should be_an_unsuccessful_response 'VM does not exist'
+    end
+
+    it 'should return an unsuccessful response if the vm is not running' do
+      @running_response_mock.stub_as_successful false
+
+      response = @vm.suspend
+      response.should be_an_unsuccessful_response 'VM is not running'
+    end
+
+    it 'should return an unsuccessful response if unable to determine if running' do
+      @running_response_mock.stub_as_unsuccessful
+
+      response = @vm.suspend
+      response.should be_an_unsuccessful_response
+    end
+
+    it 'should return an unsuccessful response if unable to figure out the conf file' do
+      @running_response_mock.stub_as_successful true
+      @conf_file_response_mock.stub_as_unsuccessful
+
+      @vm.suspend.should be_an_unsuccessful_response
+    end
+
     it 'should return a successful response' do
+      @running_response_mock.stub_as_successful true
       @conf_file_response_mock.stub_as_successful @conf_file_path
+
       @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(0)
       @vm.should_receive(:`).
@@ -182,15 +220,10 @@ describe Fission::VM do
       @vm.suspend.should be_a_successful_response
     end
 
-    it 'should return an unsuccessful response if unable to figure out the conf file' do
-      @conf_file_response_mock.stub_as_unsuccessful
-      @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
-
-      @vm.suspend.should be_an_unsuccessful_response
-    end
-
     it 'it should return an unsuccessful response if unable to suspend the vm' do
+      @running_response_mock.stub_as_successful true
       @conf_file_response_mock.stub_as_successful @conf_file_path
+
       @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
       $?.should_receive(:exitstatus).and_return(1)
       @vm.should_receive(:`).

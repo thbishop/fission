@@ -32,26 +32,14 @@ module Fission
       def vms_to_suspend
         if @options.all
           response = VM.all_running
+
           if response.successful?
             vms = response.data
+          else
+            output_and_exit "There was an error getting the list of running VMs.  The error was:\n#{response.message}", response.code
           end
         else
-          vm = VM.new @args.first
-
-          ensure_vm_exists vm
-
-          state_response = vm.state
-
-          if state_response.successful?
-            if state_response.data != 'running'
-              output ''
-              output_and_exit "VM '#{vm.name}' is not running", 1
-            end
-          else
-            output_and_exit "There was an error getting the list of running VMs.  The error was:\n#{state_response.message}", state_response.code
-          end
-
-          vms = [vm]
+          vms = [ VM.new(@args.first) ]
         end
 
         vms
