@@ -680,22 +680,8 @@ ethernet1.generatedAddressenable = "TRUE"'
 
   describe 'suspended?' do
     before do
-      FakeFS.activate!
-
-      @vm_1 = Fission::VM.new 'foo'
-      @vm_2 = Fission::VM.new 'bar'
-
-      @vm_root_dir = @vm_1.path
-
       @running_response_mock = mock('running?')
-
       @vm.stub(:running?).and_return(@running_response_mock)
-      FileUtils.mkdir_p @vm_root_dir
-    end
-
-    after do
-      FakeFS.deactivate!
-      FakeFS::FileSystem.clear
     end
 
     describe 'when the vm is not running' do
@@ -704,7 +690,7 @@ ethernet1.generatedAddressenable = "TRUE"'
       end
 
       it 'should return a successful response and true if a .vmem file exists in the vm dir' do
-        FileUtils.touch(File.join(@vm_root_dir, 'foo.vmem'))
+        @vm.stub(:suspend_file_exists?).and_return(true)
 
         response = @vm.suspended?
         response.should be_a_successful_response
@@ -712,6 +698,8 @@ ethernet1.generatedAddressenable = "TRUE"'
       end
 
       it 'should return a successful response and false if a .vmem file is not found in the vm dir' do
+        @vm.stub(:suspend_file_exists?).and_return(false)
+
         response = @vm.suspended?
         response.should be_a_successful_response
         response.data.should == false
@@ -719,8 +707,6 @@ ethernet1.generatedAddressenable = "TRUE"'
     end
 
     it 'should return a successful response and false if the vm is running' do
-      FileUtils.touch(File.join(@vm_root_dir, 'foo.vmem'))
-
       @running_response_mock.stub_as_successful true
 
       response = @vm.suspended?
