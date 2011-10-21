@@ -26,13 +26,7 @@ module Fission
             if vm.suspend_file_exists?
               status = '[suspended]'
             else
-              state_response = vm.state
-
-              if state_response.successful?
-                status = "[#{state_response.data}]"
-              else
-                status = "[unknown] (#{state_response.message})"
-              end
+              status = '[not running]'
             end
           end
 

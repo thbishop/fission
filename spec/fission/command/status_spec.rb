@@ -33,10 +33,6 @@ describe Fission::Command::Status do
       end
 
       it 'should output the VMs which are not running' do
-        @state_response_mock = mock('state')
-        @state_response_mock.stub_as_successful 'not running'
-
-        @vm_2.stub(:state).and_return(@state_response_mock)
         command = Fission::Command::Status.new
         command.execute
 
@@ -45,22 +41,10 @@ describe Fission::Command::Status do
 
       it 'should output the VMs which are suspended' do
         @vm_4.stub(:suspend_file_exists?).and_return(true)
-        @vm_4.should_not_receive(:state)
         command = Fission::Command::Status.new
         command.execute
 
         @string_io.string.should match /blah.+\[suspended\]/
-      end
-
-      it 'should output unknown and an error for VMs which had an error getting their state' do
-        @state_response_mock = mock('state')
-        @state_response_mock.stub_as_unsuccessful
-
-        @vm_4.stub(:state).and_return(@state_response_mock)
-        command = Fission::Command::Status.new
-        command.execute
-
-        @string_io.string.should match /blah.+\[unknown\] \(it blew up\)/
       end
 
     end
