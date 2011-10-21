@@ -3,7 +3,7 @@ require File.expand_path('../../spec_helper.rb', __FILE__)
 describe Fission::CLI do
   before do
     @string_io = StringIO.new
-    Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
+    Fission::CLI.stub!(:ui).and_return(Fission::UI.new(@string_io))
   end
 
   describe 'self.commands' do

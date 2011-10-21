@@ -18,7 +18,7 @@ module Fission
         opts.banner = "\nUsage: fission [options] COMMAND [arguments]"
 
         opts.on_head('-v', '--version', 'Output the version of fission') do
-          Fission.ui.output VERSION
+          ui.output VERSION
           exit(0)
         end
 
@@ -36,7 +36,7 @@ module Fission
       begin
         optparse.order! args
       rescue OptionParser::InvalidOption => e
-        Fission.ui.output e
+        ui.output e
         show_all_help(optparse)
         exit(1)
       end
@@ -122,8 +122,19 @@ module Fission
     #
     # Returns nothing.
     def self.show_all_help(options)
-      Fission.ui.output options
-      Fission.ui.output commands_banner
+      ui.output options
+      ui.output commands_banner
+    end
+
+    # Private: Helper method for outputting text to the ui
+    #
+    # Examples
+    #
+    #   CLI.ui.output 'foo'
+    #
+    # Returns a UI instance.
+    def self.ui
+      @ui ||= UI.new
     end
 
   end
