@@ -9,7 +9,7 @@ module Fission
     end
 
     # Public: Creates a snapshot for a VM.  The VM must be running in order
-    # to take a snapshot.
+    # to take a snapshot.  Snapshot names must be unique.
     #
     # name - The desired name of the snapshot.  The name must be unique.
     #
@@ -50,7 +50,8 @@ module Fission
       Response.from_command(`#{command}`)
     end
 
-    # Public: Reverts the VM to the specified snapshot.
+    # Public: Reverts the VM to the specified snapshot.  The snapshot to revert
+    # to must exist and the Fusion GUI must not be running.
     #
     # name - The snapshot name to revert to.
     #
@@ -94,7 +95,8 @@ module Fission
     #
     # Examples
     #
-    #   @vm.snapshots
+    #   @vm.snapshots.data
+    #   # => ['snap 1', 'snap 2']
     #
     # Returns a Response with the result.
     # If successful, the Repsonse's data attribute will be an Array of the
@@ -128,8 +130,8 @@ module Fission
     #
     # options - Hash of options:
     #           :headless - Boolean which specifies to start the VM without a
-    #                       GUI console.  If the VMware Fusion GUI interface is
-    #                       not running, it will not be started.
+    #                       GUI console.  The Fusion GUI must not be running in
+    #                       order to start the VM headless.
     #                       (default: false)
     #
     # Examples
@@ -275,14 +277,14 @@ module Fission
     #
     # Examples:
     #
-    #   # if IP addresses are found in the VMware Fusion DHCP lease file
+    #   # if IP addresses are found in the Fusion DHCP lease file
     #   response = @vm.network_info.data
     #   # => { 'ethernet0' => { 'mac_address' => '00:0c:29:1d:6a:64',
     #                           'ip_address'  => '127.0.0.1' },
     #          'ethernet1' => { 'mac_address' => '00:0c:29:1d:6a:75',
     #                           'ip_address'  => '127.0.0.2' } }
     #
-    #   # if IP addresses are not found in the VMware Fusion DHCP lease file
+    #   # if IP addresses are not found in the Fusion DHCP lease file
     #   response = @vm.network_info.data
     #   # => { 'ethernet0' => { 'mac_address' => '00:0c:29:1d:6a:64',
     #                           'ip_address'  => nil },
@@ -292,7 +294,7 @@ module Fission
     # Returns a Response with the result.
     # If successful, the Response's data attribute will be a Hash with the
     # interface identifiers as the keys and the associated MAC address.  If an
-    # IP address was found in the VMware Fusion DHCP lease file, then it will
+    # IP address was found in the Fusion DHCP lease file, then it will
     # be included.  If an IP address was not found, then the IP address value
     # will be nil.  If there are no network interfaces, the Response's data
     # attribute will be an empty Hash.
@@ -450,11 +452,12 @@ module Fission
     #
     # Examples
     #
-    #   @vm.conf_file
+    #   @vm.conf_file.data
+    #   # => '/my_vms/foo/foo.vmx'
     #
     # Returns a Response with the result.
-    # If successful, the Response's data attribute will be a String which will be
-    # escaped for spaces (' ').
+    # If successful, the Response's data attribute will be a String which will
+    # be escaped for spaces (' ').
     # If there is a single '.vmx' file in the VM's directory, regardless if
     # the name of '.vmx' file matches the VM name, the Response's data
     # attribute will the be the path to the '.vmx' file.
@@ -502,6 +505,7 @@ module Fission
     # name - The name of the VM to provide the path for.
     #
     # Examples
+    #
     #   @vm.path
     #   # => '/vm/foo.vmwarevm'
     #
@@ -514,7 +518,9 @@ module Fission
     #
     # Examples
     #
-    #   Fission::VM.all
+    #   Fission::VM.all.data
+    #   # => [<Fission::VM:0x007fd6fa24c5d8 @name="foo">,
+    #         <Fission::VM:0x007fd6fa23c5e8 @name="bar">]
     #
     # Returns a Response with the result.
     # If successful, the Response's data attribute will be an Array of VM
@@ -536,7 +542,9 @@ module Fission
     #
     # Examples
     #
-    #   Fission::VM.all_running
+    #   Fission::VM.all_running.data
+    #   # => [<Fission::VM:0x007fd6fa24c5d8 @name="foo">,
+    #         <Fission::VM:0x007fd6fa23c5e8 @name="bar">]
     #
     # Returns a Response with the result.
     # If successful, the Response's data attribute will be an Array of VM
@@ -601,13 +609,13 @@ module Fission
     end
 
     # Public: Deletes a VM.  As there are a number issues with the Fusion
-    # command line tool for deleting VMs, this is a best effort.  The VM should
+    # command line tool for deleting VMs, this is a best effort.  The VM must
     # not be running when this method is called.  This essentially deletes the
     # VM directory and attempts to remove the relevant entries from the Fusion
     # plist file.  It's highly recommended to delete VMs without the Fusion GUI
-    # application running.  If the Fusion GUI is running this method should
-    # succeed, but it's been observed that Fusion will recreate the plist data
-    # which is deleted.  This leads to 'missing' VMs in the Fusion GUI.
+    # running.  If the Fusion GUI is running this method should succeed, but
+    # it's been observed that Fusion will recreate the plist data which is
+    # deleted.  This leads to 'missing' VMs in the Fusion GUI.
     #
     # Examples
     #
