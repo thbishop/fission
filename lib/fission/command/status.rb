@@ -23,12 +23,16 @@ module Fission
           if all_running_vm_names.include? vm.name
             status = '[running]'
           else
-            state_response = vm.state
-
-            if state_response.successful?
-              status = "[#{state_response.data}]"
+            if vm.suspend_file_exists?
+              status = '[suspended]'
             else
-              status = "[unknown] (#{state_response.message})"
+              state_response = vm.state
+
+              if state_response.successful?
+                status = "[#{state_response.data}]"
+              else
+                status = "[unknown] (#{state_response.message})"
+              end
             end
           end
 

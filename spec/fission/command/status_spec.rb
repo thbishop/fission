@@ -44,10 +44,8 @@ describe Fission::Command::Status do
       end
 
       it 'should output the VMs which are suspended' do
-        @state_response_mock = mock('state')
-        @state_response_mock.stub_as_successful 'suspended'
-
-        @vm_4.stub(:state).and_return(@state_response_mock)
+        @vm_4.stub(:suspend_file_exists?).and_return(true)
+        @vm_4.should_not_receive(:state)
         command = Fission::Command::Status.new
         command.execute
 
