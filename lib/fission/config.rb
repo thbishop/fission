@@ -14,6 +14,8 @@ module Fission
     # Examples
     #
     #   Fission::Config.new
+    #
+    # Returns a new Config instance.
     def initialize
       @attributes = {}
       load_from_file

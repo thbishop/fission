@@ -38,6 +38,8 @@ module Fission
     # Examples:
     #
     #   Fission::Lease.all
+    #   # => [#<Fission::Lease:0x000001008b6d88...>,
+    #         #<Fission::Lease:0x000001008522c0...>]
     #
     # Returns a Response with the result.
     # If successful, the Response's data attribute will be an Array of Lease
@@ -67,11 +69,12 @@ module Fission
 
     # Public: Get lease information for a specific MAC address.
     #
-    # mac_address - MAC address to search for.
+    # mac_address - MAC address (String) to search for.
     #
     # Examples
     #
-    #   Fission::Lease.find_by_mac
+    #   Fission::Lease.find_by_mac '00:11:AA:bb:cc:22'
+    #   # => #<Fission::Lease:0x000001008522c0...>
     #
     # Returns a Response with the result.
     # If successful, the Response's data attribute will be a Lease object if the
@@ -99,6 +102,7 @@ module Fission
     # Examples
     #
     #   Lease.parse my_lease_entry
+    #   # => #<Fission::Lease:0x000001008522c0...>
     #
     #
     # Returns a Lease object which is populated with the attribute that were
