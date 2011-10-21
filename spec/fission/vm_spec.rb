@@ -128,13 +128,22 @@ describe Fission::VM do
       @vm.stop.should be_an_unsuccessful_response
     end
 
-    it 'should return a successful response' do
+    it 'should return a successful response and stop the vm' do
       $?.should_receive(:exitstatus).and_return(0)
       @vm.should_receive(:`).
           with("#{@vmrun_cmd} stop #{@conf_file_path.gsub ' ', '\ '} 2>&1").
           and_return("it's all good")
 
       @vm.stop.should be_a_successful_response
+    end
+
+    it 'should return a suscessful response and hard stop the vm' do
+      $?.should_receive(:exitstatus).and_return(0)
+      @vm.should_receive(:`).
+          with("#{@vmrun_cmd} stop #{@conf_file_path.gsub ' ', '\ '} hard 2>&1").
+          and_return("it's all good")
+
+      @vm.stop(:hard => true).should be_a_successful_response
     end
 
     it 'it should return an unsuccessful response if unable to stop the vm' do

@@ -176,14 +176,23 @@ module Fission
 
     # Public: Stops a VM.  The VM must be running in order to stop it.
     #
+    # options - Hash of options:
+    #           :hard - Boolean which specifies to power off the VM (instead of
+    #                   attempting to initiate a graceful shutdown).  This is
+    #                   the equivalent of passing 'hard' to the vmrun stop
+    #                   command.
+    #                   (default: false)
+    #
     # Examples
     #
     #   @vm.stop
     #
+    #   @vm.stop :hard => true
+    #
     # Returns a Response with the result.
     # If successful, the Response's data attribute will be nil.
     # If there is an error, an unsuccessful Response will be returned.
-    def stop
+    def stop(options={})
       unless exists?
         return Response.new :code => 1, :message => 'VM does not exist'
       end
@@ -199,7 +208,9 @@ module Fission
       return conf_file_response unless conf_file_response.successful?
 
       command = "#{vmrun_cmd} stop "
-      command << "#{conf_file_response.data} 2>&1"
+      command << "#{conf_file_response.data} "
+      command << 'hard ' unless options[:hard].blank?
+      command << '2>&1'
 
       Response.from_command(`#{command}`)
     end
