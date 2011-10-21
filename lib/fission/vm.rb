@@ -136,12 +136,12 @@ module Fission
     #
     #   @vm.start
     #
-    #   @vm.start(:headless => true)
+    #   @vm.start :headless => true
     #
     # Returns a Response with the result.
     # If successful, the Response's data attribute will be nil.
     # If there is an error, an unsuccessful Response will be returned.
-    def start(args={})
+    def start(options={})
       unless exists?
         return Response.new :code => 1, :message => 'VM does not exist'
       end
@@ -156,7 +156,7 @@ module Fission
       conf_file_response = conf_file
       return conf_file_response unless conf_file_response.successful?
 
-      unless args[:headless].blank?
+      unless options[:headless].blank?
         if Fusion.running?
           message = 'It looks like the Fusion GUI is currently running.  '
           message << 'A VM cannot be started in headless mode when the Fusion GUI is running.  '
@@ -168,7 +168,7 @@ module Fission
       command = "#{vmrun_cmd} start "
       command << "#{conf_file_response.data} "
 
-      command << (args[:headless].blank? ? 'gui ' : 'nogui ')
+      command << (options[:headless].blank? ? 'gui ' : 'nogui ')
       command << '2>&1'
 
       Response.from_command(`#{command}`)
