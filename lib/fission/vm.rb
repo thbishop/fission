@@ -9,7 +9,7 @@ module Fission
     end
 
     # Public: Creates a snapshot for a VM.  The VM must be running in order
-    # to take a snapshot.  Snapshot names must be unique.
+    # to create a snapshot.  Snapshot names must be unique.
     #
     # name - The desired name of the snapshot.  The name must be unique.
     #
@@ -247,7 +247,7 @@ module Fission
       Response.from_command(`#{command}`)
     end
 
-    # Public: MAC addresses for a VM.
+    # Public: Provides the MAC addresses for a VM.
     #
     # Examples:
     #
@@ -608,14 +608,15 @@ module Fission
       Response.new :code => 0
     end
 
-    # Public: Deletes a VM.  As there are a number issues with the Fusion
-    # command line tool for deleting VMs, this is a best effort.  The VM must
-    # not be running when this method is called.  This essentially deletes the
-    # VM directory and attempts to remove the relevant entries from the Fusion
-    # plist file.  It's highly recommended to delete VMs without the Fusion GUI
-    # running.  If the Fusion GUI is running this method should succeed, but
-    # it's been observed that Fusion will recreate the plist data which is
-    # deleted.  This leads to 'missing' VMs in the Fusion GUI.
+    # Public: Deletes a VM.  The VM must not be running in order to delete it.
+    # As there are a number issues with the Fusion command line tool for
+    # deleting VMs, this is a best effort.  The VM must not be running when this
+    # method is called.  This essentially deletes the VM directory and attempts
+    # to remove the relevant entries from the Fusion plist file.  It's highly
+    # recommended to delete VMs without the Fusion GUI running.  If the Fusion
+    # GUI is running this method should succeed, but it's been observed that
+    # Fusion will recreate the plist data which is deleted.  This leads to
+    # 'missing' VMs in the Fusion GUI.
     #
     # Examples
     #
