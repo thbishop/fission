@@ -261,13 +261,10 @@ module Fission
     # If there is an error, an unsuccessful Response will be returned.
     def mac_addresses
       network_response = network_info
+      return network_response unless network_response.successful?
 
-      if network_response.successful?
-        response = Response.new :code => 0
-        response.data = network_response.data.values.collect { |n| n['mac_address'] }
-      else
-        response = network_response
-      end
+      response = Response.new :code => 0
+      response.data = network_response.data.values.collect { |n| n['mac_address'] }
 
       response
     end
@@ -316,15 +313,12 @@ module Fission
           response.data[int]['mac_address'] = mac
 
           lease_response = Fission::Lease.find_by_mac_address mac
+          return lease_response unless lease_response.successful?
 
-          if lease_response.successful?
-            response.data[int]['ip_address'] = nil
+          response.data[int]['ip_address'] = nil
 
-            if lease_response.data
-              response.data[int]['ip_address'] = lease_response.data.ip_address
-            end
-          else
-            return lease_response
+          if lease_response.data
+            response.data[int]['ip_address'] = lease_response.data.ip_address
           end
 
         end
@@ -355,7 +349,6 @@ module Fission
     # If there is an error, an unsuccessful Response will be returned.
     def state
       running_response = running?
-
       return running_response unless running_response.successful?
 
       response = Response.new :code => 0, :data => 'not running'
@@ -364,7 +357,6 @@ module Fission
         response.data = 'running'
       else
         suspended_response = suspended?
-
         return suspended_response unless suspended_response.successful?
 
         response.data = 'suspended' if suspended_response.data
@@ -421,7 +413,7 @@ module Fission
     #
     # Returns a Boolean.
     def suspend_file_exists?
-      File.file?(File.join(path, "#{@name}.vmem"))
+      File.file? File.join(path, "#{@name}.vmem")
     end
 
     # Public: Determines if a VM is running.
@@ -436,7 +428,6 @@ module Fission
     # If there is an error, an unsuccessful Response will be returned.
     def running?
       all_running_response = self.class.all_running
-
       return all_running_response unless all_running_response.successful?
 
       response = Response.new :code => 0, :data => false
