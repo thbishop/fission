@@ -127,7 +127,7 @@ regardless of ruby environment when using RVM https://gist.github.com/1203167
 
 ## Contribute
 * Fork the project
-* Make your feature addition or bug fix (with tests) in a topic branch
+* Make your feature addition or bug fix (with tests and docs) in a topic branch
 * Bonus points for not mucking with the gemspec or version
 * Send a pull request and I'll get it integrated
 
