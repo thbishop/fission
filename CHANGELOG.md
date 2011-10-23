@@ -1,6 +1,8 @@
 # changes
 
 ## head
+
+## 0.4.0
 * major internal refactoring for usage as a lib
 
 ## 0.3.0 (09/16/2011)
