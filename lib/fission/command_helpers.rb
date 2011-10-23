@@ -1,7 +1,7 @@
 module Fission
   module CommandHelpers
 
-    # Public: Outputs the help text for a command and exits.
+    # Internal: Outputs the help text for a command and exits.
     #
     # command_name - The name of the command to use in the output text.
     #

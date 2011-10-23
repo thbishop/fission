@@ -1,7 +1,7 @@
 module Fission
   class CLI
 
-    # Public: Starts the command line parsing logic and hands off to the
+    # Internal: Starts the command line parsing logic and hands off to the
     # requested commands.  If there are invalid arguments or errors then the
     # help text will be displayed.
     #
@@ -54,7 +54,7 @@ module Fission
       @cmd.execute
     end
 
-    # Public: Provides the list of Fission commands based on the files in the
+    # Internal: Provides the list of Fission commands based on the files in the
     # command directory.
     #
     # Examples
@@ -73,7 +73,8 @@ module Fission
     end
 
     private
-    # Private: Determines if the provided command is a snapshot related command.
+    # Internal: Determines if the provided command is a snapshot related
+    # command.
     #
     # args - The arguments (Array) to interrogate.  This should be the command
     #        line arguments.  Only the first two items in the Array will be
@@ -92,7 +93,7 @@ module Fission
       args.first == 'snapshot' && args.count > 1 && commands.include?(args.take(2).join(' '))
     end
 
-    # Private: Provides the help of all of the known commands.
+    # Internal: Provides the help of all of the known commands.
     #
     # Examples
     #
@@ -109,7 +110,7 @@ module Fission
       text
     end
 
-    # Private: Helper method to output the command line options and the help
+    # Internal: Helper method to output the command line options and the help
     # for all known commands to the terminal.
     #
     # options - The options to display as a part of the output.  This can (and
@@ -126,7 +127,7 @@ module Fission
       ui.output commands_banner
     end
 
-    # Private: Helper method for outputting text to the ui
+    # Internal: Helper method for outputting text to the ui
     #
     # Examples
     #

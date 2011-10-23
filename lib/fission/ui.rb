@@ -1,10 +1,10 @@
 module Fission
   class UI
 
-    # Public: Returns the stdout value.
+    # Internal: Returns the stdout value.
     attr_reader :stdout
 
-    # Public: Initialize a UI object.
+    # Internal: Initialize a UI object.
     #
     # stdout - The object to use for stdout (default: $stdout).  This provides
     #          an easy way to capture/silence output if needed.
@@ -19,7 +19,7 @@ module Fission
       @stdout = stdout
     end
 
-    # Public: Outputs the specified argument to the configured stdout object.
+    # Internal: Outputs the specified argument to the configured stdout object.
     # The 'puts' method will be called on the stdout object.
     #
     # s - The String to output.
@@ -33,9 +33,9 @@ module Fission
       @stdout.puts s
     end
 
-    # Public: Outputs the specified arguments printf style.  The 'printf' method
-    # will be called on the stdout object.  Currently, this assuems there are
-    # two data items.
+    # Internal: Outputs the specified arguments printf style.  The 'printf'
+    # method will be called on the stdout object.  Currently, this assuems there
+    # are two data items.
     #
     # string - The printf String.
     # key    - The String for the first data item.
@@ -50,8 +50,8 @@ module Fission
       @stdout.send :printf, string, key, value
     end
 
-    # Public: Outputs the specified argument to the configured stdout object and
-    # exits with the specified exit code.
+    # Internal: Outputs the specified argument to the configured stdout object
+    # and exits with the specified exit code.
     #
     # s         - The String to output.
     # exit_code - The Integer exit code.

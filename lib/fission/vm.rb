@@ -565,9 +565,9 @@ module Fission
     end
 
     # Public: Creates a new VM which is a clone of an existing VM.  As Fusion
-    # doesn't provide a native cloning mechanism, this is a best
-    # effort.  This essentially is a directory copy with updates to relevant
-    # files.  It's recommended to clone VMs which are not running.
+    # doesn't provide a native cloning mechanism, this is a best effort.  This
+    # essentially is a directory copy with updates to relevant files.  It's
+    # recommended to clone VMs which are not running.
     #
     # source_vm_name - The name of the VM to clone.
     # target_vm_name - The name of the VM to be created.
@@ -636,7 +636,7 @@ module Fission
     end
 
     private
-    # Private: Renames the files of a newly cloned VM.
+    # Internal: Renames the files of a newly cloned VM.
     #
     # from - The VM name that was used as the source of the clone.
     # to   - The name of the newly cloned VM.
@@ -665,7 +665,7 @@ module Fission
       end
     end
 
-    # Private: Provides the list of files which need to be renamed in a newly
+    # Internal: Provides the list of files which need to be renamed in a newly
     # cloned VM directory.
     #
     # from - The VM name that was used as the source of the clone.
@@ -694,7 +694,7 @@ module Fission
       files_which_match_source_vm + other_files
     end
 
-    # Private: Provides the list of file extensions for VM related files.
+    # Internal: Provides the list of file extensions for VM related files.
     #
     # Examples
     #
@@ -707,7 +707,7 @@ module Fission
       ['.nvram', '.vmdk', '.vmem', '.vmsd', '.vmss', '.vmx', '.vmxf']
     end
 
-    # Private: Updates config files for a newly cloned VM.  This will update any
+    # Internal: Updates config files for a newly cloned VM.  This will update any
     # files with the extension of '.vmx', '.vmxf', and '.vmdk'.  Any binary
     # '.vmdk' files will be skipped.
     #
@@ -734,7 +734,7 @@ module Fission
       end
     end
 
-    # Private: Cleans up the conf file (*.vmx) for a newly cloned VM.  This
+    # Internal: Cleans up the conf file (*.vmx) for a newly cloned VM.  This
     # includes removing generated MAC addresses, setting up for a new UUID, and
     # disable VMware tools warning.
     #
@@ -763,7 +763,7 @@ module Fission
       File.open(conf_file_path, 'w') { |f| f.print content }
     end
 
-    # Private: Helper for getting the configured vmrun_cmd value.
+    # Internal: Helper for getting the configured vmrun_cmd value.
     #
     # Examples
     #

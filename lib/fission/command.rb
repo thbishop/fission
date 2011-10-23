@@ -6,14 +6,15 @@ module Fission
 
     def_delegators :@ui, :output, :output_and_exit, :output_printf
 
-    # Public: Returns the OpenStruct options of the command.
+    # Internal: Returns the OpenStruct options of the command.
     attr_reader :options
 
-    # Public: Returns the Array arguments of the command.
+    # Internal: Returns the Array arguments of the command.
     attr_reader :args
 
-    # Public: Initializes a new Command with some basic setup.  This is intended
-    # to be used as a base class for other command classes to inherit from.
+    # Internal: Initializes a new Command with some basic setup.  This is
+    # intended to be used as a base class for other command classes to inherit
+    # from.
     #
     # args - Array of arguments which will be assigned to the args instance
     #        variable.
@@ -27,7 +28,7 @@ module Fission
       @args = args
     end
 
-    # Public: Helper method used to delegate UI related methods through.
+    # Internal: Helper method used to delegate UI related methods through.
     #
     # Examples
     #
@@ -38,7 +39,7 @@ module Fission
       @ui ||= UI.new
     end
 
-    # Public: Helper method to return the help text of a command.  This is
+    # Internal: Helper method to return the help text of a command.  This is
     # intended to be used by a command class which inherits from this class.
     # This method will call the 'option_parser' method which must be defined in
     # any class which inherits from this class.

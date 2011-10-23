@@ -95,7 +95,7 @@ module Fission
     end
 
     private
-    # Private: Parses information out of a DHCP lease entry.
+    # Internal: Parses information out of a DHCP lease entry.
     #
     # entry - String of lease entry text.
     #

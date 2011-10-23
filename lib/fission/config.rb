@@ -47,7 +47,7 @@ module Fission
     end
 
     private
-    # Private: Loads config values from the Fission conf file into attributes.
+    # Internal: Loads config values from the Fission conf file into attributes.
     #
     # Examples
     #
