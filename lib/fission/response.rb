@@ -13,17 +13,17 @@ module Fission
     # Public: Initialize a Response object.
     #
     # args - Hash of arguments:
-    #       :code   - Integer which denotes the code of the Response.  This is
-    #                 similar in concept to command line exit codes.  The
-    #                 convention is that 0 denotes success and any other value
-    #                 is unsuccessful (default: 1).
+    #       :code    - Integer which denotes the code of the Response.  This is
+    #                  similar in concept to command line exit codes.  The
+    #                  convention is that 0 denotes success and any other value
+    #                  is unsuccessful (default: 1).
     #       :message - String which denotes the message of the Response.  The
-    #                 convention is that this should only be used when the
-    #                 Response is unsuccessful (default: '').
-    #       :data   - Any valid ruby object.  This is used to convey any
-    #                 data that needs to be used by a caller.  The convention
-    #                 is that this should only be used when the Response is
-    #                 successful (default nil).
+    #                  convention is that this should only be used when the
+    #                  Response is unsuccessful (default: '').
+    #       :data    - Any valid ruby object.  This is used to convey any
+    #                  data that needs to be used by a caller.  The convention
+    #                  is that this should only be used when the Response is
+    #                  successful (default nil).
     #
     # Examples
     #
