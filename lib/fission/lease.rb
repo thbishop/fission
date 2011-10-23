@@ -13,6 +13,17 @@ module Fission
     # Public: Get/set the end DateTime for the lease.
     attr_accessor :end
 
+    # Public: Initialize a Lease object.
+    #
+    # args - Hash of arguments:
+    #        :ip_address  - String which denotes the IP address of the lease.
+    #        :mac_address - String which denotes the MAC address of the lease.
+    #        :start       - DateTime which denotes the start of the lease.
+    #        :end         - DateTime which denotes the end of the lease.
+    #
+    # Examples
+    #
+    # Returns a new Lease instance.
     def initialize(args={})
       @ip_address = args[:ip_address]
       @mac_address = args[:mac_address]
