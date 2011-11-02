@@ -18,7 +18,6 @@ module Fission
     # Returns a new Config instance.
     def initialize
       @attributes = {}
-      load_from_file
 
       if @attributes['vm_dir'].blank?
         @attributes['vm_dir'] = File.expand_path('~/Documents/Virtual Machines.localized/')
@@ -26,9 +25,12 @@ module Fission
 
       @attributes['lease_file'] = '/var/db/vmware/vmnet-dhcpd-vmnet8.leases'
       @attributes['vmrun_bin'] = '/Library/Application Support/VMware Fusion/vmrun'
-      @attributes['vmrun_cmd'] = "#{@attributes['vmrun_bin'].gsub(' ', '\ ')} -T fusion"
       @attributes['plist_file'] = File.expand_path('~/Library/Preferences/com.vmware.fusion.plist')
       @attributes['gui_bin'] = File.expand_path('/Applications/VMware Fusion.app/Contents/MacOS/vmware')
+      load_from_file
+      if @attributes['vmrun_cmd'].blank?
+        @attributes['vmrun_cmd'] = "#{@attributes['vmrun_bin'].gsub(' ', '\ ')} -T fusion"
+      end
     end
 
     # Public: Helper method to access config atributes.  This is a shortcut for
