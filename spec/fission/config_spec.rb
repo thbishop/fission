@@ -2,18 +2,23 @@ require File.expand_path('../../spec_helper.rb', __FILE__)
 
 describe Fission::Config do
   describe "init" do
+    before do
+      FakeFS.activate!
+    end
+
+    after do
+      FakeFS.deactivate!
+      FakeFS::FileSystem.clear
+    end
+
     it "should use the fusion default dir for vm_dir" do
-      FakeFS do
-        @config = Fission::Config.new
-        @config.attributes['vm_dir'].should == File.expand_path('~/Documents/Virtual Machines.localized/')
-      end
+      @config = Fission::Config.new
+      @config.attributes['vm_dir'].should == File.expand_path('~/Documents/Virtual Machines.localized/')
     end
 
     it 'should use the fusion default for vmrun_bin' do
-      FakeFS do
-        @config = Fission::Config.new
-        @config.attributes['vmrun_bin'].should == '/Library/Application Support/VMware Fusion/vmrun'
-      end
+      @config = Fission::Config.new
+      @config.attributes['vmrun_bin'].should == '/Library/Application Support/VMware Fusion/vmrun'
     end
 
     it 'should use the fusion default for plist_file' do
@@ -27,32 +32,24 @@ describe Fission::Config do
     end
 
     it "should use the user specified dir in ~/.fissionrc" do
-      FakeFS do
-        File.open('~/.fissionrc', 'w') { |f| f.puts YAML.dump({ 'vm_dir' => '/var/tmp/foo' })}
+      File.open('~/.fissionrc', 'w') { |f| f.puts YAML.dump({ 'vm_dir' => '/var/tmp/foo' })}
 
-        @config = Fission::Config.new
-        @config.attributes['vm_dir'].should == '/var/tmp/foo'
-      end
+      @config = Fission::Config.new
+      @config.attributes['vm_dir'].should == '/var/tmp/foo'
     end
 
     it 'should use the user specified vmrun bin in ~/.fissionrc' do
-      FakeFS do
-        File.open('~/.fissionrc', 'w') do |f|
-          f.puts YAML.dump({ 'vmrun_bin' => '/var/tmp/vmrun_bin' })
-        end
-
-        @config = Fission::Config.new
-        @config.attributes['vmrun_bin'].should == '/var/tmp/vmrun_bin'
+      File.open('~/.fissionrc', 'w') do |f|
+        f.puts YAML.dump({ 'vmrun_bin' => '/var/tmp/vmrun_bin' })
       end
 
-      FakeFS::FileSystem.clear
+      @config = Fission::Config.new
+      @config.attributes['vmrun_bin'].should == '/var/tmp/vmrun_bin'
     end
 
     it 'should set vmrun_cmd' do
-      FakeFS do
-        @config = Fission::Config.new
-        @config.attributes['vmrun_cmd'].should == '/Library/Application\ Support/VMware\ Fusion/vmrun -T fusion'
-      end
+      @config = Fission::Config.new
+      @config.attributes['vmrun_cmd'].should == '/Library/Application\ Support/VMware\ Fusion/vmrun -T fusion'
     end
 
     it 'should use the fusion default lease file' do
