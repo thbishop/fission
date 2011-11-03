@@ -52,6 +52,15 @@ describe Fission::Config do
       @config.attributes['vmrun_cmd'].should == '/Library/Application\ Support/VMware\ Fusion/vmrun -T fusion'
     end
 
+    it 'should set the vmrun_cmd correctly if there is a user specified vmrun bin' do
+      File.open('~/.fissionrc', 'w') do |f|
+        f.puts YAML.dump({ 'vmrun_bin' => '/var/tmp/vmrun_bin' })
+      end
+
+      @config = Fission::Config.new
+      @config.attributes['vmrun_cmd'].should == '/var/tmp/vmrun_bin -T fusion'
+    end
+
     it 'should use the fusion default lease file' do
       @config = Fission::Config.new
       @config.attributes['lease_file'].should == '/var/db/vmware/vmnet-dhcpd-vmnet8.leases'
