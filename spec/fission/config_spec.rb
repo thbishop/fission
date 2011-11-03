@@ -35,6 +35,19 @@ describe Fission::Config do
       end
     end
 
+    it 'should use the user specified vmrun bin in ~/.fissionrc' do
+      FakeFS do
+        File.open('~/.fissionrc', 'w') do |f|
+          f.puts YAML.dump({ 'vmrun_bin' => '/var/tmp/vmrun_bin' })
+        end
+
+        @config = Fission::Config.new
+        @config.attributes['vmrun_bin'].should == '/var/tmp/vmrun_bin'
+      end
+
+      FakeFS::FileSystem.clear
+    end
+
     it 'should set vmrun_cmd' do
       FakeFS do
         @config = Fission::Config.new

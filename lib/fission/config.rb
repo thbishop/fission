@@ -27,7 +27,9 @@ module Fission
       @attributes['vmrun_bin'] = '/Library/Application Support/VMware Fusion/vmrun'
       @attributes['plist_file'] = File.expand_path('~/Library/Preferences/com.vmware.fusion.plist')
       @attributes['gui_bin'] = File.expand_path('/Applications/VMware Fusion.app/Contents/MacOS/vmware')
+
       load_from_file
+
       if @attributes['vmrun_cmd'].blank?
         @attributes['vmrun_cmd'] = "#{@attributes['vmrun_bin'].gsub(' ', '\ ')} -T fusion"
       end
