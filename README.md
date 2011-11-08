@@ -15,6 +15,12 @@ Fission is a simple command line tool for managing VMware Fusion VMs.  Only Fusi
 If you provide '--start', then the new VM will be powered on after cloning
 
 
+### Info
+    fission info my_vm
+
+Outputs information about the VM
+
+
 ### Snapshot Create
     fission snapshot create my_vm snapshot_name
 
