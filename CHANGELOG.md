@@ -4,7 +4,7 @@
 
 ## 0.4.0
 * major internal refactoring for usage as a lib
-* add fix for loading a custom vmrun_bin in ~/.fissionrc
+* add fix for loading a custom vmrun_bin in ~/.fissionrc (issue #8 )
 
 ## 0.3.0 (09/16/2011)
 * add ability to suspend all running VMs ('--all')
