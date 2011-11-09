@@ -394,6 +394,39 @@ describe Fission::VM do
     end
   end
 
+  describe 'hardware_info' do
+    before do
+      @conf_file_response_mock.stub_as_successful @conf_file_path
+      @vm.stub(:conf_file).and_return(@conf_file_response_mock)
+
+      @conf_file_io = StringIO.new
+      vmx_content = 'ide1:0.deviceType = "cdrom-image"
+numvcpus = "2"
+ethernet1.address = "00:0c:29:1d:6a:75"
+ethernet0.connectionType = "nat"
+ethernet0.generatedAddress = "00:0c:29:1d:6a:64"
+ethernet1.generatedAddressenable = "TRUE"'
+
+      @conf_file_io.string = vmx_content
+
+      File.stub(:open).with(@conf_file_path, 'r').
+                       and_yield(@conf_file_io)
+    end
+
+    it 'should return a successful response with the number of cpus' do
+      response = @vm.hardware_info
+
+      response.should be_a_successful_response
+      response.data.should have_key 'cpus'
+      response.data['cpus'].should == 2
+    end
+
+    it 'should return an unsuccessful response if unable to figure out the conf file' do
+      @conf_file_response_mock.stub_as_unsuccessful
+      @vm.hardware_info.should be_an_unsuccessful_response
+    end
+  end
+
   describe 'mac_addresses' do
     before do
       @network_info_mock = mock('network_info')
