@@ -50,6 +50,18 @@ describe Fission::Command::Info do
       @string_io.string.should match /cpus\: 2/
     end
 
+    it 'should output the amount of memory' do
+      @network_info_response_mock.stub_as_successful Hash.new
+
+      hardware_info = { 'memory' => 2048}
+      @hardware_info_response_mock.stub_as_successful hardware_info
+
+      command = Fission::Command::Info.new @target_vm
+      command.execute
+
+      @string_io.string.should match /memory\: 2048/
+    end
+
     it 'should output an error and exit if there was an error getting the hardware info' do
       @hardware_info_response_mock.stub_as_unsuccessful
 

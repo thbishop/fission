@@ -402,6 +402,7 @@ describe Fission::VM do
       @conf_file_io = StringIO.new
       vmx_content = 'ide1:0.deviceType = "cdrom-image"
 numvcpus = "2"
+memsize = "2048"
 ethernet1.address = "00:0c:29:1d:6a:75"
 ethernet0.connectionType = "nat"
 ethernet0.generatedAddress = "00:0c:29:1d:6a:64"
@@ -419,6 +420,14 @@ ethernet1.generatedAddressenable = "TRUE"'
       response.should be_a_successful_response
       response.data.should have_key 'cpus'
       response.data['cpus'].should == 2
+    end
+
+    it 'should return a successful response with the amount of memory' do
+      response = @vm.hardware_info
+
+      response.should be_a_successful_response
+      response.data.should have_key 'memory'
+      response.data['memory'].should == 2048
     end
 
     it 'should return an unsuccessful response if unable to figure out the conf file' do
