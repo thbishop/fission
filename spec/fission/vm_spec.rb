@@ -1078,6 +1078,44 @@ ethernet1.generatedAddressenable = "TRUE"'
 
   end
 
+  describe 'self.all_with_status' do
+    before do
+      @vm_1 = Fission::VM.new 'foo'
+      @vm_2 = Fission::VM.new 'bar'
+      @vm_2.stub(:suspend_file_exists?).and_return('true')
+      @vm_3 = Fission::VM.new 'baz'
+
+      @all_vms_response_mock = mock('all_vms_mock')
+      @all_vms_response_mock.stub_as_successful [@vm_1, @vm_2, @vm_3]
+
+      @all_running_response_mock = mock('all_running_mock')
+      @all_running_response_mock.stub_as_successful [@vm_1]
+
+      Fission::VM.stub(:all).and_return(@all_vms_response_mock)
+      Fission::VM.stub(:all_running).and_return(@all_running_response_mock)
+    end
+
+    it 'should return a sucessful response with the VMs and their status' do
+      response = Fission::VM.all_with_status
+      response.should be_a_successful_response
+      response.data.should == { 'foo' => 'running',
+                                'bar' => 'suspended',
+                                'baz' => 'not running' }
+
+    end
+
+    it 'should return an unsuccessful response if unable to get all of the VMs' do
+      @all_vms_response_mock.stub_as_unsuccessful
+      Fission::VM.all_with_status.should be_an_unsuccessful_response
+    end
+
+    it 'should return an unsuccessful repsonse if unable to get the running VMs' do
+      @all_running_response_mock.stub_as_unsuccessful
+      Fission::VM.all_with_status.should be_an_unsuccessful_response
+    end
+
+  end
+
   describe 'delete' do
     before do
       @running_response_mock = mock('running?')

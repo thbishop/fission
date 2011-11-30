@@ -564,6 +564,48 @@ module Fission
       response
     end
 
+    # Public: Provides a list of all of the VMs and their associated status
+    #
+    # Examples
+    #
+    #   Fission::VM.all_with_status.data
+    #   # => { 'vm1' => 'running', 'vm2' => 'suspended', 'vm3' => 'not running'}
+    #
+    # Returns a Response with the result.
+    # If successful, the Response's data attribute will be a Hash of with the VM
+    # names as keys and their status as the values.
+    # If there is an error, an unsuccessful Repsonse will be returned.
+    def self.all_with_status
+      all_response = all
+      return all_response unless all_response.successful?
+
+      all_vms = all_response.data
+
+      running_response = all_running
+      return running_response unless running_response.successful?
+
+      response = Response.new :code => 0
+
+      all_running_vm_names = running_response.data.collect { |v| v.name }
+
+      response.data = all_vms.inject({}) do |result, vm|
+        if all_running_vm_names.include? vm.name
+          status = 'running'
+        else
+          if vm.suspend_file_exists?
+            status = 'suspended'
+          else
+            status = 'not running'
+          end
+        end
+
+        result[vm.name] = status
+        result
+      end
+
+      response
+    end
+
     # Public: Creates a new VM which is a clone of an existing VM.  As Fusion
     # doesn't provide a native cloning mechanism, this is a best effort.  This
     # essentially is a directory copy with updates to relevant files.  It's
