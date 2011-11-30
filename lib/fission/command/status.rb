@@ -3,34 +3,16 @@ module Fission
     class Status < Command
 
       def execute
-        response = VM.all
-        if response.successful?
-          all_vms = response.data
+        response = VM.all_with_status
+        unless response.successful?
+          output_and_exit "There was an error getting the status of the VMs.  The error was:\n#{response.message}", response.code
         end
 
-        response = VM.all_running
-        if response.successful?
-          all_running_vm_names = response.data.collect { |v| v.name }
-        else
-          output_and_exit "There was an error getting the list of running VMs.  The error was:\n#{response.message}", response.code
-        end
+        vms_status = response.data
+        longest_vm_name = vms_status.keys.max { |a,b| a.length <=> b.length }
 
-        vm_names = all_vms.collect { |v| v.name }
-
-        longest_vm_name = vm_names.max { |a,b| a.length <=> b.length }
-
-        all_vms.each do |vm|
-          if all_running_vm_names.include? vm.name
-            status = '[running]'
-          else
-            if vm.suspend_file_exists?
-              status = '[suspended]'
-            else
-              status = '[not running]'
-            end
-          end
-
-          output_printf "%-#{longest_vm_name.length}s   %s\n", vm.name, status
+        vms_status.each_pair do |vm_name, status|
+          output_printf "%-#{longest_vm_name.length}s   [%s]\n", vm_name, status
         end
       end
 
