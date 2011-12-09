@@ -327,6 +327,72 @@ module Fission
       response
     end
 
+    # Public: Provides the Fussion GuestOS profile.
+    #
+    # Examples
+    #
+    #   @vm.guestos.data
+    #   # => 'debian5'
+    #
+    # Returns a Response with the result.
+    # If the Response is successful, the Response's data attribute will
+    # be populated with a string that is the guest operatingsystem used for the
+    # virtual machine.
+    # If there is an error, an unsuccessful Response will be returned.
+    def guestos
+      conf_file_response = conf_file
+      return conf_file_response unless conf_file_response.successful?
+
+      response = Response.new :code => 0, :data => {}
+
+      guestos_pattern = /^guestOS/
+      os_pattern = /\"(.*)\"$/
+
+      File.open conf_file_response.data, 'r' do |f|
+        guestos = f.grep(guestos_pattern)[0].scan(os_pattern).flatten[0]
+        response.data = guestos
+      end
+
+      response
+    end
+
+    # Public: Provides various uuids associated with a VM.
+    #
+    # Examples
+    #
+    #   @vm.uuids.data
+    #   # => {"bios"=>"56 4d ee 72 3b 7e 47 67-69 aa 65 cb 5e 40 3f 21",
+    #         "location"=>"56 4d 2e 15 f4 ed 00 a7-c5 99 43 32 b8 76 ef d5"}
+    #
+    # Returns a Response with the result.
+    # If the Response is successful, the Response's data attribute will
+    # be populated with a hash that is comprised of the various uuids that are
+    # associated with each VM.  If the VM is newly created they will be the same
+    # but if you selected 'I Moved It' from the Fusion GUI they will differ.
+    # If there is an error, an unsuccessful Response will be returned.
+    def uuids
+      conf_file_response = conf_file
+      return conf_file_response unless conf_file_response.successful?
+
+      response = Response.new :code => 0, :data => {}
+
+      uuid_pattern = /^uuid(?!\.action)/
+      bios_pattern = /bios\W=\W"(.*)"$/
+      location_pattern = /location\W=\W"(.*)"$/
+
+      File.open conf_file_response.data, 'r' do |f|
+        bios = ''
+        location = ''
+        f.grep(uuid_pattern).each do |line|
+           location = line.scan(location_pattern).flatten[0] || bios = line.scan(bios_pattern).flatten[0]
+        end
+        response.data['bios'] = bios
+        response.data['location'] = location
+      end
+
+      response
+    end
+
     # Public: Provides the state of the VM.
     #
     # Examples
