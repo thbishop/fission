@@ -377,8 +377,8 @@ module Fission
       response = Response.new :code => 0, :data => {}
 
       uuid_pattern = /^uuid(?!\.action)/
-      bios_pattern = /bios\W=\W"(.*)"$/
-      location_pattern = /location\W=\W"(.*)"$/
+      bios_pattern = /bios\W*=\W*"(.*)"$/
+      location_pattern = /location\W*=\W*"(.*)"$/
 
       File.open conf_file_response.data, 'r' do |f|
         bios = ''
