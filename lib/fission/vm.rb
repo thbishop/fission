@@ -349,7 +349,8 @@ module Fission
       os_pattern = /\"(.*)\"$/
 
       File.open conf_file_response.data, 'r' do |f|
-        guestos = f.grep(guestos_pattern)[0].scan(os_pattern).flatten[0]
+        guestos_line = f.grep(guestos_pattern)[0] || ''
+        guestos = guestos_line.scan(os_pattern).flatten[0] || ''
         response.data = guestos
       end
 
@@ -386,8 +387,8 @@ module Fission
         f.grep(uuid_pattern).each do |line|
            location = line.scan(location_pattern).flatten[0] || bios = line.scan(bios_pattern).flatten[0]
         end
-        response.data['bios'] = bios
-        response.data['location'] = location
+        response.data['bios'] = bios unless bios.empty?
+        response.data['location'] = location unless location.empty?
       end
 
       response
