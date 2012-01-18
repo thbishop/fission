@@ -581,6 +581,107 @@ ethernet1.generatedAddressenable = "TRUE"'
     end
   end
 
+  describe 'guestos' do
+    before do
+      @conf_file_response_mock.stub_as_successful @conf_file_path
+
+      @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
+      @conf_file_io = StringIO.new
+    end
+
+    it 'should return a successful response with a string when a guestos is defined' do
+      @conf_file_response_mock.stub_as_successful @conf_file_path
+
+      vmx_content = 'vmci0.present = "TRUE"
+roamingVM.exitBehavior = "go"
+tools.syncTime = "TRUE"
+displayName = "sample-debian"
+guestOS = "debian5"
+nvram = "sample-debian.nvram"
+virtualHW.productCompatibility = "hosted"
+printers.enabled = "FALSE"
+proxyApps.publishToHost = "FALSE"
+tools.upgrade.policy = "upgradeAtPowerCycle"'
+
+      @conf_file_io.string = vmx_content
+
+      File.should_receive(:open).with(@conf_file_path, 'r').and_yield(@conf_file_io)
+
+      response = @vm.guestos
+      response.should be_a_successful_response
+      response.data.should == 'debian5'
+    end
+
+    it 'should return a successful response with no data if no guestos defined' do
+
+      vmx_content = 'vmci0.present = "TRUE"
+roamingVM.exitBehavior = "go"
+tools.syncTime = "TRUE"
+nvram = "sample-debian.nvram"
+virtualHW.productCompatibility = "hosted"
+printers.enabled = "FALSE"
+proxyApps.publishToHost = "FALSE"
+tools.upgrade.policy = "upgradeAtPowerCycle"'
+
+      @conf_file_io.string = vmx_content
+
+      File.should_receive(:open).with(@conf_file_path, 'r').and_yield(@conf_file_io)
+
+      response = @vm.guestos
+      response.should be_a_successful_response
+      response.data.should == ''
+    end
+  end
+
+  describe 'uuids' do
+    before do
+      @conf_file_response_mock.stub_as_successful @conf_file_path
+
+      @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
+      @conf_file_io = StringIO.new
+    end
+
+    it 'should return a successful response with a hash when uuids are defined' do
+      @conf_file_response_mock.stub_as_successful @conf_file_path
+
+      vmx_content = 'extendedConfigFile = "sample-debian.vmxf"
+checkpoint.vmState = ""
+uuid.location = "56 4d d8 9c f8 ec 95 73-2e ea a0 f3 7a 1d 6f c8"
+uuid.bios = "56 4d d8 9c f8 ec 95 73-2e ea a0 f3 7a 1d 6f c8"
+cleanShutdown = "TRUE"
+replay.supported = "TRUE"
+replay.filename = ""
+scsi0:0.redo = ""'
+
+      @conf_file_io.string = vmx_content
+
+      File.should_receive(:open).with(@conf_file_path, 'r').and_yield(@conf_file_io)
+
+      response = @vm.uuids
+      response.should be_a_successful_response
+      response.data.should == { 'bios'     => '56 4d d8 9c f8 ec 95 73-2e ea a0 f3 7a 1d 6f c8',
+                                'location' => '56 4d d8 9c f8 ec 95 73-2e ea a0 f3 7a 1d 6f c8' }
+    end
+
+    it 'should return a successful response with empty hash if no uuids are defined' do
+
+      vmx_content = 'extendedConfigFile = "sample-debian.vmxf"
+checkpoint.vmState = ""
+cleanShutdown = "TRUE"
+replay.supported = "TRUE"
+replay.filename = ""
+scsi0:0.redo = ""'
+
+      @conf_file_io.string = vmx_content
+
+      File.should_receive(:open).with(@conf_file_path, 'r').and_yield(@conf_file_io)
+
+      response = @vm.uuids
+      response.should be_a_successful_response
+      response.data.should == {}
+    end
+  end
+
   describe 'path' do
     it 'should return the path of the VM' do
       vm_path = File.join(Fission.config['vm_dir'], 'foo.vmwarevm').gsub '\\', ''
