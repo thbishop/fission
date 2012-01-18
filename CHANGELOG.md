@@ -2,7 +2,7 @@
 
 ## head
 
-## 0.4.0
+## 0.4.0 (01/17/2012)
 * major internal refactoring for usage as a lib
 * add fix for loading a custom vmrun_bin in ~/.fissionrc (issue #8 )
 
