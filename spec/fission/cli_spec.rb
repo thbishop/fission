@@ -8,9 +8,10 @@ describe Fission::CLI do
 
   describe 'self.commands' do
     it 'should return the list of commands' do
-      Fission::CLI.commands.should == ['clone', 'delete', 'snapshot create',
-                                       'snapshot list', 'snapshot revert',
-                                       'start', 'status', 'stop', 'suspend']
+      Fission::CLI.commands.should == ['clone', 'delete', 'info',
+                                       'snapshot create', 'snapshot list',
+                                       'snapshot revert', 'start', 'status',
+                                       'stop', 'suspend']
     end
   end
 

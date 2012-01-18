@@ -247,6 +247,44 @@ module Fission
       Response.from_command(`#{command}`)
     end
 
+    # Public: Provides virtual hardware info the VM
+    #
+    # Examples:
+    #
+    #   @vm.hardware_info.data
+    #   # => {'cpus' => 2, 'memory' => 1024}
+    #
+    # Returns a Response with the result.
+    # If successful, the Response's data attribute will be a Hash with the
+    # info found.
+    # If there is an error, an unsuccessful Response will be returned.
+    def hardware_info
+      conf_file_response = conf_file
+      return conf_file_response unless conf_file_response.successful?
+
+      response = Response.new :code => 0, :data => {}
+
+      cpus_pattern = /^numvcpus/
+      memory_pattern = /^memsize/
+
+      attribs_patterns = { 'cpus'   => cpus_pattern,
+                           'memory' => memory_pattern }
+
+      response.data['cpus'] = 1
+
+      File.open conf_file_response.data, 'r' do |f|
+        attribs_patterns.each_pair do |attrib, pattern|
+          f.grep(pattern).each do |line|
+            response.data[attrib] = line.scan(/\d+/).first.to_i
+          end
+
+          f.rewind
+        end
+      end
+
+      response
+    end
+
     # Public: Provides the MAC addresses for a VM.
     #
     # Examples:
