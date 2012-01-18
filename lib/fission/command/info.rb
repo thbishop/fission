@@ -24,9 +24,8 @@ module Fission
 
         if network_response.successful?
           network_response.data.each_pair do |int, data|
-            output "#{int}"
             data.each_pair do |k, v|
-              output "  #{k}: #{v}"
+              output "#{int} #{k.gsub(/[-_]/, ' ')}: #{v}"
             end
             output ""
           end

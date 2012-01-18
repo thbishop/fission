@@ -77,9 +77,8 @@ describe Fission::Command::Info do
       command = Fission::Command::Info.new @target_vm
       command.execute
 
-      @string_io.string.should match /ethernet0/
-      @string_io.string.should match /00:11:22:33:AA:BB/
-      @string_io.string.should match /192\.168\.1\.10/
+      @string_io.string.should match /ethernet0 mac address: 00:11:22:33:AA:BB/
+      @string_io.string.should match /ethernet0 ip address: 192\.168\.1\.10/
     end
 
     it 'should output an error and exit if there was an error getting the network info' do
