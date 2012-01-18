@@ -270,6 +270,8 @@ module Fission
       attribs_patterns = { 'cpus'   => cpus_pattern,
                            'memory' => memory_pattern }
 
+      response.data['cpus'] = 1
+
       File.open conf_file_response.data, 'r' do |f|
         attribs_patterns.each_pair do |attrib, pattern|
           f.grep(pattern).each do |line|

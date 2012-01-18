@@ -400,7 +400,7 @@ describe Fission::VM do
       @vm.stub(:conf_file).and_return(@conf_file_response_mock)
 
       @conf_file_io = StringIO.new
-      vmx_content = 'ide1:0.deviceType = "cdrom-image"
+      @vmx_content = 'ide1:0.deviceType = "cdrom-image"
 numvcpus = "2"
 memsize = "2048"
 ethernet1.address = "00:0c:29:1d:6a:75"
@@ -408,7 +408,7 @@ ethernet0.connectionType = "nat"
 ethernet0.generatedAddress = "00:0c:29:1d:6a:64"
 ethernet1.generatedAddressenable = "TRUE"'
 
-      @conf_file_io.string = vmx_content
+      @conf_file_io.string = @vmx_content
 
       File.stub(:open).with(@conf_file_path, 'r').
                        and_yield(@conf_file_io)
@@ -433,6 +433,20 @@ ethernet1.generatedAddressenable = "TRUE"'
     it 'should return an unsuccessful response if unable to figure out the conf file' do
       @conf_file_response_mock.stub_as_unsuccessful
       @vm.hardware_info.should be_an_unsuccessful_response
+    end
+
+    describe 'when the number of cpus is not specified in the conf file' do
+      before do
+        @conf_file_io.string = @vmx_content.gsub 'numvcpus = "2"', ''
+      end
+
+      it 'should return a successful response with a single cpu' do
+        response = @vm.hardware_info
+
+        response.should be_a_successful_response
+        response.data.should have_key 'cpus'
+        response.data['cpus'].should == 1
+      end
     end
   end
 
