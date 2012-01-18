@@ -8,8 +8,7 @@ module Fission
 
         vm = VM.new @args.first
 
-        output "VM Info for '#{vm.name}'"
-        output '----------------------------------'
+        output "name: #{vm.name}"
 
         hardware_response = vm.hardware_info
 
