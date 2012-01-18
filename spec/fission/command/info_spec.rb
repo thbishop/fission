@@ -9,6 +9,7 @@ describe Fission::Command::Info do
 
     @network_info_response_mock = mock('network_info_response')
     @hardware_info_response_mock = mock('hardware_info_response')
+    @guest_os_response_mock = mock('guest_os_response')
 
     @vm_mock.stub(:name).and_return(@target_vm.first)
   end
@@ -17,11 +18,13 @@ describe Fission::Command::Info do
     before do
       @vm_mock.stub(:network_info).and_return(@network_info_response_mock)
       @vm_mock.stub(:hardware_info).and_return(@hardware_info_response_mock)
+      @vm_mock.stub(:guestos).and_return(@guest_os_response_mock)
       @network_info = { 'ethernet0' => { 'mac_address'  => '00:11:22:33:AA:BB',
                                          'ip_address'   => '192.168.1.10' },
                         'ethernet1' => { 'mac_address'  => '00:11:22:33:AA:BB',
                                          'ip_address'   => '192.168.1.10' } }
       @hardware_info_response_mock.stub_as_successful Hash.new
+      @guest_os_response_mock.stub_as_successful 'debian5'
     end
 
     subject { Fission::Command::Info }
@@ -36,6 +39,36 @@ describe Fission::Command::Info do
       command.execute
 
       @string_io.string.should match /foo/
+    end
+
+    it 'should output the os' do
+      @network_info_response_mock.stub_as_successful Hash.new
+      @hardware_info_response_mock.stub_as_successful Hash.new
+
+      command = Fission::Command::Info.new @target_vm
+      command.execute
+
+      @string_io.string.should match /os: debian5/
+    end
+
+    it 'should output that the os is unknown if applicable' do
+      @network_info_response_mock.stub_as_successful Hash.new
+      @hardware_info_response_mock.stub_as_successful Hash.new
+
+      @guest_os_response_mock.stub_as_successful ''
+      command = Fission::Command::Info.new @target_vm
+      command.execute
+
+      @string_io.string.should match /os: unknown/
+    end
+
+    it 'should output an error and exit if there was an error getting the os info' do
+      @guest_os_response_mock.stub_as_unsuccessful
+
+      command = Fission::Command::Info.new @target_vm
+      lambda { command.execute }.should raise_error SystemExit
+
+      @string_io.string.should match /There was an error getting the OS info.+it blew up.+/m
     end
 
     it 'should output the number of cpus' do

@@ -10,6 +10,15 @@ module Fission
 
         output "name: #{vm.name}"
 
+        guest_os_response = vm.guestos
+
+        if guest_os_response.successful?
+          os = guest_os_response.data.empty? ? 'unknown' : guest_os_response.data
+          output "os: #{os}"
+        else
+          output_and_exit "There was an error getting the OS info.  The error was:\n#{guest_os_response.message}", guest_os_response.code
+        end
+
         hardware_response = vm.hardware_info
 
         if hardware_response.successful?
