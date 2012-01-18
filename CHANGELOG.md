@@ -1,6 +1,7 @@
 # changes
 
 ## head
+* add guestos and uuid methods to VM (@ody)
 
 ## 0.4.0 (01/17/2012)
 * major internal refactoring for usage as a lib
