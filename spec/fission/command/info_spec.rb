@@ -24,6 +24,7 @@ describe Fission::Command::Info do
                         'ethernet1' => { 'mac_address'  => '00:11:22:33:AA:BB',
                                          'ip_address'   => '192.168.1.10' } }
       @hardware_info_response_mock.stub_as_successful Hash.new
+      @network_info_response_mock.stub_as_successful Hash.new
       @guest_os_response_mock.stub_as_successful 'debian5'
     end
 
@@ -32,9 +33,6 @@ describe Fission::Command::Info do
     it_should_not_accept_arguments_of [], 'info'
 
     it 'should output the vm name' do
-      @network_info_response_mock.stub_as_successful Hash.new
-      @hardware_info_response_mock.stub_as_successful Hash.new
-
       command = Fission::Command::Info.new @target_vm
       command.execute
 
@@ -42,9 +40,6 @@ describe Fission::Command::Info do
     end
 
     it 'should output the os' do
-      @network_info_response_mock.stub_as_successful Hash.new
-      @hardware_info_response_mock.stub_as_successful Hash.new
-
       command = Fission::Command::Info.new @target_vm
       command.execute
 
@@ -52,9 +47,6 @@ describe Fission::Command::Info do
     end
 
     it 'should output that the os is unknown if applicable' do
-      @network_info_response_mock.stub_as_successful Hash.new
-      @hardware_info_response_mock.stub_as_successful Hash.new
-
       @guest_os_response_mock.stub_as_successful ''
       command = Fission::Command::Info.new @target_vm
       command.execute
@@ -72,8 +64,6 @@ describe Fission::Command::Info do
     end
 
     it 'should output the number of cpus' do
-      @network_info_response_mock.stub_as_successful Hash.new
-
       hardware_info = { 'cpus' => 2}
       @hardware_info_response_mock.stub_as_successful hardware_info
 
@@ -84,8 +74,6 @@ describe Fission::Command::Info do
     end
 
     it 'should output the amount of memory' do
-      @network_info_response_mock.stub_as_successful Hash.new
-
       hardware_info = { 'memory' => 2048}
       @hardware_info_response_mock.stub_as_successful hardware_info
 
