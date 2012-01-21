@@ -50,6 +50,10 @@ module Fission
         optparse
       end
 
+      def summary
+        'Clone a VM'
+      end
+
     end
   end
 end

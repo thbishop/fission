@@ -14,6 +14,12 @@ describe Fission::Command::Info do
     @vm_mock.stub(:name).and_return(@target_vm.first)
   end
 
+  describe 'command_name' do
+    it 'should return the pretty command name' do
+      Fission::Command::Info.new.command_name.should == 'info'
+    end
+  end
+
   describe 'execute' do
     before do
       @vm_mock.stub(:network_info).and_return(@network_info_response_mock)

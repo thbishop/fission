@@ -26,6 +26,10 @@ module Fission
         optparse
       end
 
+      def summary
+        'Stop a VM'
+      end
+
     end
   end
 end

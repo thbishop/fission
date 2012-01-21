@@ -64,6 +64,10 @@ module Fission
         optparse
       end
 
+      def summary
+        'Delete a VM'
+      end
+
     end
   end
 end

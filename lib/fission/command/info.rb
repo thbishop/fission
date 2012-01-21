@@ -51,6 +51,10 @@ module Fission
         optparse
       end
 
+      def summary
+        'Show information for a VM'
+      end
+
     end
   end
 end

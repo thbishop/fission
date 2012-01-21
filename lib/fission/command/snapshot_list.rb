@@ -31,6 +31,10 @@ module Fission
         optparse
       end
 
+      def summary
+        'List the snapshots of a VM'
+      end
+
     end
   end
 end

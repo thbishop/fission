@@ -20,6 +20,12 @@ describe Fission::Command::Clone do
                              and_return(@clone_response_mock)
   end
 
+  describe 'command_name' do
+    it 'should return the pretty command name' do
+      Fission::Command::Clone.new.command_name.should == 'clone'
+    end
+  end
+
   describe 'execute' do
    subject { Fission::Command::Clone }
 

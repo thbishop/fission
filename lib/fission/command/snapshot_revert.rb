@@ -27,6 +27,10 @@ module Fission
         optparse
       end
 
+      def summary
+        'Revert a VM to a snapshot'
+      end
+
     end
   end
 end

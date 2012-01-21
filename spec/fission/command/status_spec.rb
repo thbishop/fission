@@ -10,6 +10,12 @@ describe Fission::Command::Status do
     @all_status_response_mock = mock('response')
   end
 
+  describe 'command_name' do
+    it 'should return the pretty command name' do
+      Fission::Command::Status.new.command_name.should == 'status'
+    end
+  end
+
   describe 'execute' do
     before do
       Fission::VM.should_receive(:all_with_status).

@@ -12,6 +12,12 @@ describe Fission::Command::Start do
     @vm_mock.stub(:name).and_return(@target_vm.first)
   end
 
+  describe 'command_name' do
+    it 'should return the pretty command name' do
+      Fission::Command::Start.new.command_name.should == 'start'
+    end
+  end
+
   describe 'execute' do
     subject { Fission::Command::Start }
 

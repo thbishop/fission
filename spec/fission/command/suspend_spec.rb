@@ -12,6 +12,12 @@ describe Fission::Command::Suspend do
     @vm_mock.stub(:name).and_return(@target_vm.first)
   end
 
+  describe 'command_name' do
+    it 'should return the pretty command name' do
+      Fission::Command::Suspend.new.command_name.should == 'suspend'
+    end
+  end
+
   describe 'execute' do
     subject { Fission::Command::Suspend }
 

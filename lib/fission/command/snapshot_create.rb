@@ -27,6 +27,10 @@ module Fission
         optparse
       end
 
+      def summary
+        'Create a snapshot of a VM'
+      end
+
     end
   end
 end

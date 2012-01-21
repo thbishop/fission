@@ -4,14 +4,35 @@ describe Fission::CLI do
   before do
     @string_io = StringIO.new
     Fission::CLI.stub!(:ui).and_return(Fission::UI.new(@string_io))
+    @command_list = ['clone', 'delete', 'info',
+                     'snapshot create', 'snapshot list',
+                     'snapshot revert', 'start', 'status',
+                     'stop', 'suspend']
   end
 
   describe 'self.commands' do
     it 'should return the list of commands' do
-      Fission::CLI.commands.should == ['clone', 'delete', 'info',
-                                       'snapshot create', 'snapshot list',
-                                       'snapshot revert', 'start', 'status',
-                                       'stop', 'suspend']
+      Fission::CLI.commands.should == @command_list
+    end
+  end
+
+  describe 'self.commands_banner' do
+    it 'should output help for each command' do
+      Fission::CLI.commands_banner
+      @command_list.each do |cmd|
+        @string_io.string.should match /#{cmd}\s+\w+/
+      end
+    end
+  end
+
+  describe 'self.command_names_and_summaries' do
+    it 'should return the list of commands and summaries' do
+      cmd_names_summaries = Fission::CLI.command_names_and_summaries
+
+      cmd_names_summaries.keys.sort.should == @command_list
+      cmd_names_summaries.values.each do |summary|
+        summary.should match /\w+/
+      end
     end
   end
 

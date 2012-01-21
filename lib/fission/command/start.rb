@@ -41,6 +41,10 @@ module Fission
         optparse
       end
 
+      def summary
+        'Start a VM'
+      end
+
     end
   end
 end

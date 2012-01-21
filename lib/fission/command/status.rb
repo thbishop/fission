@@ -24,6 +24,10 @@ module Fission
         optparse
       end
 
+      def summary
+        'Show the status of all VMs'
+      end
+
     end
   end
 end

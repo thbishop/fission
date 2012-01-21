@@ -16,6 +16,12 @@ describe Fission::Command::Delete do
     Fission::Fusion.stub(:running?).and_return(false)
   end
 
+  describe 'command_name' do
+    it 'should return the pretty command name' do
+      Fission::Command::Delete.new.command_name.should == 'delete'
+    end
+  end
+
   describe "execute" do
     subject { Fission::Command::Delete }
 

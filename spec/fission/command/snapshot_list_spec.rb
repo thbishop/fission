@@ -12,6 +12,12 @@ describe Fission::Command::SnapshotList do
     @vm_mock.stub(:name).and_return(@target_vm.first)
   end
 
+  describe 'command_name' do
+    it 'should return the pretty command name' do
+      Fission::Command::SnapshotList.new.command_name.should == 'snapshot list'
+    end
+  end
+
   describe 'execute' do
     before do
       @vm_mock.stub(:snapshots).and_return(@snap_list_response_mock)

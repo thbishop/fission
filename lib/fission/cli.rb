@@ -26,11 +26,6 @@ module Fission
           show_all_help(optparse)
           exit(0)
         end
-
-        opts.define_tail do
-          commands_banner
-        end
-
       end
 
       begin
@@ -90,7 +85,9 @@ module Fission
     #
     # Returns a Boolean of whether a snapshot command was given or not.
     def self.is_snapshot_command?(args)
-      args.first == 'snapshot' && args.count > 1 && commands.include?(args.take(2).join(' '))
+      args.first == 'snapshot' &&
+      args.count > 1 &&
+      commands.include?(args.take(2).join(' '))
     end
 
     # Internal: Provides the help of all of the known commands.
@@ -102,12 +99,33 @@ module Fission
     # Returns a String which is a concatenation of the help text for all known
     # commands.
     def self.commands_banner
-      text = "\nCommands:\n"
-      Command.descendants.each do |command_klass|
-        text << (command_klass.send :help)
+      cmd_data = command_names_and_summaries
+      longest_cmd = cmd_data.keys.inject do |longest, cmd_name|
+        longest.length > cmd_name.length ? longest : cmd_name
       end
 
-      text
+      ui.output "\nCommands:"
+
+      cmd_data.each_pair do |name, summary|
+        ui.output_printf "%-#{longest_cmd.length}s      %s\n", name, summary
+      end
+    end
+
+    # Internal: Provides the list of commands and their summaries.
+    #
+    # Examples
+    #
+    #   Fission::CLI.command_names_and_summaries
+    #   # => { 'clone' => 'Clones a VM', 'stop' => 'Stops a VM' }
+    #
+    # Returns a Hash in which the command names are keys and the summary of the
+    # commands are values.
+    def self.command_names_and_summaries
+      Command.descendants.inject({}) do |result, command_klass|
+        cmd = command_klass.new
+        result[cmd.command_name] = cmd.summary
+        result
+      end
     end
 
     # Internal: Helper method to output the command line options and the help
@@ -124,7 +142,7 @@ module Fission
     # Returns nothing.
     def self.show_all_help(options)
       ui.output options
-      ui.output commands_banner
+      commands_banner
     end
 
     # Internal: Helper method for outputting text to the ui
