@@ -60,11 +60,7 @@ module Fission
     # Returns an Array of the commands (String).  Commands with underscores will
     # have them replaced with spaces.
     def self.commands
-      cmds = Dir.entries(File.join(File.dirname(__FILE__), 'command')).select do |file|
-        !File.directory? file
-      end
-
-      cmds.map { |cmd| File.basename(cmd, '.rb').gsub '_', ' ' }
+      command_names_and_summaries.keys
     end
 
     private
