@@ -4,6 +4,8 @@ module Fission
       include Fission::CommandHelpers
 
       def execute
+        option_parser.parse! @args
+
         incorrect_arguments 'stop' unless @args.count == 1
 
         vm = VM.new @args.first
@@ -20,7 +22,9 @@ module Fission
 
       def option_parser
         optparse = OptionParser.new do |opts|
-          opts.banner = "\nstop usage: fission stop vm_name"
+          opts.banner = "Usage: fission stop TARGET_VM"
+          opts.separator ''
+          opts.separator 'Stop TARGET_VM.'
         end
 
         optparse

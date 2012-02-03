@@ -43,8 +43,11 @@ module Fission
 
       def option_parser
         optparse = OptionParser.new do |opts|
-          opts.banner = "\nsuspend usage: fission suspend [vm_name | --all]"
-
+          opts.banner = "Usage: fission suspend [TARGET_VM | --all]"
+          opts.separator ''
+          opts.separator 'Suspend TARGET_VM or all VMs.'
+          opts.separator ''
+          opts.separator 'OPTIONS:'
           opts.on '--all', 'Suspend all running VMs' do
             @options.all = true
           end

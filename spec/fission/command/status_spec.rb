@@ -55,7 +55,7 @@ describe Fission::Command::Status do
     it 'should output info for this command' do
       output = Fission::Command::Status.help
 
-      output.should match /status/
+      output.should match /fission status/
     end
   end
 end

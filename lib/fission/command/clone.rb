@@ -40,8 +40,11 @@ module Fission
 
       def option_parser
         optparse = OptionParser.new do |opts|
-          opts.banner = "\nclone usage: fission clone source_vm target_vm [options]"
-
+          opts.banner = "Usage: fission clone SOURCE_VM TARGET_VM [OPTIONS]"
+          opts.separator ''
+          opts.separator 'Clones SOURCE_VM to a new VM (TARGET_VM).'
+          opts.separator ''
+          opts.separator 'OPTIONS:'
           opts.on '--start', 'Start the VM after cloning' do
             @options.start = true
           end

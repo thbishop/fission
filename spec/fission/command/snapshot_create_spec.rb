@@ -66,7 +66,7 @@ describe Fission::Command::SnapshotCreate do
     it 'should output info for this command' do
       output = Fission::Command::SnapshotCreate.help
 
-      output.should match /snapshot create vm_name snapshot_1/
+      output.should match /fission snapshot create TARGET_VM SNAPSHOT_NAME/
     end
   end
 end

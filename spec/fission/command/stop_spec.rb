@@ -51,7 +51,7 @@ describe Fission::Command::Stop do
     it 'should output info for this command' do
       output = Fission::Command::Stop.help
 
-      output.should match /stop vm_name/
+      output.should match /fission stop TARGET_VM/
     end
   end
 end

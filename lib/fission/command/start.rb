@@ -31,8 +31,11 @@ module Fission
 
       def option_parser
         optparse = OptionParser.new do |opts|
-          opts.banner = "\nstart usage: fission start vm_name [options]"
-
+          opts.banner = "Usage: fission start TARGET_VM [OPTIONS]"
+          opts.separator ''
+          opts.separator 'Starts TARGET_VM.'
+          opts.separator ''
+          opts.separator 'OPTIONS:'
           opts.on '--headless', 'Start the VM in headless mode (i.e. no Fusion GUI console)' do
             @options.headless = true
           end

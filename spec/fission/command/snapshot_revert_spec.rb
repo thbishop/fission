@@ -64,7 +64,7 @@ describe Fission::Command::SnapshotRevert do
     it 'should output info for this command' do
       output = Fission::Command::SnapshotRevert.help
 
-      output.should match /snapshot revert vm_name snapshot_1/
+      output.should match /fission snapshot revert TARGET_VM TARGET_SNAPSHOT/
     end
   end
 end

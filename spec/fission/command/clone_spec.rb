@@ -86,7 +86,7 @@ describe Fission::Command::Clone do
     it 'should output info for this command' do
       output = Fission::Command::Clone.help
 
-      output.should match /clone source_vm target_vm.+--start/m
+      output.should match /fission clone SOURCE_VM TARGET_VM.+OPTIONS/m
     end
   end
 end

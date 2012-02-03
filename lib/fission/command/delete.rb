@@ -54,8 +54,11 @@ module Fission
 
       def option_parser
         optparse = OptionParser.new do |opts|
-          opts.banner = "\ndelete usage: fission delete vm_name [--force]"
-
+          opts.banner = "Usage: fission delete TARGET_VM [OPTIONS]"
+          opts.separator ''
+          opts.separator 'Deletes TARGET_VM.'
+          opts.separator ''
+          opts.separator 'OPTIONS:'
           opts.on '--force', "Stop the VM if it's running and then delete it" do
             @options.force = true
           end

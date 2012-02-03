@@ -4,6 +4,8 @@ module Fission
       include Fission::CommandHelpers
 
       def execute
+        option_parser.parse! @args
+
         incorrect_arguments 'info' unless @args.count == 1
 
         vm = VM.new @args.first
@@ -45,7 +47,9 @@ module Fission
 
       def option_parser
         optparse = OptionParser.new do |opts|
-          opts.banner = "\ninfo: fission info vm_name"
+          opts.banner = 'Usage: fission info TARGET_VM'
+          opts.separator ''
+          opts.separator 'Lists known information about TARGET_VM'
         end
 
         optparse

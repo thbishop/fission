@@ -4,6 +4,7 @@ module Fission
       include Fission::CommandHelpers
 
       def execute
+        option_parser.parse! @args
         incorrect_arguments 'snapshot revert' unless @args.count == 2
 
         vm = VM.new @args[0]
@@ -21,7 +22,9 @@ module Fission
 
       def option_parser
         optparse = OptionParser.new do |opts|
-          opts.banner = "\nsnapshot revert: fission snapshot revert vm_name snapshot_1"
+          opts.banner = "Usage: fission snapshot revert TARGET_VM TARGET_SNAPSHOT"
+          opts.separator ''
+          opts.separator 'Reverts TARGET_VM to TARGET_SNAPSHOT'
         end
 
         optparse

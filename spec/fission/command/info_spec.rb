@@ -122,7 +122,7 @@ describe Fission::Command::Info do
     it 'should output info for this command' do
       output = Fission::Command::Info.help
 
-      output.should match /info vm_name/
+      output.should match /fission info TARGET_VM/
     end
   end
 end

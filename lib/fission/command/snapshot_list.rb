@@ -4,6 +4,8 @@ module Fission
       include Fission::CommandHelpers
 
       def execute
+        option_parser.parse! @args
+
         incorrect_arguments 'snapshot list' unless @args.count == 1
 
         vm = VM.new @args.first
@@ -25,7 +27,9 @@ module Fission
 
       def option_parser
         optparse = OptionParser.new do |opts|
-          opts.banner = "\nsnapshot list: fission snapshot list vm_name"
+          opts.banner = "Usage: fission snapshot list TARGET_VM"
+          opts.separator ''
+          opts.separator 'Lists all of the snapshots for TARGET_VM'
         end
 
         optparse
