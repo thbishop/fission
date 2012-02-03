@@ -36,7 +36,9 @@ describe Fission::Command::Info do
 
     subject { Fission::Command::Info }
 
-    it_should_not_accept_arguments_of [], 'info'
+    [ [], ['--bar'] ].each do |args|
+      it_should_not_accept_arguments_of args, 'info'
+    end
 
     it 'should output the vm name' do
       command = Fission::Command::Info.new @target_vm

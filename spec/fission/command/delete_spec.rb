@@ -25,7 +25,9 @@ describe Fission::Command::Delete do
   describe "execute" do
     subject { Fission::Command::Delete }
 
-    it_should_not_accept_arguments_of [], 'delete'
+    [ [], ['--bar'] ].each do |args|
+      it_should_not_accept_arguments_of args, 'delete'
+    end
 
     it "should try to delete the vm" do
       @delete_response_mock.stub_as_successful

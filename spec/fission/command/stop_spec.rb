@@ -21,7 +21,9 @@ describe Fission::Command::Stop do
   describe 'execute' do
     subject { Fission::Command::Stop }
 
-    it_should_not_accept_arguments_of [], 'stop'
+    [ [], ['--bar'] ].each do |args|
+      it_should_not_accept_arguments_of args, 'stop'
+    end
 
     it 'should stop the vm' do
       @stop_response_mock.should_receive(:successful?).and_return(true)

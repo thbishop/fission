@@ -25,7 +25,9 @@ describe Fission::Command::SnapshotList do
 
     subject { Fission::Command::SnapshotList }
 
-    it_should_not_accept_arguments_of [], 'snapshot list'
+    [ [], ['--bar'] ].each do |args|
+      it_should_not_accept_arguments_of args, 'snapshot list'
+    end
 
     it 'should output the list of snapshots if any exist' do
       @snap_list_response_mock.stub_as_successful ['snap 1', 'snap 2', 'snap 3']

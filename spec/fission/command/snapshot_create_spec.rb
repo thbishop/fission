@@ -21,7 +21,9 @@ describe Fission::Command::SnapshotCreate do
   describe 'execute' do
     subject { Fission::Command::SnapshotCreate }
 
-    it_should_not_accept_arguments_of [], 'snapshot create'
+    [ [], ['foo'], ['--bar'] ].each do |args|
+      it_should_not_accept_arguments_of args, 'snapshot create'
+    end
 
     it "should output an error and the help when no snapshot name is passed in" do
       Fission::Command::SnapshotCreate.should_receive(:help)

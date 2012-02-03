@@ -4,7 +4,8 @@ module Fission
       include Fission::CommandHelpers
 
       def execute
-        option_parser.parse! @args
+        parse_arguments
+
         incorrect_arguments 'snapshot revert' unless @args.count == 2
 
         vm = VM.new @args[0]

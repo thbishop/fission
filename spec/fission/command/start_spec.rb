@@ -21,7 +21,9 @@ describe Fission::Command::Start do
   describe 'execute' do
     subject { Fission::Command::Start }
 
-    it_should_not_accept_arguments_of [], 'start'
+    [ [], ['--bar'] ].each do |args|
+      it_should_not_accept_arguments_of args, 'start'
+    end
 
     it 'should output an error and exit if there was an error starting the vm' do
       @start_response_mock.stub_as_unsuccessful

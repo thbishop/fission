@@ -9,7 +9,7 @@ module Fission
       end
 
       def execute
-        option_parser.parse! @args
+        parse_arguments
 
         incorrect_arguments 'suspend' if @args.count != 1 && !@options.all
 

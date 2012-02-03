@@ -21,7 +21,9 @@ describe Fission::Command::SnapshotRevert do
   describe 'execute' do
     subject { Fission::Command::SnapshotRevert }
 
-    it_should_not_accept_arguments_of [], 'snapshot revert'
+    [ [], ['foo'], ['--bar'] ].each do |args|
+      it_should_not_accept_arguments_of args, 'snapshot revert'
+    end
 
     it "should output an error and the help when no snapshot name is passed in" do
       Fission::Command::SnapshotRevert.should_receive(:help)

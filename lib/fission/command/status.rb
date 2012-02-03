@@ -1,9 +1,10 @@
 module Fission
   class Command
     class Status < Command
+      include Fission::CommandHelpers
 
       def execute
-        option_parser.parse! @args
+        parse_arguments
 
         response = VM.all_with_status
         unless response.successful?

@@ -4,7 +4,7 @@ module Fission
       include Fission::CommandHelpers
 
       def execute
-        option_parser.parse! @args
+        parse_arguments
 
         incorrect_arguments 'snapshot create' unless @args.count == 2
 

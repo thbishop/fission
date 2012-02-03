@@ -17,5 +17,22 @@ module Fission
       output_and_exit "Incorrect arguments for #{command_name} command", 1
     end
 
+    # Internal: Parses the command line arguments.
+    #
+    # Examples:
+    #
+    #   parse_arguments
+    #
+    # Returns nothing.
+    # If there is an invalid argument, an error will be output and this will
+    # exit with exit code 1.
+    def parse_arguments
+      option_parser.parse! @args
+    rescue OptionParser::InvalidOption => e
+      output e
+      output ''
+      output_and_exit"#{self.class.help}", 1
+    end
+
   end
 end
