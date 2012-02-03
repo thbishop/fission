@@ -1,154 +1,179 @@
 module Fission
   class CLI
 
-    # Internal: Starts the command line parsing logic and hands off to the
-    # requested commands.  If there are invalid arguments or errors then the
-    # help text will be displayed.
-    #
-    # args - The list of arguments for the Fission command line app.  This
-    #        should be the raw command line arguments.
+    # Internal: Creates a new Fission::CLI object.  This automatically parses
+    # the arguments in ARGV.  This will also automatically display the usage
+    # and exit if applicable.
     #
     # Examples
     #
-    #   Fission::CLI.execute
+    #   Fission::CLI.new
+    #
+    # Returns a Fission::CLI object.
+    def initialize(args=ARGV)
+      @args = args
+
+      setup_options_parser
+
+      gather_commands_and_summaries
+
+      parse_options
+
+      determine_command_to_execute
+    end
+
+    # Internal: Execute the determined command.
+    #
+    # Examples:
+    #
+    #   Fission::CLI.new(ARGV).execute
     #
     # Returns nothing.
-    def self.execute(args=ARGV)
-      optparse = OptionParser.new do |opts|
+    def execute
+      @cmd.execute
+    end
+
+    private
+    # Internal: Determines the command that has been provided.  If it is
+    # determined that an invalid command is provided, then the help/usage will
+    # be displayed and it will exit.
+    #
+    # Examples:
+    #
+    #   @cli.determine_command_to_execute
+    #
+    # Returns nothing.  This will set the @cmd instance variable to an instance
+    # of the appropriate command class (assuming it is valid).
+    def determine_command_to_execute
+      if @commands.include? @args.first
+        @cmd = Command.const_get(@args.first.capitalize).new @args.drop 1
+      elsif is_snapshot_command?
+        klass = @args.take(2).map {|c| c.capitalize}.join('')
+        @cmd = Command.const_get(klass).new @args.drop 2
+      else
+        show_all_help
+        exit 1
+      end
+    end
+
+    # Internal: Sets up the base option parser.
+    #
+    # Examples:
+    #
+    #   @cli.setup_option_parser
+    #
+    # Returns nothing.  This will set the @option_parser instance variable.
+    def setup_options_parser
+      @options_parser = OptionParser.new do |opts|
         opts.banner = "\nUsage: fission [options] COMMAND [arguments]"
 
         opts.on_head('-v', '--version', 'Output the version of fission') do
           ui.output VERSION
-          exit(0)
+          exit 0
         end
 
         opts.on_head('-h', '--help', 'Displays this message') do
-          show_all_help(optparse)
-          exit(0)
+          show_all_help
+          exit 0
         end
       end
-
-      begin
-        optparse.order! args
-      rescue OptionParser::InvalidOption => e
-        ui.output e
-        show_all_help(optparse)
-        exit(1)
-      end
-
-      if commands.include?(args.first)
-        @cmd = Command.const_get(args.first.capitalize).new args.drop 1
-      elsif is_snapshot_command?(args)
-        klass = args.take(2).map {|c| c.capitalize}.join('')
-        @cmd = Command.const_get(klass).new args.drop 2
-      else
-        show_all_help(optparse)
-        exit(1)
-      end
-
-      @cmd.execute
     end
 
-    # Internal: Provides the list of Fission commands based on the files in the
-    # command directory.
+    # Internal: Parse the options.
     #
-    # Examples
+    # Examples:
     #
-    #   Fission::CLI.commands
-    #   # => ['clone', 'delete', 'snapshot create', 'snapshot list']
+    #   @cli.parse_options
     #
-    # Returns an Array of the commands (String).  Commands with underscores will
-    # have them replaced with spaces.
-    def self.commands
-      command_names_and_summaries.keys
+    # Returns nothing.  This will display an error, the help/usage, and exit if
+    # there are any invalid options found.
+    def parse_options
+      @options_parser.order! @args
+    rescue OptionParser::InvalidOption => e
+      ui.output e
+      show_all_help
+      exit 1
     end
 
-    private
     # Internal: Determines if the provided command is a snapshot related
-    # command.
-    #
-    # args - The arguments (Array) to interrogate.  This should be the command
-    #        line arguments.  Only the first two items in the Array will be
-    #        used.
+    # command.  This will use the @args instance variable to make the
+    # determination.
     #
     # Examples
     #
-    #   Fission::CLI.is_snapshot_command? ['foo', 'bar']
+    #   @cli.is_snapshot_command? ['foo', 'bar']
     #   # => false
     #
-    #   Fission::CLI.is_snapshot_command? ['snapshot', 'list']
+    #   @cli.is_snapshot_command? ['snapshot', 'list']
     #   # => true
     #
     # Returns a Boolean of whether a snapshot command was given or not.
-    def self.is_snapshot_command?(args)
-      args.first == 'snapshot' &&
-      args.count > 1 &&
-      commands.include?(args.take(2).join(' '))
+    def is_snapshot_command?
+      @args.first == 'snapshot' &&
+      @args.count > 1 &&
+      @commands.include?(@args.take(2).join(' '))
     end
 
     # Internal: Provides the help of all of the known commands.
     #
     # Examples
     #
-    #   Fission::CLI.commands_banner
+    #   @cli.commands_help
     #
-    # Returns a String which is a concatenation of the help text for all known
-    # commands.
-    def self.commands_banner
-      cmd_data = command_names_and_summaries
-      longest_cmd = cmd_data.keys.inject do |longest, cmd_name|
+    # Outputs the summary text for all known commands.
+    def commands_help
+      longest_cmd = @commands.inject do |longest, cmd_name|
         longest.length > cmd_name.length ? longest : cmd_name
       end
 
       ui.output "\nCommands:"
 
-      cmd_data.each_pair do |name, summary|
+      @command_names_and_summaries.each_pair do |name, summary|
         ui.output_printf "%-#{longest_cmd.length}s      %s\n", name, summary
       end
     end
 
-    # Internal: Provides the list of commands and their summaries.
+    # Internal: Determines all of the available commands and their summaries.
     #
     # Examples
     #
-    #   Fission::CLI.command_names_and_summaries
+    #   @cli.command_names_and_summaries
     #   # => { 'clone' => 'Clones a VM', 'stop' => 'Stops a VM' }
     #
-    # Returns a Hash in which the command names are keys and the summary of the
-    # commands are values.
-    def self.command_names_and_summaries
-      Command.descendants.inject({}) do |result, command_klass|
-        cmd = command_klass.new
+    # Returns nothing.  This will set the @command_names_and_summaries instance
+    # variable with the result.
+    def gather_commands_and_summaries
+      @command_names_and_summaries = Command.descendants.inject({}) do |result, klass|
+        cmd = klass.new
         result[cmd.command_name] = cmd.summary
         result
       end
+
+      @commands = @command_names_and_summaries.keys.sort
     end
 
-    # Internal: Helper method to output the command line options and the help
-    # for all known commands to the terminal.
-    #
-    # options - The options to display as a part of the output.  This can (and
-    #           in almost all cases) should be the optparse object.
+    # Internal: Outputs the usage as well as the known commands and their
+    # summaries.
     #
     # Examples
     #
-    #   Fission::CLI.show_all_help my_opt_parse
-    #   # => 'fission options command arguments ....' (concatenated)
+    #   @cli.show_all_help
+    #   # => 'fission options command arguments ....'
     #
     # Returns nothing.
-    def self.show_all_help(options)
-      ui.output options
-      commands_banner
+    def show_all_help
+      ui.output @options_parser
+      commands_help
     end
 
     # Internal: Helper method for outputting text to the ui
     #
     # Examples
     #
-    #   CLI.ui.output 'foo'
+    #   @cli.ui.output 'foo'
     #
     # Returns a UI instance.
-    def self.ui
+    def ui
       @ui ||= UI.new
     end
 
