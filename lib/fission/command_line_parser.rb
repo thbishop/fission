@@ -23,7 +23,9 @@ module Fission
     end
 
     # Internal: Parses the command line arguments.  If the arguments are
-    # invalid, the appropriate help will be output and then will exit.
+    # invalid, the appropriate help will be output and then will exit.  If the
+    # arguments are valid, then the @command variable will be set to a new
+    # instance of the determined command class.
     #
     # Examples:
     #
@@ -34,10 +36,24 @@ module Fission
       @options_parser.order! @args
 
       determine_command_provided
+      self
     rescue OptionParser::InvalidOption => e
       ui.output e
       show_all_help
       exit 1
+    end
+
+    # Internal: Accessor for an instance of the determined command. This is set
+    # by running the parse method.
+    #
+    # Examples:
+    #
+    #   @command_line_parser.command
+    #
+    # Returns an instance of the determined command if the arguments are valid.
+    # Returns nil if the parse command has not yet been run.
+    def command
+      @command
     end
 
     private
@@ -110,14 +126,14 @@ module Fission
     #
     #   @cli.determine_command_to_execute
     #
-    # Returns nothing.  This will set the @cmd instance variable to an instance
+    # Returns nothing.  This will set the @command instance variable to an instance
     # of the appropriate command class (assuming it is valid).
     def determine_command_provided
       if @commands.include? @args.first
-        @cmd = Command.const_get(@args.first.capitalize).new @args.drop 1
+        @command = Command.const_get(@args.first.capitalize).new @args.drop 1
       elsif is_snapshot_command?
         klass = @args.take(2).map {|c| c.capitalize}.join('')
-        @cmd = Command.const_get(klass).new @args.drop 2
+        @command = Command.const_get(klass).new @args.drop 2
       else
         show_all_help
         exit 1
