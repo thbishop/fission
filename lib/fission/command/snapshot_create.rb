@@ -1,12 +1,10 @@
 module Fission
   class Command
     class SnapshotCreate < Command
-      include Fission::CommandHelpers
 
       def execute
-        parse_arguments
-
-        incorrect_arguments 'snapshot create' unless @args.count == 2
+        super
+        incorrect_arguments unless @args.count == 2
 
         vm = VM.new @args[0]
         snap_name = @args[1]

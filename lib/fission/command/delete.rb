@@ -1,7 +1,6 @@
 module Fission
   class Command
     class Delete < Command
-      include Fission::CommandHelpers
 
       def initialize(args=[])
         super
@@ -9,9 +8,8 @@ module Fission
       end
 
       def execute
-        parse_arguments
-
-        incorrect_arguments 'delete' if @args.count < 1
+        super
+        incorrect_arguments if @args.count < 1
 
         vm = VM.new @args.first
 

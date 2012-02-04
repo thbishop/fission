@@ -1,7 +1,9 @@
 require 'forwardable'
+require 'fission/command_helpers'
 
 module Fission
   class Command
+    include Fission::CommandHelpers
     extend Forwardable
 
     def_delegators :@ui, :output, :output_and_exit, :output_printf
@@ -26,6 +28,17 @@ module Fission
       ui
       @options = OpenStruct.new
       @args = args
+    end
+
+    # Internal: Primary method for performing an action within a command.
+    #
+    # Examples
+    #
+    #   command.execute
+    #
+    # Returns nothing
+    def execute
+      parse_arguments
     end
 
     # Internal: Helper method used to delegate UI related methods through.

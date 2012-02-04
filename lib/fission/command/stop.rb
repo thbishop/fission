@@ -1,12 +1,10 @@
 module Fission
   class Command
     class Stop < Command
-      include Fission::CommandHelpers
 
       def execute
-        parse_arguments
-
-        incorrect_arguments 'stop' unless @args.count == 1
+        super
+        incorrect_arguments unless @args.count == 1
 
         vm = VM.new @args.first
 

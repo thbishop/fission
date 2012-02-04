@@ -1,7 +1,6 @@
 module Fission
   class Command
     class Suspend < Command
-      include Fission::CommandHelpers
 
       def initialize(args=[])
         super
@@ -9,9 +8,8 @@ module Fission
       end
 
       def execute
-        parse_arguments
-
-        incorrect_arguments 'suspend' if @args.count != 1 && !@options.all
+        super
+        incorrect_arguments if @args.count != 1 && !@options.all
 
         vms_to_suspend.each do |vm|
           output "Suspending '#{vm.name}'"

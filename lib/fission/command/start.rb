@@ -1,7 +1,6 @@
 module Fission
   class Command
     class Start < Command
-      include CommandHelpers
 
       def initialize(args=[])
         super
@@ -9,9 +8,8 @@ module Fission
       end
 
       def execute
-        parse_arguments
-
-        incorrect_arguments 'start' if @args.empty?
+        super
+        incorrect_arguments if @args.empty?
 
         vm = VM.new @args.first
 

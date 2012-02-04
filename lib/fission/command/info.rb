@@ -1,12 +1,10 @@
 module Fission
   class Command
     class Info < Command
-      include Fission::CommandHelpers
 
       def execute
-        parse_arguments
-
-        incorrect_arguments 'info' unless @args.count == 1
+        super
+        incorrect_arguments unless @args.count == 1
 
         vm = VM.new @args.first
 

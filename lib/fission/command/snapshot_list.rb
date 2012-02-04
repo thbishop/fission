@@ -1,12 +1,10 @@
 module Fission
   class Command
     class SnapshotList < Command
-      include Fission::CommandHelpers
 
       def execute
-        parse_arguments
-
-        incorrect_arguments 'snapshot list' unless @args.count == 1
+        super
+        incorrect_arguments unless @args.count == 1
 
         vm = VM.new @args.first
 

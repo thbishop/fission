@@ -1,7 +1,6 @@
 module Fission
   class Command
     class Clone < Command
-      include Fission::CommandHelpers
 
       def initialize(args=[])
         super
@@ -9,9 +8,8 @@ module Fission
       end
 
       def execute
-        parse_arguments
-
-        incorrect_arguments 'clone' unless @args.count > 1
+        super
+        incorrect_arguments unless @args.count > 1
 
         source_vm = Fission::VM.new @args.first
         target_vm = Fission::VM.new @args[1]

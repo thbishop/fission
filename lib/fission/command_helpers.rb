@@ -3,16 +3,14 @@ module Fission
 
     # Internal: Outputs the help text for a command and exits.
     #
-    # command_name - The name of the command to use in the output text.
-    #
     # Examples
     #
-    #   incorrect_arguments 'delete'
+    #   incorrect_arguments
     #
     # Returns nothing.
     # This will call the help class method for the help text.  This will exit
     # with the exit code 1.
-    def incorrect_arguments(command_name)
+    def incorrect_arguments
       output "#{self.class.help}\n"
       output_and_exit "Incorrect arguments for #{command_name} command", 1
     end
@@ -30,8 +28,7 @@ module Fission
       option_parser.parse! @args
     rescue OptionParser::InvalidOption => e
       output e
-      output ''
-      output_and_exit"#{self.class.help}", 1
+      output_and_exit "\n#{self.class.help}", 1
     end
 
   end
