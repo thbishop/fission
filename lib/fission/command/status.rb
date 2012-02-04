@@ -3,6 +3,8 @@ module Fission
     class Status < Command
 
       def execute
+        super
+
         response = VM.all_with_status
         unless response.successful?
           output_and_exit "There was an error getting the status of the VMs.  The error was:\n#{response.message}", response.code
@@ -18,10 +20,16 @@ module Fission
 
       def option_parser
         optparse = OptionParser.new do |opts|
-          opts.banner = "\nstatus usage: fission status"
+          opts.banner = "Usage: fission status"
+          opts.separator ''
+          opts.separator 'Lists the status for all known VMs.'
         end
 
         optparse
+      end
+
+      def summary
+        'Show the status of all VMs'
       end
 
     end

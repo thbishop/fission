@@ -12,10 +12,18 @@ describe Fission::Command::Start do
     @vm_mock.stub(:name).and_return(@target_vm.first)
   end
 
+  describe 'command_name' do
+    it 'should return the pretty command name' do
+      Fission::Command::Start.new.command_name.should == 'start'
+    end
+  end
+
   describe 'execute' do
     subject { Fission::Command::Start }
 
-    it_should_not_accept_arguments_of [], 'start'
+    [ [], ['--bar'] ].each do |args|
+      it_should_not_accept_arguments_of args, 'start'
+    end
 
     it 'should output an error and exit if there was an error starting the vm' do
       @start_response_mock.stub_as_unsuccessful
@@ -49,7 +57,7 @@ describe Fission::Command::Start do
     it 'should output info for this command' do
       output = Fission::Command::Start.help
 
-      output.should match /start vm_name \[options\]/
+      output.should match /fission start TARGET_VM \[OPTIONS\]/
       output.should match /--headless/
     end
   end

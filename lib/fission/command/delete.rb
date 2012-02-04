@@ -1,7 +1,6 @@
 module Fission
   class Command
     class Delete < Command
-      include Fission::CommandHelpers
 
       def initialize(args=[])
         super
@@ -9,9 +8,8 @@ module Fission
       end
 
       def execute
-        option_parser.parse! @args
-
-        incorrect_arguments 'delete' if @args.count < 1
+        super
+        incorrect_arguments if @args.count < 1
 
         vm = VM.new @args.first
 
@@ -54,14 +52,21 @@ module Fission
 
       def option_parser
         optparse = OptionParser.new do |opts|
-          opts.banner = "\ndelete usage: fission delete vm_name [--force]"
-
+          opts.banner = "Usage: fission delete TARGET_VM [OPTIONS]"
+          opts.separator ''
+          opts.separator 'Deletes TARGET_VM.'
+          opts.separator ''
+          opts.separator 'OPTIONS:'
           opts.on '--force', "Stop the VM if it's running and then delete it" do
             @options.force = true
           end
         end
 
         optparse
+      end
+
+      def summary
+        'Delete a VM'
       end
 
     end

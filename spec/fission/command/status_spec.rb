@@ -10,15 +10,24 @@ describe Fission::Command::Status do
     @all_status_response_mock = mock('response')
   end
 
+  describe 'command_name' do
+    it 'should return the pretty command name' do
+      Fission::Command::Status.new.command_name.should == 'status'
+    end
+  end
+
   describe 'execute' do
-    before do
-      Fission::VM.should_receive(:all_with_status).
-                  and_return(@all_status_response_mock)
+    subject { Fission::Command::Status }
+
+    [ ['--bar'] ].each do |args|
+      it_should_not_accept_arguments_of args, 'status'
     end
 
     describe 'when successful' do
       before do
         @all_status_response_mock.stub_as_successful @vms_status
+        Fission::VM.should_receive(:all_with_status).
+                    and_return(@all_status_response_mock)
       end
 
       it 'should output the VMs and their status' do
@@ -34,6 +43,8 @@ describe Fission::Command::Status do
     describe 'when unsuccessful' do
       before do
         @all_status_response_mock.stub_as_unsuccessful
+        Fission::VM.should_receive(:all_with_status).
+                    and_return(@all_status_response_mock)
       end
 
       it 'should output an error and exit if there was an error getting the list of running VMs' do
@@ -49,7 +60,7 @@ describe Fission::Command::Status do
     it 'should output info for this command' do
       output = Fission::Command::Status.help
 
-      output.should match /status/
+      output.should match /fission status/
     end
   end
 end

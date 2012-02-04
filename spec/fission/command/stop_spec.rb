@@ -12,10 +12,18 @@ describe Fission::Command::Stop do
     @vm_mock.stub(:name).and_return(@target_vm.first)
   end
 
+  describe 'command_name' do
+    it 'should return the pretty command name' do
+      Fission::Command::Stop.new.command_name.should == 'stop'
+    end
+  end
+
   describe 'execute' do
     subject { Fission::Command::Stop }
 
-    it_should_not_accept_arguments_of [], 'stop'
+    [ [], ['--bar'] ].each do |args|
+      it_should_not_accept_arguments_of args, 'stop'
+    end
 
     it 'should stop the vm' do
       @stop_response_mock.should_receive(:successful?).and_return(true)
@@ -45,7 +53,7 @@ describe Fission::Command::Stop do
     it 'should output info for this command' do
       output = Fission::Command::Stop.help
 
-      output.should match /stop vm_name/
+      output.should match /fission stop TARGET_VM/
     end
   end
 end

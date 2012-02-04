@@ -14,6 +14,12 @@ describe Fission::Command::Info do
     @vm_mock.stub(:name).and_return(@target_vm.first)
   end
 
+  describe 'command_name' do
+    it 'should return the pretty command name' do
+      Fission::Command::Info.new.command_name.should == 'info'
+    end
+  end
+
   describe 'execute' do
     before do
       @vm_mock.stub(:network_info).and_return(@network_info_response_mock)
@@ -30,7 +36,9 @@ describe Fission::Command::Info do
 
     subject { Fission::Command::Info }
 
-    it_should_not_accept_arguments_of [], 'info'
+    [ [], ['--bar'] ].each do |args|
+      it_should_not_accept_arguments_of args, 'info'
+    end
 
     it 'should output the vm name' do
       command = Fission::Command::Info.new @target_vm
@@ -116,7 +124,7 @@ describe Fission::Command::Info do
     it 'should output info for this command' do
       output = Fission::Command::Info.help
 
-      output.should match /info vm_name/
+      output.should match /fission info TARGET_VM/
     end
   end
 end

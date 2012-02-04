@@ -1,10 +1,10 @@
 module Fission
   class Command
     class SnapshotCreate < Command
-      include Fission::CommandHelpers
 
       def execute
-        incorrect_arguments 'snapshot create' unless @args.count == 2
+        super
+        incorrect_arguments unless @args.count == 2
 
         vm = VM.new @args[0]
         snap_name = @args[1]
@@ -21,10 +21,16 @@ module Fission
 
       def option_parser
         optparse = OptionParser.new do |opts|
-          opts.banner = "\nsnapshot create: fission snapshot create vm_name snapshot_1"
+          opts.banner = "Usage: fission snapshot create TARGET_VM SNAPSHOT_NAME"
+          opts.separator ''
+          opts.separator 'Creates a snapshot of TARGET_VM named SNAPSHOT_NAME'
         end
 
         optparse
+      end
+
+      def summary
+        'Create a snapshot of a VM'
       end
 
     end

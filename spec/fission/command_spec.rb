@@ -13,12 +13,27 @@ describe Fission::Command do
     end
   end
 
+  describe 'command_name' do
+    it 'should return the pretty command name' do
+      cmd = Fission::Command.new
+      cmd.command_name(Fission::Command::SnapshotList.new).should == 'snapshot list'
+    end
+  end
+
   describe 'help' do
     it 'should call option_parser on a new instance' do
       @new_instance_mock = mock('new_instance')
       @new_instance_mock.should_receive(:option_parser).and_return('foo')
       Fission::Command.should_receive(:new).and_return(@new_instance_mock)
       Fission::Command.help.should == 'foo'
+    end
+  end
+
+  describe 'summary' do
+    it "should raise an exception that it's not implemented" do
+      lambda {
+        Fission::Command.new.summary
+      }.should raise_error NotImplementedError
     end
   end
 

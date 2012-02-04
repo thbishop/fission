@@ -16,10 +16,18 @@ describe Fission::Command::Delete do
     Fission::Fusion.stub(:running?).and_return(false)
   end
 
+  describe 'command_name' do
+    it 'should return the pretty command name' do
+      Fission::Command::Delete.new.command_name.should == 'delete'
+    end
+  end
+
   describe "execute" do
     subject { Fission::Command::Delete }
 
-    it_should_not_accept_arguments_of [], 'delete'
+    [ [], ['--bar'] ].each do |args|
+      it_should_not_accept_arguments_of args, 'delete'
+    end
 
     it "should try to delete the vm" do
       @delete_response_mock.stub_as_successful
@@ -115,7 +123,7 @@ describe Fission::Command::Delete do
     it 'should output info for this command' do
       output = Fission::Command::Delete.help
 
-      output.should match /delete vm_name \[--force\]/
+      output.should match /fission delete TARGET_VM \[OPTIONS\]/
       output.should match /--force/
     end
   end

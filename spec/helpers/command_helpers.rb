@@ -6,7 +6,7 @@ module CommandHelpers
       command = subject.new args
       lambda { command.execute }.should raise_error SystemExit
 
-      @string_io.string.should match /Incorrect arguments for #{command_name} command/
+      @string_io.string.should match /[Incorrect arguments for #{command_name} command|invalid option]/
     end
   end
 end

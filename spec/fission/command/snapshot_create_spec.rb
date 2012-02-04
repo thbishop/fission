@@ -12,10 +12,18 @@ describe Fission::Command::SnapshotCreate do
     @vm_mock.stub(:name).and_return(@target_vm.first)
   end
 
+  describe 'command_name' do
+    it 'should return the pretty command name' do
+      Fission::Command::SnapshotCreate.new.command_name.should == 'snapshot create'
+    end
+  end
+
   describe 'execute' do
     subject { Fission::Command::SnapshotCreate }
 
-    it_should_not_accept_arguments_of [], 'snapshot create'
+    [ [], ['foo'], ['--bar'] ].each do |args|
+      it_should_not_accept_arguments_of args, 'snapshot create'
+    end
 
     it "should output an error and the help when no snapshot name is passed in" do
       Fission::Command::SnapshotCreate.should_receive(:help)
@@ -60,7 +68,7 @@ describe Fission::Command::SnapshotCreate do
     it 'should output info for this command' do
       output = Fission::Command::SnapshotCreate.help
 
-      output.should match /snapshot create vm_name snapshot_1/
+      output.should match /fission snapshot create TARGET_VM SNAPSHOT_NAME/
     end
   end
 end

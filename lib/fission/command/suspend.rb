@@ -1,7 +1,6 @@
 module Fission
   class Command
     class Suspend < Command
-      include Fission::CommandHelpers
 
       def initialize(args=[])
         super
@@ -9,9 +8,8 @@ module Fission
       end
 
       def execute
-        option_parser.parse! @args
-
-        incorrect_arguments 'suspend' if @args.count != 1 && !@options.all
+        super
+        incorrect_arguments if @args.count != 1 && !@options.all
 
         vms_to_suspend.each do |vm|
           output "Suspending '#{vm.name}'"
@@ -43,14 +41,21 @@ module Fission
 
       def option_parser
         optparse = OptionParser.new do |opts|
-          opts.banner = "\nsuspend usage: fission suspend [vm_name | --all]"
-
+          opts.banner = "Usage: fission suspend [TARGET_VM | --all]"
+          opts.separator ''
+          opts.separator 'Suspend TARGET_VM or all VMs.'
+          opts.separator ''
+          opts.separator 'OPTIONS:'
           opts.on '--all', 'Suspend all running VMs' do
             @options.all = true
           end
         end
 
         optparse
+      end
+
+      def summary
+        'Suspend a VM'
       end
 
     end

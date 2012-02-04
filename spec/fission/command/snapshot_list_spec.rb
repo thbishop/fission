@@ -12,6 +12,12 @@ describe Fission::Command::SnapshotList do
     @vm_mock.stub(:name).and_return(@target_vm.first)
   end
 
+  describe 'command_name' do
+    it 'should return the pretty command name' do
+      Fission::Command::SnapshotList.new.command_name.should == 'snapshot list'
+    end
+  end
+
   describe 'execute' do
     before do
       @vm_mock.stub(:snapshots).and_return(@snap_list_response_mock)
@@ -19,7 +25,9 @@ describe Fission::Command::SnapshotList do
 
     subject { Fission::Command::SnapshotList }
 
-    it_should_not_accept_arguments_of [], 'snapshot list'
+    [ [], ['--bar'] ].each do |args|
+      it_should_not_accept_arguments_of args, 'snapshot list'
+    end
 
     it 'should output the list of snapshots if any exist' do
       @snap_list_response_mock.stub_as_successful ['snap 1', 'snap 2', 'snap 3']
@@ -54,7 +62,7 @@ describe Fission::Command::SnapshotList do
     it 'should output info for this command' do
       output = Fission::Command::SnapshotList.help
 
-      output.should match /snapshot list vm_name/
+      output.should match /fission snapshot list TARGET_VM/
     end
   end
 end

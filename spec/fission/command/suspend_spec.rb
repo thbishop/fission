@@ -12,10 +12,18 @@ describe Fission::Command::Suspend do
     @vm_mock.stub(:name).and_return(@target_vm.first)
   end
 
+  describe 'command_name' do
+    it 'should return the pretty command name' do
+      Fission::Command::Suspend.new.command_name.should == 'suspend'
+    end
+  end
+
   describe 'execute' do
     subject { Fission::Command::Suspend }
 
-    it_should_not_accept_arguments_of [], 'suspend'
+    [ [], ['--bar'] ].each do |args|
+      it_should_not_accept_arguments_of args, 'suspend'
+    end
 
     it 'should suspend the vm' do
       @suspend_response_mock.stub_as_successful
@@ -91,7 +99,7 @@ describe Fission::Command::Suspend do
     it 'should output info for this command' do
       output = Fission::Command::Suspend.help
 
-      output.should match /suspend \[vm_name \| --all\]/
+      output.should match /fission suspend \[TARGET_VM \| --all\]/
     end
   end
 end
