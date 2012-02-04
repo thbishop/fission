@@ -10,6 +10,10 @@ describe Fission::Lease do
                       :mac_address  => '00:0c:29:10:23:57',
                       :start        => '2010/07/12 21:31:28',
                       :end          => '2010/07/12 22:01:28' },
+                    { :ip_address   => '172.16.248.150',
+                      :mac_address  => '00:0c:29:b3:63:d0',
+                      :start        => '2010/05/27 00:54:52',
+                      :end          => '2010/05/27 01:24:52' },
                     { :ip_address   => '172.16.248.130',
                       :mac_address  => '00:0c:29:b3:63:d0',
                       :start        => '2010/05/27 00:54:52',
@@ -31,6 +35,11 @@ lease 172.16.248.132 {
     ends 1 2010/07/12 22:01:28;
     hardware ethernet 00:0c:29:10:23:57;
 }
+lease 172.16.248.150 {
+    starts 4 2010/05/27 00:54:52;
+    ends 4 2010/05/27 01:24:52;
+    hardware ethernet 00:0c:29:b3:63:d0;
+}
 lease 172.16.248.130 {
     starts 4 2010/05/27 00:54:52;
     ends 4 2010/05/27 01:24:52;
@@ -44,10 +53,6 @@ lease 172.16.248.129 {
   end
 
   describe 'new' do
-    { :ip_address   => '127.0.0.1',
-      :mac_address  => '00:00:00:00:00:00',
-      :start        => '2004/07/25 17:18:00',
-      :end          => '2004/07/25 18:18:00' }
     it 'should set the ip address' do
       lease = Fission::Lease.new :ip_address => '127.0.0.1'
       lease.ip_address.should == '127.0.0.1'
@@ -139,6 +144,19 @@ lease 172.16.248.129 {
       before do
         File.should_receive(:read).with(Fission.config['lease_file']).
                                    and_return(@lease_file_content)
+      end
+
+      context 'when there are multiple leases for the mac address' do
+        it 'should return the last lease that was found' do
+          response = Fission::Lease.find_by_mac_address '00:0c:29:b3:63:d0'
+
+          response.should be_a_successful_response
+
+          response.data.ip_address.should == '172.16.248.130'
+          response.data.mac_address.should == '00:0c:29:b3:63:d0'
+          response.data.start.should == DateTime.parse('2010/05/27 00:54:52')
+          response.data.end.should == DateTime.parse('2010/05/27 01:24:52')
+        end
       end
 
       it 'should return a response with the lease associated with the provided mac address' do
