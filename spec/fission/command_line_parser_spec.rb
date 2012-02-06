@@ -66,6 +66,7 @@ describe Fission::CommandLineParser do
       [ ['clone'],
         ['delete'],
         ['snapshot', 'create'],
+        ['snapshot', 'delete'],
         ['snapshot', 'list'],
         ['snapshot', 'revert'],
         ['start'],
@@ -138,6 +139,19 @@ describe Fission::CommandLineParser do
           Fission::Command::SnapshotCreate.should_receive(:new).
                                            with(['foo', 'bar'])
           Fission::CommandLineParser.new(['snapshot', 'create', 'foo', 'bar']).parse
+        end
+      end
+
+      context 'snapshot delete' do
+        before do
+          @cmd_mock.stub(:command_name).and_return('snapshot delete')
+          Fission::Command::SnapshotDelete.should_receive(:new).and_return(@cmd_mock)
+        end
+
+        it 'should create the command' do
+          Fission::Command::SnapshotDelete.should_receive(:new).
+                                           with(['foo', 'bar'])
+          Fission::CommandLineParser.new(['snapshot', 'delete', 'foo', 'bar']).parse
         end
       end
 
