@@ -412,20 +412,11 @@ module Fission
     # virtual machine.
     # If there is an error, an unsuccessful Response will be returned.
     def guestos
-      conf_file_response = conf_file
-      return conf_file_response unless conf_file_response.successful?
+      config_response = conf_file_data
+      return config_response unless config_response.successful?
 
       response = Response.new :code => 0, :data => {}
-
-      guestos_pattern = /^guestOS/
-      os_pattern = /\"(.*)\"$/
-
-      File.open conf_file_response.data, 'r' do |f|
-        guestos_line = f.grep(guestos_pattern)[0] || ''
-        guestos = guestos_line.scan(os_pattern).flatten[0] || ''
-        response.data = guestos
-      end
-
+      response.data = config_response.data.fetch 'guestOS', ''
       response
     end
 

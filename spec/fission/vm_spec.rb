@@ -716,53 +716,38 @@ ethernet1.generatedAddressenable = "TRUE"'
 
   describe 'guestos' do
     before do
-      @conf_file_response_mock.stub_as_successful @conf_file_path
-
-      @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
-      @conf_file_io = StringIO.new
+      @vm_config_data_response_mock = mock 'vm config data response'
+      @vm.stub(:conf_file_data).and_return(@vm_config_data_response_mock)
+      @config_data = { 'cleanShutdown'   => 'TRUE',
+                       'guestOS'         => 'debian5',
+                       'replay.filename' => '',
+                       'scsi0:0.redo'    => '' }
     end
 
-    it 'should return a successful response with a string when a guestos is defined' do
-      @conf_file_response_mock.stub_as_successful @conf_file_path
+    context 'when successful getting the vm config data' do
+      it 'should return a successful response with a string when a guestos is defined' do
+        @vm_config_data_response_mock.stub_as_successful @config_data
 
-      vmx_content = 'vmci0.present = "TRUE"
-roamingVM.exitBehavior = "go"
-tools.syncTime = "TRUE"
-displayName = "sample-debian"
-guestOS = "debian5"
-nvram = "sample-debian.nvram"
-virtualHW.productCompatibility = "hosted"
-printers.enabled = "FALSE"
-proxyApps.publishToHost = "FALSE"
-tools.upgrade.policy = "upgradeAtPowerCycle"'
+        response = @vm.guestos
+        response.should be_a_successful_response
+        response.data.should == 'debian5'
+      end
 
-      @conf_file_io.string = vmx_content
+      it 'should return a successful response with an empty string if guestos is not set' do
+        @config_data.delete 'guestOS'
+        @vm_config_data_response_mock.stub_as_successful @config_data
 
-      File.should_receive(:open).with(@conf_file_path, 'r').and_yield(@conf_file_io)
-
-      response = @vm.guestos
-      response.should be_a_successful_response
-      response.data.should == 'debian5'
+        response = @vm.guestos
+        response.should be_a_successful_response
+        response.data.should == ''
+      end
     end
 
-    it 'should return a successful response with no data if no guestos defined' do
-
-      vmx_content = 'vmci0.present = "TRUE"
-roamingVM.exitBehavior = "go"
-tools.syncTime = "TRUE"
-nvram = "sample-debian.nvram"
-virtualHW.productCompatibility = "hosted"
-printers.enabled = "FALSE"
-proxyApps.publishToHost = "FALSE"
-tools.upgrade.policy = "upgradeAtPowerCycle"'
-
-      @conf_file_io.string = vmx_content
-
-      File.should_receive(:open).with(@conf_file_path, 'r').and_yield(@conf_file_io)
-
-      response = @vm.guestos
-      response.should be_a_successful_response
-      response.data.should == ''
+    context 'when unsuccessfully getting the vm config data' do
+      it 'should return an unsuccessful response' do
+        @vm_config_data_response_mock.stub_as_unsuccessful
+        @vm.guestos.should be_an_unsuccessful_response
+      end
     end
   end
 
