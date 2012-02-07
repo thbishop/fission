@@ -475,56 +475,62 @@ describe Fission::VM do
     before do
       @conf_file_response_mock.stub_as_successful @conf_file_path
       @vm.stub(:conf_file).and_return(@conf_file_response_mock)
+      @vm_config_mock = mock 'vm config'
+      @vm_config_data_response_mock = mock 'vm config data response'
+      @vm_config_mock.should_receive(:config_data).
+                      and_return(@vm_config_data_response_mock)
+      Fission::VMConfiguration.stub(:new).and_return(@vm_config_mock)
 
-      @conf_file_io = StringIO.new
-      @vmx_content = 'ide1:0.deviceType = "cdrom-image"
-numvcpus = "2"
-memsize = "2048"
-ethernet1.address = "00:0c:29:1d:6a:75"
-ethernet0.connectionType = "nat"
-ethernet0.generatedAddress = "00:0c:29:1d:6a:64"
-ethernet1.generatedAddressenable = "TRUE"'
-
-      @conf_file_io.string = @vmx_content
-
-      File.stub(:open).with(@conf_file_path, 'r').
-                       and_yield(@conf_file_io)
+      @config_data = { 'numvcpus'         => '2',
+                       'replay.supported' => "TRUE",
+                       'replay.filename'  => '',
+                       'memsize'          => '2048',
+                       'scsi0:0.redo'     => '' }
     end
 
-    it 'should return a successful response with the number of cpus' do
-      response = @vm.hardware_info
-
-      response.should be_a_successful_response
-      response.data.should have_key 'cpus'
-      response.data['cpus'].should == 2
-    end
-
-    it 'should return a successful response with the amount of memory' do
-      response = @vm.hardware_info
-
-      response.should be_a_successful_response
-      response.data.should have_key 'memory'
-      response.data['memory'].should == 2048
-    end
-
-    it 'should return an unsuccessful response if unable to figure out the conf file' do
-      @conf_file_response_mock.stub_as_unsuccessful
-      @vm.hardware_info.should be_an_unsuccessful_response
-    end
-
-    describe 'when the number of cpus is not specified in the conf file' do
+    context 'when successful getting the vm config data' do
       before do
-        @conf_file_io.string = @vmx_content.gsub 'numvcpus = "2"', ''
+        @vm_config_data_response_mock.stub_as_successful @config_data
       end
 
-      it 'should return a successful response with a single cpu' do
+      context 'when the number of cpus is not specified in the conf file' do
+        before do
+         @config_data.delete 'numvcpus'
+        end
+
+        it 'should return a successful response with a single cpu' do
+          response = @vm.hardware_info
+
+          response.should be_a_successful_response
+          response.data.should have_key 'cpus'
+          response.data['cpus'].should == 1
+        end
+      end
+
+      it 'should return a successful response with the number of cpus' do
         response = @vm.hardware_info
 
         response.should be_a_successful_response
         response.data.should have_key 'cpus'
-        response.data['cpus'].should == 1
+        response.data['cpus'].should == 2
+      end
+
+      it 'should return a successful response with the amount of memory' do
+        response = @vm.hardware_info
+
+        response.should be_a_successful_response
+        response.data.should have_key 'memory'
+        response.data['memory'].should == 2048
       end
     end
+
+    context 'when unsuccessfully getting the vm config data' do
+      it 'should return an unsuccessful response' do
+        @vm_config_data_response_mock.stub_as_unsuccessful
+        @vm.hardware_info.should be_an_unsuccessful_response
+      end
+    end
+
   end
 
   describe 'mac_addresses' do

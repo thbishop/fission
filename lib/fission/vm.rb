@@ -308,21 +308,14 @@ module Fission
 
       response = Response.new :code => 0, :data => {}
 
-      cpus_pattern = /^numvcpus/
-      memory_pattern = /^memsize/
-
-      attribs_patterns = { 'cpus'   => cpus_pattern,
-                           'memory' => memory_pattern }
+      config_response = VMConfiguration.new(self).config_data
+      return config_response unless config_response.successful?
 
       response.data['cpus'] = 1
 
-      File.open conf_file_response.data, 'r' do |f|
-        attribs_patterns.each_pair do |attrib, pattern|
-          f.grep(pattern).each do |line|
-            response.data[attrib] = line.scan(/\d+/).first.to_i
-          end
-
-          f.rewind
+      { 'cpus' => 'numvcpus', 'memory' => 'memsize' }.each_pair do |k,v|
+        unless config_response.data[v].blank?
+          response.data[k] = config_response.data[v].to_i
         end
       end
 
