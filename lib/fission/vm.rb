@@ -303,13 +303,10 @@ module Fission
     # info found.
     # If there is an error, an unsuccessful Response will be returned.
     def hardware_info
-      conf_file_response = conf_file
-      return conf_file_response unless conf_file_response.successful?
+      config_response = conf_file_data
+      return config_response unless config_response.successful?
 
       response = Response.new :code => 0, :data => {}
-
-      config_response = VMConfiguration.new(self).config_data
-      return config_response unless config_response.successful?
 
       response.data['cpus'] = 1
 

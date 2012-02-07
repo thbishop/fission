@@ -473,14 +473,8 @@ describe Fission::VM do
 
   describe 'hardware_info' do
     before do
-      @conf_file_response_mock.stub_as_successful @conf_file_path
-      @vm.stub(:conf_file).and_return(@conf_file_response_mock)
-      @vm_config_mock = mock 'vm config'
       @vm_config_data_response_mock = mock 'vm config data response'
-      @vm_config_mock.should_receive(:config_data).
-                      and_return(@vm_config_data_response_mock)
-      Fission::VMConfiguration.stub(:new).and_return(@vm_config_mock)
-
+      @vm.stub(:conf_file_data).and_return(@vm_config_data_response_mock)
       @config_data = { 'numvcpus'         => '2',
                        'replay.supported' => "TRUE",
                        'replay.filename'  => '',
