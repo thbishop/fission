@@ -30,6 +30,7 @@ require 'fission/metadata'
 require 'fission/response'
 require 'fission/ui'
 require 'fission/vm'
+require 'fission/vm_configuration'
 require 'fission/version'
 
 module Fission
