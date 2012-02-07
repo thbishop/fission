@@ -559,7 +559,7 @@ module Fission
     #
     # Examples
     #
-    #   @vm.config_file_data
+    #   @vm.conf_file_data
     #
     # Returns a Response with the result.
     # If successful, the Response's data attribute with be a Hash of the
