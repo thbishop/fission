@@ -48,6 +48,14 @@ In order to create the snapshot:
 * The snapshot name must be unique
 
 
+### Snapshot Delete
+    fission snapshot delete my_vm snapshot_name
+
+Deletes a snapshot for the VM
+
+If you have the Fusion GUI running, the VM must be running in order to delete the snapshot.
+
+
 ### Snapshot List
     fission snapshot list my_vm
 
