@@ -459,18 +459,13 @@ module Fission
 
       response = Response.new :code => 0, :data => {}
 
-      uuid_pattern = /^uuid(?!\.action)/
-      bios_pattern = /bios\W*=\W*"(.*)"$/
-      location_pattern = /location\W*=\W*"(.*)"$/
+      config_response = VMConfiguration.new(self).config_data
+      return config_response unless config_response.successful?
 
-      File.open conf_file_response.data, 'r' do |f|
-        bios = ''
-        location = ''
-        f.grep(uuid_pattern).each do |line|
-           location = line.scan(location_pattern).flatten[0] || bios = line.scan(bios_pattern).flatten[0]
+      { 'bios' => 'uuid.bios', 'location' => 'uuid.location' }.each_pair do |k,v|
+        unless config_response.data[v].blank?
+          response.data[k] = config_response.data[v]
         end
-        response.data['bios'] = bios unless bios.empty?
-        response.data['location'] = location unless location.empty?
       end
 
       response

@@ -771,48 +771,48 @@ tools.upgrade.policy = "upgradeAtPowerCycle"'
       @conf_file_response_mock.stub_as_successful @conf_file_path
 
       @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
-      @conf_file_io = StringIO.new
+      @vm_config_mock = mock 'vm config'
+      @vm_config_data_response_mock = mock 'vm config data response'
+      @vm_config_mock.should_receive(:config_data).
+                      and_return(@vm_config_data_response_mock)
+      Fission::VMConfiguration.stub(:new).and_return(@vm_config_mock)
+
+      @config_data = { 'uuid.location' => '56 4d d8 9c f8 ec 95 73-2e ea a0 f3 7a 1d 6f c8',
+                       'uuid.bios' => '56 4d d8 9c f8 ec 95 73-2e ea a0 f3 7a 1d 6f c8',
+                       'checkpoint.vmState' => '',
+                       'cleanShutdown' => 'TRUE',
+                       'replay.supported' => "TRUE",
+                       'replay.filename' => '',
+                       'scsi0:0.redo' =>'' }
     end
 
-    it 'should return a successful response with a hash when uuids are defined' do
-      @conf_file_response_mock.stub_as_successful @conf_file_path
+    context 'when successful getting the vm config data' do
+      it 'should return a successful response with a hash when uuids are defined' do
+        @vm_config_data_response_mock.stub_as_successful @config_data
 
-      vmx_content = 'extendedConfigFile = "sample-debian.vmxf"
-checkpoint.vmState = ""
-uuid.location = "56 4d d8 9c f8 ec 95 73-2e ea a0 f3 7a 1d 6f c8"
-uuid.bios = "56 4d d8 9c f8 ec 95 73-2e ea a0 f3 7a 1d 6f c8"
-cleanShutdown = "TRUE"
-replay.supported = "TRUE"
-replay.filename = ""
-scsi0:0.redo = ""'
+        response = @vm.uuids
+        response.should be_a_successful_response
+        response.data.should == { 'bios'     => '56 4d d8 9c f8 ec 95 73-2e ea a0 f3 7a 1d 6f c8',
+                                  'location' => '56 4d d8 9c f8 ec 95 73-2e ea a0 f3 7a 1d 6f c8' }
+      end
 
-      @conf_file_io.string = vmx_content
+      it 'should return a successful response with empty hash if no uuids are defined' do
+        ['location', 'bios'].each { |i| @config_data.delete "uuid.#{i}" }
+        @vm_config_data_response_mock.stub_as_successful @config_data
 
-      File.should_receive(:open).with(@conf_file_path, 'r').and_yield(@conf_file_io)
-
-      response = @vm.uuids
-      response.should be_a_successful_response
-      response.data.should == { 'bios'     => '56 4d d8 9c f8 ec 95 73-2e ea a0 f3 7a 1d 6f c8',
-                                'location' => '56 4d d8 9c f8 ec 95 73-2e ea a0 f3 7a 1d 6f c8' }
+        response = @vm.uuids
+        response.should be_a_successful_response
+        response.data.should == {}
+      end
     end
 
-    it 'should return a successful response with empty hash if no uuids are defined' do
-
-      vmx_content = 'extendedConfigFile = "sample-debian.vmxf"
-checkpoint.vmState = ""
-cleanShutdown = "TRUE"
-replay.supported = "TRUE"
-replay.filename = ""
-scsi0:0.redo = ""'
-
-      @conf_file_io.string = vmx_content
-
-      File.should_receive(:open).with(@conf_file_path, 'r').and_yield(@conf_file_io)
-
-      response = @vm.uuids
-      response.should be_a_successful_response
-      response.data.should == {}
+    context 'when unsuccessfully getting the vm config data' do
+      it 'should return an unsuccessful response' do
+        @vm_config_data_response_mock.stub_as_unsuccessful
+        @vm.uuids.should be_an_unsuccessful_response
+      end
     end
+
   end
 
   describe 'path' do
