@@ -970,6 +970,33 @@ tools.upgrade.policy = "upgradeAtPowerCycle"'
 
   end
 
+  describe 'conf_file_data' do
+    before do
+      @vm_config_mock          = mock 'vm config'
+      @vm_config_response_mock = mock 'vm config response'
+
+      Fission::VMConfiguration.should_receive(:new).with(@vm).
+                                                    and_return(@vm_config_mock)
+    end
+
+    it 'should return a successful response with the data' do
+      @vm_config_response_mock.stub_as_successful({ 'numvcpus' => '2' })
+
+      @vm_config_mock.should_receive(:config_data).
+                      and_return(@vm_config_response_mock)
+      config_data = @vm.conf_file_data
+      config_data.should be_a_successful_response
+      config_data.data.should == { 'numvcpus' => '2' }
+    end
+
+    it 'should return an unsuccessful response' do
+      @vm_config_mock.should_receive(:config_data).
+                      and_return(@vm_config_response_mock)
+      @vm_config_response_mock.stub_as_unsuccessful
+      @vm.conf_file_data.should be_an_unsuccessful_response
+    end
+  end
+
   describe 'conf_file' do
     before do
       FakeFS.activate!

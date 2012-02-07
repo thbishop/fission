@@ -576,6 +576,22 @@ module Fission
       response
     end
 
+    # Public: Provides the configuration data stored in the VM's configuration
+    # file ('.vmx').
+    #
+    # Examples
+    #
+    #   @vm.config_file_data
+    #
+    # Returns a Response with the result.
+    # If successful, the Response's data attribute with be a Hash of the
+    # configuration data.  All of the keys/values in the configuration data will
+    # be a String.
+    # If there is an error, an unsuccessful Response will be returned.
+    def conf_file_data
+      VMConfiguration.new(self).config_data
+    end
+
     # Public: Determines the path to the VM's config file ('.vmx').
     #
     # Examples
