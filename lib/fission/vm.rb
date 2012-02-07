@@ -444,13 +444,10 @@ module Fission
     # but if you selected 'I Moved It' from the Fusion GUI they will differ.
     # If there is an error, an unsuccessful Response will be returned.
     def uuids
-      conf_file_response = conf_file
-      return conf_file_response unless conf_file_response.successful?
+      config_response = conf_file_data
+      return config_response unless config_response.successful?
 
       response = Response.new :code => 0, :data => {}
-
-      config_response = VMConfiguration.new(self).config_data
-      return config_response unless config_response.successful?
 
       { 'bios' => 'uuid.bios', 'location' => 'uuid.location' }.each_pair do |k,v|
         unless config_response.data[v].blank?
