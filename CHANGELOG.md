@@ -3,6 +3,7 @@
 ## head
 * add 'info' command
 * add 'snapshot delete' command
+* add ability to get all VM config values (related to #14)
 * fix issue #16
 
 ## 0.4.0 (01/17/2012)
