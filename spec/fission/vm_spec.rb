@@ -568,150 +568,106 @@ describe Fission::VM do
 
   describe 'network_info' do
     before do
-      @conf_file_response_mock.stub_as_successful @conf_file_path
-
-      @vm.should_receive(:conf_file).and_return(@conf_file_response_mock)
-      @conf_file_io = StringIO.new
       @lease_1_response_mock = mock('lease_1_response')
       @lease_2_response_mock = mock('lease_1_response')
+      @vm_config_data_response_mock = mock 'vm config data response'
+
+      @vm.stub(:conf_file_data).and_return(@vm_config_data_response_mock)
+      @config_data = { 'ide1:0.deviceType'                   => 'cdrom-image',
+                       'ethernet0.present'                    => 'TRUE',
+                       'ethernet1.address'                    => '00:0c:29:1d:6a:75',
+                       'ethernet0.connectionType'             => 'nat',
+                       'ethernet0.generatedAddress'           => '00:0c:29:1d:6a:64',
+                       'ethernet0.virtualDev'                 => 'e1000',
+                       'ethernet0.wakeOnPcktRcv'              => 'FALSE',
+                       'ethernet0.addressType'                => 'generated',
+                       'ethernet0.linkStatePropagatio.enable' => 'TRUE',
+                       'ethernet0.generatedAddressenable'     => 'TRUE',
+                       'ethernet1.generatedAddressenable'     => 'TRUE' }
     end
 
-    it 'should return a successful response with the list of interfaces, macs, and ips' do
-      @conf_file_response_mock.stub_as_successful @conf_file_path
+    context 'when successful getting the vm config data' do
+      before do
+        @vm_config_data_response_mock.stub_as_successful @config_data
+      end
 
-      @lease_1 = Fission::Lease.new :ip_address  => '127.0.0.1',
-                                    :mac_address => '00:0c:29:1d:6a:64'
-      @lease_1_response_mock.stub_as_successful @lease_1
+      it 'should return a successful response with the list of interfaces, macs, and ips' do
+        @lease_1 = Fission::Lease.new :ip_address  => '127.0.0.1',
+                                      :mac_address => '00:0c:29:1d:6a:64'
+        @lease_1_response_mock.stub_as_successful @lease_1
 
-      @lease_2 = Fission::Lease.new :ip_address  => '127.0.0.2',
-                                    :mac_address => '00:0c:29:1d:6a:75'
-      @lease_2_response_mock.stub_as_successful @lease_2
+        @lease_2 = Fission::Lease.new :ip_address  => '127.0.0.2',
+                                      :mac_address => '00:0c:29:1d:6a:75'
+        @lease_2_response_mock.stub_as_successful @lease_2
 
-      vmx_content = 'ide1:0.deviceType = "cdrom-image"
-ethernet0.present = "TRUE"
-ethernet1.address = "00:0c:29:1d:6a:75"
-ethernet0.connectionType = "nat"
-ethernet0.generatedAddress = "00:0c:29:1d:6a:64"
-ethernet0.virtualDev = "e1000"
-ethernet0.wakeOnPcktRcv = "FALSE"
-ethernet0.addressType = "generated"
-ethernet0.linkStatePropagation.enable = "TRUE"
-ethernet0.generatedAddressenable = "TRUE"
-ethernet1.generatedAddressenable = "TRUE"'
+        Fission::Lease.should_receive(:find_by_mac_address).
+                       with('00:0c:29:1d:6a:64').
+                       and_return(@lease_1_response_mock)
+        Fission::Lease.should_receive(:find_by_mac_address).
+                       with('00:0c:29:1d:6a:75').
+                       and_return(@lease_2_response_mock)
 
-      @conf_file_io.string = vmx_content
+        response = @vm.network_info
+        response.should be_a_successful_response
+        response.data.should == { 'ethernet0' => { 'mac_address'  => '00:0c:29:1d:6a:64',
+                                                   'ip_address'   => '127.0.0.1' },
+                                  'ethernet1' => { 'mac_address'  => '00:0c:29:1d:6a:75',
+                                                   'ip_address'   => '127.0.0.2' } }
+      end
 
-      File.should_receive(:open).with(@conf_file_path, 'r').
-                                 and_yield(@conf_file_io)
+      it 'should return a successful response with an empty list if there are no macs' do
+        @config_data.delete 'ethernet0.generatedAddress'
+        @config_data.delete 'ethernet1.address'
 
-      Fission::Lease.should_receive(:find_by_mac_address).
-                     with('00:0c:29:1d:6a:64').
-                     and_return(@lease_1_response_mock)
-      Fission::Lease.should_receive(:find_by_mac_address).
-                     with('00:0c:29:1d:6a:75').
-                     and_return(@lease_2_response_mock)
+        response = @vm.network_info
+        response.should be_a_successful_response
+        response.data.should == {}
+      end
 
-      response = @vm.network_info
-      response.should be_a_successful_response
-      response.data.should == { 'ethernet0' => { 'mac_address'  => '00:0c:29:1d:6a:64',
-                                                 'ip_address'   => '127.0.0.1' },
-                                'ethernet1' => { 'mac_address'  => '00:0c:29:1d:6a:75',
-                                                 'ip_address'   => '127.0.0.2' } }
+      it 'should return a successful response without ip addresses if none were found' do
+        @lease_1_response_mock.stub_as_successful nil
+        @lease_2_response_mock.stub_as_successful nil
+
+        Fission::Lease.should_receive(:find_by_mac_address).
+                       with('00:0c:29:1d:6a:64').
+                       and_return(@lease_1_response_mock)
+        Fission::Lease.should_receive(:find_by_mac_address).
+                       with('00:0c:29:1d:6a:75').
+                       and_return(@lease_2_response_mock)
+
+        response = @vm.network_info
+        response.should be_a_successful_response
+        response.data.should == { 'ethernet0' => { 'mac_address'  => '00:0c:29:1d:6a:64',
+                                                   'ip_address'   => nil },
+                                  'ethernet1' => { 'mac_address'  => '00:0c:29:1d:6a:75',
+                                                   'ip_address'   => nil } }
+      end
+
+      context 'when unsuccessful getting the ip info' do
+        it 'should return an unsuccessful response if there was an error getting the ip information' do
+          @lease_1_response_mock.stub_as_unsuccessful
+          @lease_2_response_mock.stub_as_successful nil
+
+          Fission::Lease.should_receive(:find_by_mac_address).
+                         with('00:0c:29:1d:6a:64').
+                         and_return(@lease_1_response_mock)
+          Fission::Lease.should_receive(:find_by_mac_address).
+                         with('00:0c:29:1d:6a:75').
+                         and_return(@lease_2_response_mock)
+
+          @vm.network_info.should be_an_unsuccessful_response
+        end
+      end
+
     end
 
-    it 'should return a successful response with an empty list if there are no macs' do
-
-      vmx_content = 'ide1:0.deviceType = "cdrom-image"
-pciBridge7.virtualDev = "pcieRootPort"
-pciBridge7.functions = "8"
-vmci0.present = "TRUE"
-roamingVM.exitBehavior = "go"
-tools.syncTime = "TRUE"'
-
-      @conf_file_io.string = vmx_content
-
-      File.should_receive(:open).with(@conf_file_path, 'r').
-                                 and_yield(@conf_file_io)
-
-      response = @vm.network_info
-      response.should be_a_successful_response
-      response.data.should == {}
+    context 'when unsuccessfully getting the vm config data' do
+      it 'should return an unsuccessful response' do
+        @vm_config_data_response_mock.stub_as_unsuccessful
+        @vm.guestos.should be_an_unsuccessful_response
+      end
     end
 
-    it 'should return a successful response without ip addresses if none were found' do
-      @lease_1_response_mock.stub_as_successful nil
-      @lease_2_response_mock.stub_as_successful nil
-
-      vmx_content = 'ide1:0.deviceType = "cdrom-image"
-ethernet0.present = "TRUE"
-ethernet1.address = "00:0c:29:1d:6a:75"
-ethernet0.connectionType = "nat"
-ethernet0.generatedAddress = "00:0c:29:1d:6a:64"
-ethernet0.virtualDev = "e1000"
-ethernet0.wakeOnPcktRcv = "FALSE"
-ethernet0.addressType = "generated"
-ethernet0.linkStatePropagation.enable = "TRUE"
-ethernet0.generatedAddressenable = "TRUE"
-ethernet1.generatedAddressenable = "TRUE"'
-
-      @conf_file_io.string = vmx_content
-
-      File.should_receive(:open).with(@conf_file_path, 'r').
-                                 and_yield(@conf_file_io)
-
-      Fission::Lease.should_receive(:find_by_mac_address).
-                     with('00:0c:29:1d:6a:64').
-                     and_return(@lease_1_response_mock)
-      Fission::Lease.should_receive(:find_by_mac_address).
-                     with('00:0c:29:1d:6a:75').
-                     and_return(@lease_2_response_mock)
-
-      response = @vm.network_info
-      response.should be_a_successful_response
-      response.data.should == { 'ethernet0' => { 'mac_address'  => '00:0c:29:1d:6a:64',
-                                                 'ip_address'   => nil },
-                                'ethernet1' => { 'mac_address'  => '00:0c:29:1d:6a:75',
-                                                 'ip_address'   => nil } }
-    end
-
-    it 'should return an unsuccessful response with an error if no conf file was found' do
-      @conf_file_response_mock.stub_as_unsuccessful
-
-      File.should_not_receive(:open)
-
-      @vm.network_info.should be_an_unsuccessful_response
-    end
-
-    it 'should return an unsuccessful response if there was an error getting the ip information' do
-      @lease_1_response_mock.stub_as_unsuccessful
-      @lease_2_response_mock.stub_as_successful nil
-
-      vmx_content = 'ide1:0.deviceType = "cdrom-image"
-ethernet0.present = "TRUE"
-ethernet1.address = "00:0c:29:1d:6a:75"
-ethernet0.connectionType = "nat"
-ethernet0.generatedAddress = "00:0c:29:1d:6a:64"
-ethernet0.virtualDev = "e1000"
-ethernet0.wakeOnPcktRcv = "FALSE"
-ethernet0.addressType = "generated"
-ethernet0.linkStatePropagation.enable = "TRUE"
-ethernet0.generatedAddressenable = "TRUE"
-ethernet1.generatedAddressenable = "TRUE"'
-
-      @conf_file_io.string = vmx_content
-
-      File.should_receive(:open).with(@conf_file_path, 'r').
-                                 and_yield(@conf_file_io)
-
-      Fission::Lease.should_receive(:find_by_mac_address).
-                     with('00:0c:29:1d:6a:64').
-                     and_return(@lease_1_response_mock)
-      Fission::Lease.should_receive(:find_by_mac_address).
-                     with('00:0c:29:1d:6a:75').
-                     and_return(@lease_2_response_mock)
-
-      @vm.network_info.should be_an_unsuccessful_response
-    end
   end
 
   describe 'guestos' do

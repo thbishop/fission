@@ -369,30 +369,23 @@ module Fission
     # attribute will be an empty Hash.
     # If there is an error, an unsuccessful Response will be returned.
     def network_info
-      conf_file_response = conf_file
-      return conf_file_response unless conf_file_response.successful?
+      config_response = conf_file_data
+      return config_response unless config_response.successful?
 
       response = Response.new :code => 0, :data => {}
 
       interface_pattern = /^ethernet\d+/
       mac_pattern = /(\w\w[:-]\w\w[:-]\w\w[:-]\w\w[:-]\w\w[:-]\w\w)/
 
-      File.open conf_file_response.data, 'r' do |f|
-        f.grep(mac_pattern).each do |line|
-          int = line.scan(interface_pattern)[0]
-          mac = line.scan(mac_pattern)[0].first
-          response.data[int] = {}
-          response.data[int]['mac_address'] = mac
+      config_response.data.values.grep(mac_pattern).each do |mac|
+        int = config_response.data.key(mac).scan(interface_pattern)[0]
+        response.data[int] = { 'mac_address' => mac }
+        lease_response = Fission::Lease.find_by_mac_address mac
+        return lease_response unless lease_response.successful?
 
-          lease_response = Fission::Lease.find_by_mac_address mac
-          return lease_response unless lease_response.successful?
-
-          response.data[int]['ip_address'] = nil
-
-          if lease_response.data
-            response.data[int]['ip_address'] = lease_response.data.ip_address
-          end
-
+        response.data[int]['ip_address'] = nil
+        if lease_response.data
+          response.data[int]['ip_address'] = lease_response.data.ip_address
         end
       end
 
