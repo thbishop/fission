@@ -2,6 +2,7 @@
 
 ## head
 * add 'info' command
+* add 'snapshot delete' command
 * fix issue #16
 
 ## 0.4.0 (01/17/2012)
