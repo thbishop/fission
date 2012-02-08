@@ -15,6 +15,28 @@ describe Fission::VM do
     end
   end
 
+  describe 'delete' do
+    before do
+      @vm_deleter           = mock 'vm deleter'
+      @delete_response_mock = mock 'vm delete response'
+      Fission::Action::VMDeleter.stub(:new).and_return(@vm_deleter)
+    end
+
+    it 'should return an unsuccessful response when unable to delete the vm' do
+      @vm_deleter.should_receive(:delete).
+                  and_return(@delete_response_mock)
+      @delete_response_mock.stub_as_unsuccessful
+      @vm.delete.should be_an_unsuccessful_response
+    end
+
+    it 'should return a successful response when deleting' do
+      @vm_deleter.should_receive(:delete).
+                  and_return(@delete_response_mock)
+      @delete_response_mock.stub_as_successful
+      @vm.delete.should be_a_successful_response
+    end
+  end
+
   describe 'start' do
     before do
       @vm_starter          = mock 'vm starter'
@@ -43,7 +65,6 @@ describe Fission::VM do
       @start_response_mock.stub_as_successful
       @vm.start.should be_a_successful_response
     end
-
   end
 
   describe 'stop' do
@@ -1044,70 +1065,4 @@ ethernet1.generatedAddressenable = "TRUE"'
 
   end
 
-  describe 'delete' do
-    before do
-      @running_response_mock = mock('running?')
-      @running_response_mock.stub_as_successful false
-
-      @vm.stub(:exists?).and_return(true)
-      @vm.stub(:running?).and_return(@running_response_mock)
-      @vm.stub(:conf_file).and_return(@conf_file_response_mock)
-
-      @target_vm = 'foo'
-      @vm_files = %w{ .vmx .vmxf .vmdk -s001.vmdk -s002.vmdk .vmsd }
-      FakeFS.activate!
-
-      FileUtils.mkdir_p Fission::VM.new(@target_vm).path
-
-      @vm_files.each do |file|
-        FileUtils.touch File.join(Fission::VM.new(@target_vm).path, "#{@target_vm}#{file}")
-      end
-    end
-
-    after do
-      FakeFS.deactivate!
-    end
-
-    it "should return an unsuccessful response if the vm doesn't exist" do
-      @vm.stub(:exists?).and_return(false)
-
-      response = @vm.delete
-      response.should be_an_unsuccessful_response 'VM does not exist'
-    end
-
-    it 'should return an unsuccessful response if the vm is running' do
-      @running_response_mock.stub_as_successful true
-
-      response = @vm.delete
-      response.should be_an_unsuccessful_response 'The VM must not be running in order to delete it.'
-    end
-
-    it 'should return an unsuccessful response if unable to determine if running' do
-      @running_response_mock.stub_as_unsuccessful
-
-      response = @vm.delete
-      response.should be_an_unsuccessful_response
-    end
-
-    it "should delete the target vm files" do
-      Fission::Metadata.stub!(:delete_vm_info)
-
-      @vm.delete
-
-      @vm_files.each do |file|
-        File.exists?(File.join(Fission::VM.new(@target_vm).path, "#{@target_vm}#{file}")).should == false
-      end
-    end
-
-    it 'should delete the target vm metadata' do
-      Fission::Metadata.should_receive(:delete_vm_info)
-      @vm.delete
-    end
-
-    it 'should return a successful reponsse object' do
-      Fission::Metadata.stub!(:delete_vm_info)
-      @vm.delete.should be_a_successful_response
-    end
-
-  end
 end

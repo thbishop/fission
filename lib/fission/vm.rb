@@ -71,6 +71,27 @@ module Fission
       Fission::Action::SnapshotLister.new(self).snapshots
     end
 
+    # Public: Deletes a VM.  The VM must not be running in order to delete it.
+    # As there are a number issues with the Fusion command line tool for
+    # deleting VMs, this is a best effort.  The VM must not be running when this
+    # method is called.  This essentially deletes the VM directory and attempts
+    # to remove the relevant entries from the Fusion plist file.  It's highly
+    # recommended to delete VMs without the Fusion GUI running.  If the Fusion
+    # GUI is running this method should succeed, but it's been observed that
+    # Fusion will recreate the plist data which is deleted.  This leads to
+    # 'missing' VMs in the Fusion GUI.
+    #
+    # Examples
+    #
+    #   @vm.delete
+    #
+    # Returns a Response with the result.
+    # If successful, the Response's data attribute will be nil.
+    # If there is an error, an unsuccessful Response will be returned.
+    def delete
+      Fission::Action::VMDeleter.new(self).delete
+    end
+
     # Public: Starts a VM.  The VM must not be running in order to start it.
     #
     # options - Hash of options:
@@ -604,42 +625,6 @@ module Fission
 
       rename_vm_files source_vm.name, target_vm.name
       update_config source_vm.name, target_vm.name
-
-      Response.new :code => 0
-    end
-
-    # Public: Deletes a VM.  The VM must not be running in order to delete it.
-    # As there are a number issues with the Fusion command line tool for
-    # deleting VMs, this is a best effort.  The VM must not be running when this
-    # method is called.  This essentially deletes the VM directory and attempts
-    # to remove the relevant entries from the Fusion plist file.  It's highly
-    # recommended to delete VMs without the Fusion GUI running.  If the Fusion
-    # GUI is running this method should succeed, but it's been observed that
-    # Fusion will recreate the plist data which is deleted.  This leads to
-    # 'missing' VMs in the Fusion GUI.
-    #
-    # Examples
-    #
-    #   @vm.delete
-    #
-    # Returns a Response with the result.
-    # If successful, the Response's data attribute will be nil.
-    # If there is an error, an unsuccessful Response will be returned.
-    def delete
-      unless exists?
-        return Response.new :code => 1, :message => 'VM does not exist'
-      end
-
-      running_response = running?
-      return running_response unless running_response.successful?
-
-      if running_response.data
-        message = 'The VM must not be running in order to delete it.'
-        return Response.new :code => 1, :message => message
-      end
-
-      FileUtils.rm_rf path
-      Metadata.delete_vm_info path
 
       Response.new :code => 0
     end
