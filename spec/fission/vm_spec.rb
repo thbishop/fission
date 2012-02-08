@@ -78,50 +78,22 @@ describe Fission::VM do
 
   describe 'suspend' do
     before do
-      @running_response_mock = mock('running?')
-
-      @vm.stub(:exists?).and_return(true)
-      @vm.stub(:running?).and_return(@running_response_mock)
-      @vm.stub(:conf_file).and_return(@conf_file_response_mock)
-      @running_response_mock.stub_as_successful true
-      @conf_file_response_mock.stub_as_successful @conf_file_path
+      @vm_suspender          = mock 'vm suspender'
+      @suspend_response_mock = mock 'vm suspend response'
+      Fission::Action::VMSuspender.stub(:new).and_return(@vm_suspender)
     end
 
-    it "should return an unsuccessful response if the vm doesn't exist" do
-      @vm.stub(:exists?).and_return(false)
-      @vm.suspend.should be_an_unsuccessful_response 'VM does not exist'
-    end
-
-    it 'should return an unsuccessful response if the vm is not running' do
-      @running_response_mock.stub_as_successful false
-      @vm.suspend.should be_an_unsuccessful_response 'VM is not running'
-    end
-
-    it 'should return an unsuccessful response if unable to determine if running' do
-      @running_response_mock.stub_as_unsuccessful
-      @vm.suspend.should be_an_unsuccessful_response
-    end
-
-    it 'should return an unsuccessful response if unable to figure out the conf file' do
-      @conf_file_response_mock.stub_as_unsuccessful
-      @vm.suspend.should be_an_unsuccessful_response
-    end
-
-    it 'should return a successful response' do
-      $?.should_receive(:exitstatus).and_return(0)
-      @vm.should_receive(:`).
-          with("#{@vmrun_cmd} suspend #{@conf_file_path.gsub ' ', '\ '} 2>&1").
-          and_return("it's all good")
-
+    it 'should return a successful response when suspending' do
+      @vm_suspender.should_receive(:suspend).
+                    and_return(@suspend_response_mock)
+      @suspend_response_mock.stub_as_successful
       @vm.suspend.should be_a_successful_response
     end
 
-    it 'it should return an unsuccessful response if unable to suspend the vm' do
-      $?.should_receive(:exitstatus).and_return(1)
-      @vm.should_receive(:`).
-          with("#{@vmrun_cmd} suspend #{@conf_file_path.gsub ' ', '\ '} 2>&1").
-          and_return("it blew up")
-
+    it 'should return an unsuccessful response when unable to suspend the vm' do
+      @vm_suspender.should_receive(:suspend).
+                    and_return(@suspend_response_mock)
+      @suspend_response_mock.stub_as_unsuccessful
       @vm.suspend.should be_an_unsuccessful_response
     end
   end
