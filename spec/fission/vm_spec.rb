@@ -238,7 +238,7 @@ describe Fission::VM do
                              and_return(@snapshot_create_response_mock)
     end
 
-    it 'should return an usuccessful response when unable to create the snapshot' do
+    it 'should return an unsuccessful response when unable to create the snapshot' do
       @snapshot_create_response_mock.stub_as_unsuccessful
       @vm.create_snapshot('snap_1').should be_an_unsuccessful_response
     end
@@ -327,68 +327,25 @@ describe Fission::VM do
 
   describe 'revert_to_snapshot' do
     before do
-      @snapshots_response_mock = mock('snapshots')
+      @snapshot_reverter_mock       = mock 'snapshot reverter'
+      @snapshot_revert_response_mock = 'snapshot revert response'
 
-      @conf_file_response_mock.stub_as_successful @conf_file_path
-      @snapshots_response_mock.stub_as_successful ['snap_1']
-
-      @vm.stub(:exists?).and_return(true)
-      @vm.stub(:snapshots).and_return(@snapshots_response_mock)
-      @vm.stub(:conf_file).and_return(@conf_file_response_mock)
-      Fission::Fusion.stub(:running?).and_return(false)
+      Fission::Action::SnapshotReverter.stub(:new).
+                                        and_return(@snapshot_reverter_mock)
+      @snapshot_reverter_mock.should_receive(:revert_to_snapshot).
+                              with('snap_1').
+                              and_return(@snapshot_revert_response_mock)
     end
 
-    it "should return an unsuccessful response if the vm doesn't exist" do
-      @vm.stub(:exists?).and_return(false)
-      @vm.revert_to_snapshot('snap_1').should be_an_unsuccessful_response 'VM does not exist'
-    end
-
-    it 'should return an unsuccessful response if the Fusion GUI is running' do
-      Fission::Fusion.stub(:running?).and_return(true)
-
-      response = @vm.revert_to_snapshot 'snap_1'
-
-      error_string = 'It looks like the Fusion GUI is currently running.  '
-      error_string << 'A VM cannot be reverted to a snapshot when the Fusion GUI is running.  '
-      error_string << 'Exit the Fusion GUI and try again.'
-
-      response.should be_an_unsuccessful_response error_string
-    end
-
-    it 'should return an unsuccessful response if unable to figure out the conf file' do
-      @conf_file_response_mock.stub_as_unsuccessful
+    it 'should return an unsuccessful response when unable to revert the snapshot' do
+      @snapshot_revert_response_mock.stub_as_unsuccessful
       @vm.revert_to_snapshot('snap_1').should be_an_unsuccessful_response
     end
 
-    it 'should return a successful response and revert to the provided snapshot' do
-      $?.should_receive(:exitstatus).and_return(0)
-      @vm.should_receive(:`).
-          with("#{@vmrun_cmd} revertToSnapshot #{@conf_file_path.gsub ' ', '\ '} \"snap_1\" 2>&1").
-          and_return("")
-
+    it 'should return a successful response when reverting the snapshot' do
+      @snapshot_revert_response_mock.stub_as_successful
       @vm.revert_to_snapshot('snap_1').should be_a_successful_response
     end
-
-    it 'should return an unsuccessful response if the snapshot cannot be found' do
-      @snapshots_response_mock.stub_as_successful []
-      response = @vm.revert_to_snapshot 'snap_1'
-      response.should be_an_unsuccessful_response "Unable to find a snapshot named 'snap_1'."
-    end
-
-    it 'should return an unsuccessful response if unable to list the existing snapshots' do
-      @snapshots_response_mock.stub_as_unsuccessful
-      @vm.revert_to_snapshot('snap_1').should be_an_unsuccessful_response
-    end
-
-    it 'should return and unsuccessful response if unable to revert to the snapshot' do
-      $?.should_receive(:exitstatus).and_return(1)
-      @vm.should_receive(:`).
-          with("#{@vmrun_cmd} revertToSnapshot #{@conf_file_path.gsub ' ', '\ '} \"snap_1\" 2>&1").
-          and_return("it blew up")
-
-      @vm.revert_to_snapshot('snap_1').should be_an_unsuccessful_response
-    end
-
   end
 
   describe 'exists?' do
