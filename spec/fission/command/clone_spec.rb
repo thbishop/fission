@@ -1,4 +1,4 @@
-require File.expand_path('../../../spec_helper.rb', __FILE__)
+require 'spec_helper'
 
 describe Fission::Command::Clone do
   include_context 'command_setup'
