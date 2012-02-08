@@ -7,6 +7,7 @@ $:.unshift File.join(File.dirname(__FILE__), *%w[.. lib])
 
 require 'fission/action/snapshot_creator'
 require 'fission/action/snapshot_lister'
+require 'fission/action/snapshot_reverter'
 require 'fission/cli'
 require 'fission/command'
 require 'fission/command_helpers'
