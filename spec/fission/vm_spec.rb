@@ -858,173 +858,28 @@ describe Fission::VM do
 
   describe "self.clone" do
     before do
-      @source_vm = Fission::VM.new 'foo'
-      @target_vm = Fission::VM.new 'bar'
-      @source_path = @source_vm.path
-      @target_path = @target_vm.path
-
-      @clone_response_mock = mock('clone_response')
-      @vm_files = ['.vmx', '.vmxf', '.vmdk', '-s001.vmdk', '-s002.vmdk', '.vmsd']
-
-      FakeFS.activate!
-
-      FileUtils.mkdir_p @source_path
-
-      @vm_files.each do |file|
-        FileUtils.touch "#{@source_path}/#{@source_vm.name}#{file}"
-      end
-
-      ['.vmx', '.vmxf', '.vmdk'].each do |ext|
-        File.open("#{@source_path}/foo#{ext}", 'w') { |f| f.write 'foo.vmdk'}
-      end
-
-      @source_vm.stub(:exists?).and_return(true)
-      @target_vm.stub(:exists?).and_return(false)
-
-      Fission::VM.stub(:new).with(@source_vm.name).
-                             and_return(@source_vm)
-      Fission::VM.stub(:new).with(@target_vm.name).
-                             and_return(@target_vm)
-
-      vmx_content = 'ide1:0.deviceType = "cdrom-image"
-nvram = "foo.nvram"
-ethernet0.present = "TRUE"
-ethernet1.address = "00:0c:29:1d:6a:75"
-ethernet0.connectionType = "nat"
-ethernet0.generatedAddress = "00:0c:29:1d:6a:64"
-ethernet0.virtualDev = "e1000"
-tools.remindInstall = "TRUE"
-ethernet0.wakeOnPcktRcv = "FALSE"
-ethernet0.addressType = "generated"
-uuid.action = "keep"
-ethernet0.linkStatePropagation.enable = "TRUE"
-ethernet0.generatedAddressenable = "TRUE"
-ethernet1.generatedAddressenable = "TRUE"'
-
-      File.open("#{@source_path}/#{@source_vm.name}.vmx", 'w') do |f|
-        f.write vmx_content
-      end
-
-      ['.vmx', '.vmxf'].each do |ext|
-        File.stub(:binary?).
-             with("#{@target_path}/#{@target_vm.name}#{ext}").
-             and_return(false)
-      end
-
-      File.stub(:binary?).
-           with("#{@target_path}/#{@target_vm.name}.vmdk").
-           and_return(true)
+      @vm_1                = mock 'vm 1'
+      @vm_2                = mock 'vm 2'
+      @vm_cloner           = mock 'vm cloner'
+      @clone_response_mock = mock 'vm clone response'
+      Fission::Action::VMCloner.should_receive(:new).
+                                with(@vm_1, @vm_2).
+                                and_return(@vm_cloner)
+      Fission::VM.should_receive(:new).with('vm_1').and_return(@vm_1)
+      Fission::VM.should_receive(:new).with('vm_2').and_return(@vm_2)
+      @vm_cloner.should_receive(:clone).
+                 and_return(@clone_response_mock)
     end
 
-    after do
-      FakeFS.deactivate!
-      FakeFS::FileSystem.clear
+    it 'should return an unsuccessful response when unable to clone the vm' do
+      @clone_response_mock.stub_as_unsuccessful
+      Fission::VM.clone('vm_1', 'vm_2').should be_an_unsuccessful_response
     end
 
-    it "should return an unsuccessful response if the source vm doesn't exist" do
-      @source_vm.stub(:exists?).and_return(false)
-      response = Fission::VM.clone @source_vm.name, @target_vm.name
-      response.should be_an_unsuccessful_response 'VM does not exist'
+    it 'should return a successful response when cloning' do
+      @clone_response_mock.stub_as_successful
+      Fission::VM.clone('vm_1', 'vm_2').should be_a_successful_response
     end
-
-    it "should return an unsuccessful response if the target vm exists" do
-      @target_vm.stub(:exists?).and_return(true)
-      response = Fission::VM.clone @source_vm.name, @target_vm.name
-      response.should be_an_unsuccessful_response 'VM already exists'
-    end
-
-    it 'should copy the vm files to the target' do
-      Fission::VM.clone @source_vm.name, @target_vm.name
-
-      File.directory?(@target_path).should == true
-
-      @vm_files.each do |file|
-        File.file?("#{@target_path}/bar#{file}").should == true
-      end
-    end
-
-    it "should copy the vm files to the target if a file name doesn't match the directory" do
-      FileUtils.touch "#{@source_path}/other_name.nvram"
-
-      Fission::VM.clone @source_vm.name, @target_vm.name
-
-      File.directory?(@target_path).should == true
-
-      @vm_files.each do |file|
-        File.file?("#{@target_path}/#{@target_vm.name}#{file}").should == true
-      end
-
-      File.file?("#{@target_path}/bar.nvram").should == true
-    end
-
-    it "should copy the vm files to the target if a sparse disk file name doesn't match the directory" do
-      FileUtils.touch "#{@source_path}/other_name-s003.vmdk"
-
-      Fission::VM.clone @source_vm.name, @target_vm.name
-
-      File.directory?(@target_path).should == true
-
-      @vm_files.each do |file|
-        File.file?("#{@target_path}/#{@target_vm.name}#{file}").should == true
-      end
-
-      File.file?("#{@target_path}/bar-s003.vmdk").should == true
-    end
-
-    it 'should update the target vm config files' do
-      Fission::VM.clone @source_vm.name, @target_vm.name
-
-      ['.vmx', '.vmxf'].each do |ext|
-        File.read("#{@target_path}/bar#{ext}").should_not match /foo/
-        File.read("#{@target_path}/bar#{ext}").should match /bar/
-      end
-    end
-
-    it 'should disable VMware tools warning in the conf file' do
-      Fission::VM.clone @source_vm.name, @target_vm.name
-
-      pattern = /^tools\.remindInstall = "FALSE"/
-
-      File.read("#{@target_path}/bar.vmx").should match pattern
-    end
-
-    it 'should remove auto generated MAC addresses from the conf file' do
-      Fission::VM.clone @source_vm.name, @target_vm.name
-
-      pattern = /^ethernet\.+generatedAddress.+/
-
-      File.read("#{@target_path}/bar.vmx").should_not match pattern
-    end
-
-    it 'should setup the conf file to generate a new uuid' do
-      Fission::VM.clone @source_vm.name, @target_vm.name
-
-      pattern = /^uuid\.action = "create"/
-
-      File.read("#{@target_path}/bar.vmx").should match pattern
-    end
-
-    it "should not try to update the vmdk file if it's not a sparse disk" do
-      Fission::VM.clone @source_vm.name, @target_vm.name
-
-      File.read("#{@target_path}/bar.vmdk").should match /foo/
-    end
-
-    it 'should return a successful response if clone was successful' do
-      Fission::VM.clone(@source_vm.name, @target_vm.name).should be_a_successful_response
-    end
-
-    describe 'when a sparse disk is found' do
-      it "should update the vmdk" do
-        File.rspec_reset
-        File.stub(:binary?).and_return(false)
-
-        Fission::VM.clone @source_vm.name, @target_vm.name
-
-        File.read("#{@target_path}/bar.vmdk").should match /bar/
-      end
-    end
-
   end
 
   describe 'self.all_with_status' do
