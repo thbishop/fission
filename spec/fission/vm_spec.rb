@@ -230,69 +230,22 @@ describe Fission::VM do
 
   describe 'create_snapshot' do
     before do
-      @snapshots_response_mock = mock('snapshots')
-      @running_response_mock = mock('running?')
-
-      @running_response_mock.stub_as_successful true
-      @conf_file_response_mock.stub_as_successful @conf_file_path
-      @snapshots_response_mock.stub_as_successful []
-
-      @vm.stub(:exists?).and_return(true)
-      @vm.stub(:snapshots).and_return(@snapshots_response_mock)
-      @vm.stub(:running?).and_return(@running_response_mock)
-      @vm.stub(:conf_file).and_return(@conf_file_response_mock)
+      @snapshot_creator_mock         = mock 'snapshot creator'
+      @snapshot_create_response_mock = mock 'snapshot create response'
+      Fission::Action::SnapshotCreator.stub(:new).and_return(@snapshot_creator_mock)
+      @snapshot_creator_mock.should_receive(:create_snapshot).
+                             with('snap_1').
+                             and_return(@snapshot_create_response_mock)
     end
 
-    it "should return an unsuccessful response if the vm doesn't exist" do
-      @vm.stub(:exists?).and_return(false)
-      @vm.create_snapshot('snap_1').should be_an_unsuccessful_response 'VM does not exist'
-    end
-
-    it 'should return an unsuccessful response if the vm is not running' do
-      @running_response_mock.stub_as_successful false
-
-      response = @vm.create_snapshot 'snap_1'
-      error_message = 'The VM must be running in order to take a snapshot.'
-      response.should be_an_unsuccessful_response error_message
-    end
-
-    it 'should return an unsuccessful response if unable to determine if running' do
-      @running_response_mock.stub_as_unsuccessful
+    it 'should return an usuccessful response when unable to create the snapshot' do
+      @snapshot_create_response_mock.stub_as_unsuccessful
       @vm.create_snapshot('snap_1').should be_an_unsuccessful_response
     end
 
-    it 'should return an unsuccessful response if unable to figure out the conf file' do
-      @conf_file_response_mock.stub_as_unsuccessful
-      @vm.create_snapshot('snap_1').should be_an_unsuccessful_response
-    end
-
-    it 'should return a successful response and create a snapshot' do
-      $?.should_receive(:exitstatus).and_return(0)
-      @vm.should_receive(:`).
-          with("#{@vmrun_cmd} snapshot #{@conf_file_path.gsub ' ', '\ '} \"bar\" 2>&1").
-          and_return("")
-
-      @vm.create_snapshot('bar').should be_a_successful_response
-    end
-
-    it 'should return an unsuccessful response if the snapshot name is a duplicate' do
-      @snapshots_response_mock.stub_as_successful ['snap_1']
-      response = @vm.create_snapshot 'snap_1'
-      response.should be_an_unsuccessful_response "There is already a snapshot named 'snap_1'."
-    end
-
-    it 'should return an unsuccessful response if there was a problem listing the existing snapshots' do
-      @snapshots_response_mock.stub_as_unsuccessful
-      @vm.create_snapshot('snap_1').should be_an_unsuccessful_response
-    end
-
-    it 'should return and unsuccessful response if there was a problem creating the snapshot' do
-      $?.should_receive(:exitstatus).and_return(1)
-      @vm.should_receive(:`).
-          with("#{@vmrun_cmd} snapshot #{@conf_file_path.gsub ' ', '\ '} \"bar\" 2>&1").
-          and_return("it blew up")
-
-      @vm.create_snapshot('bar').should be_an_unsuccessful_response
+    it 'should return a successful response when creating the snapshot' do
+      @snapshot_create_response_mock.stub_as_successful
+      @vm.create_snapshot('snap_1').should be_a_successful_response
     end
   end
 
