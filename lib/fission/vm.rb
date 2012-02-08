@@ -89,36 +89,7 @@ module Fission
     # If successful, the Response's data attribute will be nil.
     # If there is an error, an unsuccessful Response will be returned.
     def start(options={})
-      unless exists?
-        return Response.new :code => 1, :message => 'VM does not exist'
-      end
-
-      running_response = running?
-      return running_response unless running_response.successful?
-
-      if running_response.data
-        return Response.new :code => 1, :message => 'VM is already running'
-      end
-
-      conf_file_response = conf_file
-      return conf_file_response unless conf_file_response.successful?
-
-      unless options[:headless].blank?
-        if Fusion.running?
-          message = 'It looks like the Fusion GUI is currently running.  '
-          message << 'A VM cannot be started in headless mode when the Fusion GUI is running.  '
-          message << 'Exit the Fusion GUI and try again.'
-          return Response.new :code => 1, :message => message
-        end
-      end
-
-      command = "#{vmrun_cmd} start "
-      command << "#{conf_file_response.data} "
-
-      command << (options[:headless].blank? ? 'gui ' : 'nogui ')
-      command << '2>&1'
-
-      Response.from_command(`#{command}`)
+      Fission::Action::VMStarter.new(self).start(options)
     end
 
     # Public: Stops a VM.  The VM must be running in order to stop it.

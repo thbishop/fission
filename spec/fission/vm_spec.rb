@@ -17,82 +17,31 @@ describe Fission::VM do
 
   describe 'start' do
     before do
-      @running_response_mock = mock('running?')
-
-      @vm.stub(:exists?).and_return(true)
-      @vm.stub(:running?).and_return(@running_response_mock)
-      @vm.stub(:conf_file).and_return(@conf_file_response_mock)
-      @running_response_mock.stub_as_successful false
-      @conf_file_response_mock.stub_as_successful @conf_file_path
+      @vm_starter          = mock 'vm starter'
+      @start_response_mock = mock 'vm start response'
+      Fission::Action::VMStarter.stub(:new).and_return(@vm_starter)
     end
 
-    it "should return an unsuccessful response if the vm doesn't exist" do
-      @vm.stub(:exists?).and_return(false)
-      @vm.start.should be_an_unsuccessful_response 'VM does not exist'
+    it 'should return an unsuccessful response when unable to start the vm' do
+      @vm_starter.should_receive(:start).
+                  and_return(@start_response_mock)
+      @start_response_mock.stub_as_unsuccessful
+      @vm.start('foo').should be_an_unsuccessful_response
     end
 
-    it 'should return an unsuccessful response if the vm is already running' do
-      @running_response_mock.stub_as_successful true
-      @vm.start.should be_an_unsuccessful_response 'VM is already running'
+    it 'should return a successful response when starting headless' do
+      @vm_starter.should_receive(:start).
+                  with(:headless => true).
+                  and_return(@start_response_mock)
+      @start_response_mock.stub_as_successful
+      @vm.start(:headless => true).should be_a_successful_response
     end
 
-    it 'should return an unsuccessful response if unable to determine if running' do
-      @running_response_mock.stub_as_unsuccessful
-      @vm.start.should be_an_unsuccessful_response
-    end
-
-    it 'should return an unsuccessful response if unable to figure out the conf file' do
-      @conf_file_response_mock.stub_as_unsuccessful
-      @vm.start.should be_an_unsuccessful_response
-    end
-
-    describe 'when the fusion gui is not running' do
-      before do
-        Fission::Fusion.stub(:running?).and_return(false)
-      end
-
-      it 'should start the VM and return a successful response' do
-        $?.should_receive(:exitstatus).and_return(0)
-        @vm.should_receive(:`).
-            with("#{@vmrun_cmd} start #{@conf_file_path.gsub(' ', '\ ')} gui 2>&1").
-            and_return("it's all good")
-
-        @vm.start.should be_a_successful_response
-      end
-
-      it 'should successfully start the vm headless' do
-        $?.should_receive(:exitstatus).and_return(0)
-        @vm.should_receive(:`).
-            with("#{@vmrun_cmd} start #{@conf_file_path.gsub(' ', '\ ')} nogui 2>&1").
-            and_return("it's all good")
-
-        @vm.start(:headless => true).should be_a_successful_response
-      end
-
-      it 'should return an unsuccessful response if there was an error starting the VM' do
-        $?.should_receive(:exitstatus).and_return(1)
-        @vm.should_receive(:`).
-            with("#{@vmrun_cmd} start #{@conf_file_path.gsub(' ', '\ ')} gui 2>&1").
-            and_return("it blew up")
-
-        @vm.start.should be_an_unsuccessful_response
-      end
-    end
-
-    describe 'when the fusion gui is running' do
-      before do
-        Fission::Fusion.stub(:running?).and_return(true)
-      end
-
-      it 'should return an unsuccessful response if starting headless' do
-        response = @vm.start :headless => true
-
-        error_string = 'It looks like the Fusion GUI is currently running.  '
-        error_string << 'A VM cannot be started in headless mode when the Fusion GUI is running.  '
-        error_string << 'Exit the Fusion GUI and try again.'
-
-        response.should be_an_unsuccessful_response error_string
-      end
+    it 'should return a successful response when starting' do
+      @vm_starter.should_receive(:start).
+                  and_return(@start_response_mock)
+      @start_response_mock.stub_as_successful
+      @vm.start.should be_a_successful_response
     end
 
   end
