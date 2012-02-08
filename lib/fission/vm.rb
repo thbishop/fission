@@ -147,27 +147,7 @@ module Fission
     # snapshot names (String).
     # If there is an error, an unsuccessful Response will be returned.
     def snapshots
-      unless exists?
-        return Response.new :code => 1, :message => 'VM does not exist'
-      end
-
-      conf_file_response = conf_file
-      return conf_file_response unless conf_file_response.successful?
-
-      command = "#{vmrun_cmd} listSnapshots "
-      command << "#{conf_file_response.data} 2>&1"
-      output = `#{command}`
-
-      response = Response.new :code => $?.exitstatus
-
-      if response.successful?
-        snaps = output.split("\n").select { |s| !s.include? 'Total snapshots:' }
-        response.data = snaps.map { |s| s.strip }
-      else
-        response.message = output
-      end
-
-      response
+      Fission::Action::SnapshotLister.new(self).snapshots
     end
 
     # Public: Starts a VM.  The VM must not be running in order to start it.

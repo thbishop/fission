@@ -208,39 +208,23 @@ describe Fission::VM do
 
   describe 'snapshots' do
     before do
-      @vm.stub(:exists?).and_return(true)
-      @vm.stub(:conf_file).and_return(@conf_file_response_mock)
-      @conf_file_response_mock.stub_as_successful @conf_file_path
+      @snapshot_lister_mock = mock 'snapshot lister'
+      @snapshots_response_mock = mock 'snapshots mock'
+      Fission::Action::SnapshotLister.stub(:new).and_return(@snapshot_lister_mock)
+      @snapshot_lister_mock.should_receive(:snapshots).
+                            and_return(@snapshots_response_mock)
     end
 
-    it "should return an unsuccessful repsonse when the vm doesn't exist" do
-      @vm.stub(:exists?).and_return(false)
-      @vm.snapshots.should be_an_unsuccessful_response 'VM does not exist'
+    it "should return an unsuccessful repsonse when unable to list the snapshots" do
+      @snapshots_response_mock.stub_as_unsuccessful
+      @vm.snapshots.should be_an_unsuccessful_response
     end
 
     it 'should return a successful response with the list of snapshots' do
-      $?.should_receive(:exitstatus).and_return(0)
-      @vm.should_receive(:`).
-          with("#{@vmrun_cmd} listSnapshots #{@conf_file_path.gsub ' ', '\ '} 2>&1").
-          and_return("Total snapshots: 3\nsnap foo\nsnap bar\nsnap baz\n")
-
+      @snapshots_response_mock.stub_as_successful ['snap_1', 'snap_2']
       response = @vm.snapshots
       response.should be_a_successful_response
-      response.data.should == ['snap foo', 'snap bar', 'snap baz']
-    end
-
-    it 'should return an unsuccessful response if unable to figure out the conf file' do
-      @conf_file_response_mock.stub_as_unsuccessful
-      @vm.snapshots.should be_an_unsuccessful_response
-    end
-
-    it 'should return an unsuccessful response if there was a problem getting the list of snapshots' do
-      $?.should_receive(:exitstatus).and_return(1)
-      @vm.should_receive(:`).
-          with("#{@vmrun_cmd} listSnapshots #{@conf_file_path.gsub ' ', '\ '} 2>&1").
-          and_return("it blew up")
-
-      @vm.snapshots.should be_an_unsuccessful_response
+      response.data.should == ['snap_1', 'snap_2']
     end
   end
 
