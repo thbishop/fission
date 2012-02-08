@@ -37,35 +37,7 @@ module Fission
     # If successful, the Response's data attribute will be nil.
     # If there is an error, an unsuccessful Response will be returned.
     def delete_snapshot(name)
-      unless exists?
-        return Response.new :code => 1, :message => 'VM does not exist'
-      end
-
-      if Fusion.running?
-        running_response = running?
-        return running_response unless running_response.successful?
-
-        unless running_response.data
-          message = 'A snapshot cannot be deleted when the GUI is running and the VM is not running.'
-          return Response.new :code => 1, :message => message
-        end
-      end
-
-      conf_file_response = conf_file
-      return conf_file_response unless conf_file_response.successful?
-
-      snapshots_response = snapshots
-      return snapshots_response unless snapshots_response.successful?
-
-      unless snapshots_response.data.include? name
-        message = "Unable to find a snapshot named '#{name}'."
-        return Response.new :code => 1, :message => message
-      end
-
-      command = "#{vmrun_cmd} deleteSnapshot "
-      command << "#{conf_file_response.data} \"#{name}\" 2>&1"
-
-      Response.from_command(`#{command}`)
+      Fission::Action::SnapshotDeleter.new(self).delete_snapshot(name)
     end
 
     # Public: Reverts the VM to the specified snapshot.  The snapshot to revert
