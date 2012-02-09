@@ -5,6 +5,8 @@
 * add 'snapshot delete' command
 * add ability to get all VM config values (related to #14)
 * fix issue #16
+* fix issue #18 (1.8.7 compatibility)
+* fix issue #19 (duplicate config entires when cloning)
 
 ## 0.4.0 (01/17/2012)
 * major internal refactoring for usage as a lib
