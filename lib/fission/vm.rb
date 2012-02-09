@@ -234,15 +234,18 @@ module Fission
       interface_pattern = /^ethernet\d+/
       mac_pattern = /(\w\w[:-]\w\w[:-]\w\w[:-]\w\w[:-]\w\w[:-]\w\w)/
 
-      config_response.data.values.grep(mac_pattern).each do |mac|
-        int = config_response.data.key(mac).scan(interface_pattern)[0]
-        response.data[int] = { 'mac_address' => mac }
-        lease_response = Fission::Lease.find_by_mac_address mac
-        return lease_response unless lease_response.successful?
+      config_response.data.each_pair do |k,v|
+        if v =~ mac_pattern
+          mac = v
+          int = k.scan(interface_pattern).first
+          response.data[int] = { 'mac_address' => mac }
+          lease_response = Fission::Lease.find_by_mac_address mac
+          return lease_response unless lease_response.successful?
 
-        response.data[int]['ip_address'] = nil
-        if lease_response.data
-          response.data[int]['ip_address'] = lease_response.data.ip_address
+          response.data[int]['ip_address'] = nil
+          if lease_response.data
+            response.data[int]['ip_address'] = lease_response.data.ip_address
+          end
         end
       end
 
