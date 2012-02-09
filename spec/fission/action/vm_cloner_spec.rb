@@ -129,31 +129,52 @@ ethernet1.generatedAddressenable = "TRUE"'
 
     it 'should disable VMware tools warning in the conf file' do
       @cloner.clone
-
       pattern = /^tools\.remindInstall = "FALSE"/
-
       File.read("#{@target_path}/bar.vmx").should match pattern
     end
 
     it 'should remove auto generated MAC addresses from the conf file' do
       @cloner.clone
-
       pattern = /^ethernet\.+generatedAddress.+/
-
       File.read("#{@target_path}/bar.vmx").should_not match pattern
     end
 
     it 'should setup the conf file to generate a new uuid' do
       @cloner.clone
-
       pattern = /^uuid\.action = "create"/
+      File.read("#{@target_path}/bar.vmx").scan(pattern).count.should == 1
+    end
 
-      File.read("#{@target_path}/bar.vmx").should match pattern
+    context 'when uuid.action already exists in the source conf file' do
+      before do
+        File.open("#{@source_path}/#{@source_vm.name}.vmx", 'a') do |f|
+          f.write "\nuuid.action = \"create\""
+        end
+      end
+
+      it 'should not add another entry for uuid.action' do
+        @cloner.clone
+        pattern = /^uuid\.action = "create"/
+        File.read("#{@target_path}/bar.vmx").scan(pattern).count.should == 1
+      end
+    end
+
+    context 'when tools.remindInstall already exists in the source conf file' do
+      before do
+        File.open("#{@source_path}/#{@source_vm.name}.vmx", 'w') do |f|
+          f.write "\ntools.remindInstall = \"FALSE\""
+        end
+      end
+
+      it 'should not add another entry for tools.remindInstall' do
+        @cloner.clone
+        pattern = /^tools\.remindInstall = "FALSE"/
+        File.read("#{@target_path}/bar.vmx").scan(pattern).count.should == 1
+      end
     end
 
     it "should not try to update the vmdk file if it's not a sparse disk" do
       @cloner.clone
-
       File.read("#{@target_path}/bar.vmdk").should match /foo/
     end
 

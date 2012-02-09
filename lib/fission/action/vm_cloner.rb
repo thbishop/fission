@@ -153,19 +153,19 @@ module Fission
       #
       # Returns nothing.
       def clean_up_conf_file(conf_file_path)
-        conf_items_patterns = [ /^tools\.remindInstall.*\n/,
-                                /^uuid\.action.*\n/,
-                                /^ethernet\.+generatedAddress.*\n/ ]
+        conf_items_patterns = { /^tools\.remindInstall.*\n/ => "tools.remindInstall = \"FALSE\"",
+                                /^uuid\.action.*\n/ => "uuid.action = \"create\"",
+                                /^ethernet\.+generatedAddress.*\n/ => '' }
 
         content = File.read conf_file_path
-
-        conf_items_patterns.each do |pattern|
-          content.gsub(pattern, '').strip
-        end
-
         content << "\n"
-        content << "tools.remindInstall = \"FALSE\"\n"
-        content << "uuid.action = \"create\"\n"
+
+        conf_items_patterns.each_pair do |pattern, new_item|
+          unless content.include? new_item
+            content.gsub(pattern, '').strip
+            content << "#{new_item}\n"
+          end
+        end
 
         File.open(conf_file_path, 'w') { |f| f.print content }
       end
