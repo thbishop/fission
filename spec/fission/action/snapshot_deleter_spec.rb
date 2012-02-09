@@ -4,12 +4,12 @@ describe Fission::Action::SnapshotDeleter do
 
   describe 'delete_snapshot' do
     before do
-      @vm = Fission::VM.new('foo')
-      @conf_file_path = File.join(@vm.path, 'foo.vmx')
-      @vmrun_cmd = Fission.config['vmrun_cmd']
-      @conf_file_response_mock = mock('conf_file_response')
-      @snapshots_response_mock = mock('snapshots')
-      @running_response_mock = mock('running?')
+      @vm                      = Fission::VM.new 'foo'
+      @conf_file_path          = File.join @vm.path, 'foo.vmx'
+      @vmrun_cmd               = Fission.config['vmrun_cmd']
+      @conf_file_response_mock = mock 'conf_file_response'
+      @snapshots_response_mock = mock 'snapshots'
+      @running_response_mock   = mock 'running?'
 
       @running_response_mock.stub_as_successful true
       @conf_file_response_mock.stub_as_successful @conf_file_path

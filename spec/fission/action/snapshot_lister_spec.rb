@@ -2,10 +2,10 @@ require 'spec_helper'
 
 describe Fission::Action::SnapshotLister do
   before do
-    @vm = Fission::VM.new('foo')
-    @conf_file_path = File.join(@vm.path, 'foo.vmx')
-    @vmrun_cmd = Fission.config['vmrun_cmd']
-    @conf_file_response_mock = mock('conf_file_response')
+    @vm                      = Fission::VM.new 'foo'
+    @conf_file_path          = File.join @vm.path, 'foo.vmx'
+    @vmrun_cmd               = Fission.config['vmrun_cmd']
+    @conf_file_response_mock = mock 'conf_file_response'
     @vm.stub(:conf_file).and_return(@conf_file_response_mock)
   end
 

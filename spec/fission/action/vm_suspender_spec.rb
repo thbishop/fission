@@ -4,11 +4,11 @@ describe Fission::Action::VMSuspender do
 
   describe 'suspend' do
     before do
-      @vm                      = Fission::VM.new('foo')
+      @vm                      = Fission::VM.new 'foo'
       @vmrun_cmd               = Fission.config['vmrun_cmd']
-      @conf_file_path          = File.join(@vm.path, 'foo.vmx')
-      @conf_file_response_mock = mock('conf_file_response')
-      @running_response_mock   = mock('running?')
+      @conf_file_path          = File.join @vm.path, 'foo.vmx'
+      @conf_file_response_mock = mock 'conf_file_response'
+      @running_response_mock   = mock 'running?'
 
       @vm.stub(:exists?).and_return(true)
       @vm.stub(:running?).and_return(@running_response_mock)

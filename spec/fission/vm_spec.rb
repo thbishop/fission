@@ -3,7 +3,6 @@ require 'spec_helper'
 describe Fission::VM do
   before do
     @vm = Fission::VM.new('foo')
-    @vm.stub!(:conf_file).and_return(File.join(@vm.path, 'foo.vmx'))
     @conf_file_path = File.join(@vm.path, 'foo.vmx')
     @vmrun_cmd = Fission.config['vmrun_cmd']
     @conf_file_response_mock = mock('conf_file_response')

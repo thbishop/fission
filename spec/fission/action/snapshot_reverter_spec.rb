@@ -4,11 +4,11 @@ describe Fission::Action::SnapshotReverter do
 
   describe 'revert_snapshot' do
     before do
-      @vm = Fission::VM.new('foo')
-      @conf_file_path = File.join(@vm.path, 'foo.vmx')
-      @vmrun_cmd = Fission.config['vmrun_cmd']
-      @conf_file_response_mock = mock('conf_file_response')
-      @snapshots_response_mock = mock('snapshots')
+      @vm                      = Fission::VM.new 'foo'
+      @conf_file_path          = File.join @vm.path, 'foo.vmx'
+      @vmrun_cmd               = Fission.config['vmrun_cmd']
+      @conf_file_response_mock = mock 'conf_file_response'
+      @snapshots_response_mock = mock 'snapshots'
 
       @conf_file_response_mock.stub_as_successful @conf_file_path
       @snapshots_response_mock.stub_as_successful []

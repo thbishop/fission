@@ -1,27 +1,23 @@
 require 'spec_helper'
 
 describe Fission::Action::SnapshotCreator do
-  before do
-    @vm = Fission::VM.new('foo')
-    @conf_file_path = File.join(@vm.path, 'foo.vmx')
-    @vmrun_cmd = Fission.config['vmrun_cmd']
-    @conf_file_response_mock = mock('conf_file_response')
-
-    @snapshots_response_mock = mock('snapshots')
-    @running_response_mock = mock('running?')
-
-    @running_response_mock.stub_as_successful true
-    @conf_file_response_mock.stub_as_successful @conf_file_path
-    @snapshots_response_mock.stub_as_successful []
-
-    @vm.stub(:exists?).and_return(true)
-    @vm.stub(:snapshots).and_return(@snapshots_response_mock)
-    @vm.stub(:running?).and_return(@running_response_mock)
-    @vm.stub(:conf_file).and_return(@conf_file_response_mock)
-  end
-
   describe 'create_snapshot' do
     before do
+      @vm                      = Fission::VM.new 'foo'
+      @conf_file_path          = File.join @vm.path, 'foo.vmx'
+      @vmrun_cmd               = Fission.config['vmrun_cmd']
+      @conf_file_response_mock = mock 'conf_file_response'
+      @snapshots_response_mock = mock 'snapshots'
+      @running_response_mock   = mock 'running?'
+
+      @running_response_mock.stub_as_successful true
+      @conf_file_response_mock.stub_as_successful @conf_file_path
+      @snapshots_response_mock.stub_as_successful []
+
+      @vm.stub(:exists?).and_return(true)
+      @vm.stub(:snapshots).and_return(@snapshots_response_mock)
+      @vm.stub(:running?).and_return(@running_response_mock)
+      @vm.stub(:conf_file).and_return(@conf_file_response_mock)
       @creator = Fission::Action::SnapshotCreator.new @vm
     end
 
