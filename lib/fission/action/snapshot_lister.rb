@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 module Fission
   module Action
 
