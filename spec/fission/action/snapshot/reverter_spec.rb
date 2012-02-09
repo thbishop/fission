@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Fission::Action::SnapshotReverter do
+describe Fission::Action::Snapshot::Reverter do
 
   describe 'revert_snapshot' do
     before do
@@ -18,7 +18,7 @@ describe Fission::Action::SnapshotReverter do
       @vm.stub(:conf_file).and_return(@conf_file_response_mock)
       @snapshots_response_mock.stub_as_successful ['snap_1']
       Fission::Fusion.stub(:running?).and_return(false)
-      @reverter = Fission::Action::SnapshotReverter.new @vm
+      @reverter = Fission::Action::Snapshot::Reverter.new @vm
     end
 
     it "should return an unsuccessful response if the vm doesn't exist" do

@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Fission::Action::SnapshotLister do
+describe Fission::Action::Snapshot::Lister do
   before do
     @vm                      = Fission::VM.new 'foo'
     @conf_file_path          = File.join @vm.path, 'foo.vmx'
@@ -13,7 +13,7 @@ describe Fission::Action::SnapshotLister do
     before do
       @vm.stub(:exists?).and_return(true)
       @conf_file_response_mock.stub_as_successful @conf_file_path
-      @lister = Fission::Action::SnapshotLister.new @vm
+      @lister = Fission::Action::Snapshot::Lister.new @vm
     end
 
     it "should return an unsuccessful repsonse when the vm doesn't exist" do

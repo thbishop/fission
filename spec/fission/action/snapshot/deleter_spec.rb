@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Fission::Action::SnapshotDeleter do
+describe Fission::Action::Snapshot::Deleter do
 
   describe 'delete_snapshot' do
     before do
@@ -20,7 +20,7 @@ describe Fission::Action::SnapshotDeleter do
       @vm.stub(:running?).and_return(@running_response_mock)
       @vm.stub(:conf_file).and_return(@conf_file_response_mock)
       Fission::Fusion.stub(:running?).and_return(false)
-      @deleter = Fission::Action::SnapshotDeleter.new @vm
+      @deleter = Fission::Action::Snapshot::Deleter.new @vm
     end
 
     it "should return an unsuccessful response if the vm doesn't exist" do

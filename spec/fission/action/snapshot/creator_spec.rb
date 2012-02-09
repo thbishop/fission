@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Fission::Action::SnapshotCreator do
+describe Fission::Action::Snapshot::Creator do
   describe 'create_snapshot' do
     before do
       @vm                      = Fission::VM.new 'foo'
@@ -18,7 +18,7 @@ describe Fission::Action::SnapshotCreator do
       @vm.stub(:snapshots).and_return(@snapshots_response_mock)
       @vm.stub(:running?).and_return(@running_response_mock)
       @vm.stub(:conf_file).and_return(@conf_file_response_mock)
-      @creator = Fission::Action::SnapshotCreator.new @vm
+      @creator = Fission::Action::Snapshot::Creator.new @vm
     end
 
     it "should return an unsuccessful response if the vm doesn't exist" do

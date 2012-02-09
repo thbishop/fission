@@ -21,7 +21,7 @@ module Fission
     # If successful, the Response's data attribute will be nil.
     # If there is an error, an unsuccessful Response will be returned.
     def create_snapshot(name)
-      Fission::Action::SnapshotCreator.new(self).create_snapshot(name)
+      Fission::Action::Snapshot::Creator.new(self).create_snapshot(name)
     end
 
     # Public: Deletes a snapshot for a VM.  The snapshot to delete must exist.
@@ -37,7 +37,7 @@ module Fission
     # If successful, the Response's data attribute will be nil.
     # If there is an error, an unsuccessful Response will be returned.
     def delete_snapshot(name)
-      Fission::Action::SnapshotDeleter.new(self).delete_snapshot(name)
+      Fission::Action::Snapshot::Deleter.new(self).delete_snapshot(name)
     end
 
     # Public: Reverts the VM to the specified snapshot.  The snapshot to revert
@@ -53,7 +53,7 @@ module Fission
     # If successful, the Response's data attribute will be nil.
     # If there is an error, an unsuccessful Response will be returned.
     def revert_to_snapshot(name)
-      Fission::Action::SnapshotReverter.new(self).revert_to_snapshot(name)
+      Fission::Action::Snapshot::Reverter.new(self).revert_to_snapshot(name)
     end
 
     # Public: List the snapshots for a VM.
@@ -68,7 +68,7 @@ module Fission
     # snapshot names (String).
     # If there is an error, an unsuccessful Response will be returned.
     def snapshots
-      Fission::Action::SnapshotLister.new(self).snapshots
+      Fission::Action::Snapshot::Lister.new(self).snapshots
     end
 
     # Public: Deletes a VM.  The VM must not be running in order to delete it.
@@ -89,7 +89,7 @@ module Fission
     # If successful, the Response's data attribute will be nil.
     # If there is an error, an unsuccessful Response will be returned.
     def delete
-      Fission::Action::VMDeleter.new(self).delete
+      Fission::Action::VM::Deleter.new(self).delete
     end
 
     # Public: Starts a VM.  The VM must not be running in order to start it.
@@ -110,7 +110,7 @@ module Fission
     # If successful, the Response's data attribute will be nil.
     # If there is an error, an unsuccessful Response will be returned.
     def start(options={})
-      Fission::Action::VMStarter.new(self).start(options)
+      Fission::Action::VM::Starter.new(self).start(options)
     end
 
     # Public: Stops a VM.  The VM must be running in order to stop it.
@@ -132,7 +132,7 @@ module Fission
     # If successful, the Response's data attribute will be nil.
     # If there is an error, an unsuccessful Response will be returned.
     def stop(options={})
-      Fission::Action::VMStopper.new(self).stop(options)
+      Fission::Action::VM::Stopper.new(self).stop(options)
     end
 
     # Public: Suspends a VM.  The VM must be running in order to suspend it.
@@ -145,7 +145,7 @@ module Fission
     # If successful, the Response's data attribute will be nil.
     # If there is an error, an unsuccessful Response will be returned.
     def suspend
-      Fission::Action::VMSuspender.new(self).suspend
+      Fission::Action::VM::Suspender.new(self).suspend
     end
 
     # Public: Provides virtual hardware info the VM
@@ -615,7 +615,7 @@ module Fission
     def self.clone(source_vm_name, target_vm_name)
       @source_vm = new source_vm_name
       @target_vm = new target_vm_name
-      Fission::Action::VMCloner.new(@source_vm, @target_vm).clone
+      Fission::Action::VM::Cloner.new(@source_vm, @target_vm).clone
     end
 
     private

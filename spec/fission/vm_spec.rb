@@ -18,7 +18,7 @@ describe Fission::VM do
     before do
       @vm_deleter           = mock 'vm deleter'
       @delete_response_mock = mock 'vm delete response'
-      Fission::Action::VMDeleter.stub(:new).and_return(@vm_deleter)
+      Fission::Action::VM::Deleter.stub(:new).and_return(@vm_deleter)
     end
 
     it 'should return an unsuccessful response when unable to delete the vm' do
@@ -40,7 +40,7 @@ describe Fission::VM do
     before do
       @vm_starter          = mock 'vm starter'
       @start_response_mock = mock 'vm start response'
-      Fission::Action::VMStarter.stub(:new).and_return(@vm_starter)
+      Fission::Action::VM::Starter.stub(:new).and_return(@vm_starter)
     end
 
     it 'should return an unsuccessful response when unable to start the vm' do
@@ -70,7 +70,7 @@ describe Fission::VM do
     before do
       @vm_stopper         = mock 'vm stopper'
       @stop_response_mock = mock 'vm stop response'
-      Fission::Action::VMStopper.stub(:new).and_return(@vm_stopper)
+      Fission::Action::VM::Stopper.stub(:new).and_return(@vm_stopper)
     end
 
     it 'should return a successful response when stopping' do
@@ -100,7 +100,7 @@ describe Fission::VM do
     before do
       @vm_suspender          = mock 'vm suspender'
       @suspend_response_mock = mock 'vm suspend response'
-      Fission::Action::VMSuspender.stub(:new).and_return(@vm_suspender)
+      Fission::Action::VM::Suspender.stub(:new).and_return(@vm_suspender)
     end
 
     it 'should return a successful response when suspending' do
@@ -122,7 +122,7 @@ describe Fission::VM do
     before do
       @snapshot_lister_mock = mock 'snapshot lister'
       @snapshots_response_mock = mock 'snapshots mock'
-      Fission::Action::SnapshotLister.stub(:new).and_return(@snapshot_lister_mock)
+      Fission::Action::Snapshot::Lister.stub(:new).and_return(@snapshot_lister_mock)
       @snapshot_lister_mock.should_receive(:snapshots).
                             and_return(@snapshots_response_mock)
     end
@@ -144,7 +144,7 @@ describe Fission::VM do
     before do
       @snapshot_creator_mock         = mock 'snapshot creator'
       @snapshot_create_response_mock = mock 'snapshot create response'
-      Fission::Action::SnapshotCreator.stub(:new).and_return(@snapshot_creator_mock)
+      Fission::Action::Snapshot::Creator.stub(:new).and_return(@snapshot_creator_mock)
       @snapshot_creator_mock.should_receive(:create_snapshot).
                              with('snap_1').
                              and_return(@snapshot_create_response_mock)
@@ -166,7 +166,7 @@ describe Fission::VM do
       @snapshot_deleter_mock         = mock 'snapshot deleter'
       @snapshot_delete_response_mock = mock 'snapshot delete response'
 
-      Fission::Action::SnapshotDeleter.stub(:new).
+      Fission::Action::Snapshot::Deleter.stub(:new).
                                        and_return(@snapshot_deleter_mock)
       @snapshot_deleter_mock.should_receive(:delete_snapshot).
                              with('snap_1').
@@ -189,7 +189,7 @@ describe Fission::VM do
       @snapshot_reverter_mock       = mock 'snapshot reverter'
       @snapshot_revert_response_mock = 'snapshot revert response'
 
-      Fission::Action::SnapshotReverter.stub(:new).
+      Fission::Action::Snapshot::Reverter.stub(:new).
                                         and_return(@snapshot_reverter_mock)
       @snapshot_reverter_mock.should_receive(:revert_to_snapshot).
                               with('snap_1').
@@ -861,7 +861,7 @@ describe Fission::VM do
       @vm_2                = mock 'vm 2'
       @vm_cloner           = mock 'vm cloner'
       @clone_response_mock = mock 'vm clone response'
-      Fission::Action::VMCloner.should_receive(:new).
+      Fission::Action::VM::Cloner.should_receive(:new).
                                 with(@vm_1, @vm_2).
                                 and_return(@vm_cloner)
       Fission::VM.should_receive(:new).with('vm_1').and_return(@vm_1)

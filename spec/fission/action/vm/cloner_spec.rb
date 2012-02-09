@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Fission::Action::VMCloner do
+describe Fission::Action::VM::Cloner do
 
   describe 'clone' do
     before do
@@ -60,7 +60,7 @@ ethernet1.generatedAddressenable = "TRUE"'
       File.stub(:binary?).
            with("#{@target_path}/#{@target_vm.name}.vmdk").
            and_return(true)
-      @cloner = Fission::Action::VMCloner.new @source_vm, @target_vm
+      @cloner = Fission::Action::VM::Cloner.new @source_vm, @target_vm
     end
 
     after do

@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Fission::Action::VMDeleter do
+describe Fission::Action::VM::Deleter do
 
   describe 'delete' do
     before do
@@ -16,7 +16,7 @@ describe Fission::Action::VMDeleter do
       @vm.stub(:conf_file).and_return(@conf_file_response_mock)
       @running_response_mock.stub_as_successful false
       @conf_file_response_mock.stub_as_successful @conf_file_path
-      @deleter = Fission::Action::VMDeleter.new @vm
+      @deleter = Fission::Action::VM::Deleter.new @vm
 
       FakeFS.activate!
 

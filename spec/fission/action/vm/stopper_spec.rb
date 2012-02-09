@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Fission::Action::VMStopper do
+describe Fission::Action::VM::Stopper do
 
   describe 'stop' do
     before do
@@ -15,7 +15,7 @@ describe Fission::Action::VMStopper do
       @vm.stub(:conf_file).and_return(@conf_file_response_mock)
       @running_response_mock.stub_as_successful true
       @conf_file_response_mock.stub_as_successful @conf_file_path
-      @stopper = Fission::Action::VMStopper.new @vm
+      @stopper = Fission::Action::VM::Stopper.new @vm
     end
 
     it "should return an unsuccessful response if the vm doesn't exist" do

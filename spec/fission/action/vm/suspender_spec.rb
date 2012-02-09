@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Fission::Action::VMSuspender do
+describe Fission::Action::VM::Suspender do
 
   describe 'suspend' do
     before do
@@ -15,7 +15,7 @@ describe Fission::Action::VMSuspender do
       @vm.stub(:conf_file).and_return(@conf_file_response_mock)
       @running_response_mock.stub_as_successful true
       @conf_file_response_mock.stub_as_successful @conf_file_path
-      @suspender = Fission::Action::VMSuspender.new @vm
+      @suspender = Fission::Action::VM::Suspender.new @vm
     end
 
     it "should return an unsuccessful response if the vm doesn't exist" do
