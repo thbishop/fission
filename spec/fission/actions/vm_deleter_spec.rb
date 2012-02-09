@@ -20,10 +20,10 @@ describe Fission::Action::VMDeleter do
 
       FakeFS.activate!
 
-      FileUtils.mkdir_p Fission::VM.new(@vm).path
+      FileUtils.mkdir_p @vm.path
 
       @vm_files.each do |file|
-        FileUtils.touch File.join(Fission::VM.new(@vm).path, "#{@vm}#{file}")
+        FileUtils.touch File.join(@vm.path, "#{@vm.name}#{file}")
       end
     end
 
@@ -61,14 +61,16 @@ describe Fission::Action::VMDeleter do
         file_path = File.join @vm.path, "#{@vm.name}#{file}"
         File.exists?(file_path).should == false
       end
+
+      File.directory?(@vm.path).should == false
     end
 
     it 'should delete the target vm metadata' do
-      Fission::Metadata.should_receive(:delete_vm_info)
+      Fission::Metadata.should_receive(:delete_vm_info).with(@vm.path)
       @deleter.delete
     end
 
-    it 'should return a successful reponsse object' do
+    it 'should return a successful reponse object' do
       Fission::Metadata.stub!(:delete_vm_info)
       @deleter.delete.should be_a_successful_response
     end

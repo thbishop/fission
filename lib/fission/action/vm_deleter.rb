@@ -46,8 +46,8 @@ module Fission
           return Response.new :code => 1, :message => message
         end
 
-        FileUtils.rm_rf @path
-        Metadata.delete_vm_info @path
+        FileUtils.rm_rf @vm.path
+        Metadata.delete_vm_info @vm.path
 
         Response.new :code => 0
       end
