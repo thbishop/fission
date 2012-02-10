@@ -5,6 +5,7 @@ require 'yaml'
 
 $:.unshift File.join(File.dirname(__FILE__), *%w[.. lib])
 
+require 'fission/action/shell_executor'
 require 'fission/action/snapshot/creator'
 require 'fission/action/snapshot/deleter'
 require 'fission/action/snapshot/lister'
