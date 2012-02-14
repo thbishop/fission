@@ -64,7 +64,8 @@ module Fission
           command << (options[:headless].blank? ? 'gui ' : 'nogui ')
           command << '2>&1'
 
-          Response.from_command(`#{command}`)
+          command_exec = Fission::Action::ShellExecutor.new command
+          Response.from_shell_executor command_exec.execute
         end
 
         private

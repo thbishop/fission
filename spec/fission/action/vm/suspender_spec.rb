@@ -38,22 +38,20 @@ describe Fission::Action::VM::Suspender do
       @suspender.suspend.should be_an_unsuccessful_response
     end
 
-    it 'should return a successful response' do
-      $?.should_receive(:exitstatus).and_return(0)
-      @suspender.should_receive(:`).
-                 with("#{@vmrun_cmd} suspend #{@conf_file_path.gsub ' ', '\ '} 2>&1").
-                 and_return("it's all good")
+    it 'should return a response' do
+      executor_mock = mock 'executor'
+      response      = stub
+      cmd           = "#{@vmrun_cmd} suspend "
+      cmd           << "#{@conf_file_path.gsub ' ', '\ '} 2>&1"
 
-      @suspender.suspend.should be_a_successful_response
-    end
-
-    it 'it should return an unsuccessful response if unable to suspend the vm' do
-      $?.should_receive(:exitstatus).and_return(1)
-      @suspender.should_receive(:`).
-                 with("#{@vmrun_cmd} suspend #{@conf_file_path.gsub ' ', '\ '} 2>&1").
-                 and_return("it blew up")
-
-      @suspender.suspend.should be_an_unsuccessful_response
+      executor_mock.should_receive(:execute).and_return(executor_mock)
+      Fission::Action::ShellExecutor.should_receive(:new).
+                                     with(cmd).
+                                     and_return(executor_mock)
+      Fission::Response.should_receive(:from_shell_executor).
+                        with(executor_mock).
+                        and_return(response)
+      @suspender.suspend.should == response
     end
 
   end

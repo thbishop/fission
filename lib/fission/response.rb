@@ -72,5 +72,24 @@ module Fission
       response
     end
 
+    # Public: Helper method to create a new Response object when using executing
+    # a command through Fission::Action::ShellExecutor.
+    #
+    # shell_execute_result - This should be the result of running 'execute' on
+    #                        a ShellExecutor object.
+    #
+    # Returns a Response.
+    # The code attribute of the Response will be set to the exit_status
+    # attribute of the provided process_status data. The message attribute of
+    # the Response will be set to the output of the provided data if, and only
+    # if, the Response is unsuccessful.
+    def self.from_shell_executor(shell_execute_result)
+      response = new :code => shell_execute_result['process_status'].exitstatus
+      unless response.successful?
+        response.message = shell_execute_result['output']
+      end
+      response
+    end
+
   end
 end

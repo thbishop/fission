@@ -38,31 +38,32 @@ describe Fission::Action::VM::Stopper do
       @stopper.stop.should be_an_unsuccessful_response
     end
 
-    it 'should return a successful response and stop the vm' do
-      $?.should_receive(:exitstatus).and_return(0)
-      @stopper.should_receive(:`).
-               with("#{@vmrun_cmd} stop #{@conf_file_path.gsub ' ', '\ '} 2>&1").
-               and_return("it's all good")
+    context 'when stopping the vm' do
+      before do
+        @executor_mock = mock 'executor'
+        @response      = stub
+        @executor_mock.should_receive(:execute).and_return(@executor_mock)
+        Fission::Fusion.stub(:running?).and_return(false)
+        Fission::Response.should_receive(:from_shell_executor).
+                          with(@executor_mock).
+                          and_return(@response)
+      end
 
-      @stopper.stop.should be_a_successful_response
-    end
+      it 'should return a response' do
+        cmd = "#{@vmrun_cmd} stop #{@conf_file_path.gsub ' ', '\ '} 2>&1"
+        Fission::Action::ShellExecutor.should_receive(:new).
+                                       with(cmd).
+                                       and_return(@executor_mock)
+        @stopper.stop.should  == @response
+      end
 
-    it 'should return a suscessful response and hard stop the vm' do
-      $?.should_receive(:exitstatus).and_return(0)
-      @stopper.should_receive(:`).
-               with("#{@vmrun_cmd} stop #{@conf_file_path.gsub ' ', '\ '} hard 2>&1").
-               and_return("it's all good")
-
-      @stopper.stop(:hard => true).should be_a_successful_response
-    end
-
-    it 'it should return an unsuccessful response if unable to stop the vm' do
-      $?.should_receive(:exitstatus).and_return(1)
-      @stopper.should_receive(:`).
-               with("#{@vmrun_cmd} stop #{@conf_file_path.gsub ' ', '\ '} 2>&1").
-               and_return("it blew up")
-
-      @stopper.stop.should be_an_unsuccessful_response
+      it 'should return a response for a hard stop' do
+        cmd = "#{@vmrun_cmd} stop #{@conf_file_path.gsub ' ', '\ '} hard 2>&1"
+        Fission::Action::ShellExecutor.should_receive(:new).
+                                       with(cmd).
+                                       and_return(@executor_mock)
+        @stopper.stop(:hard => true).should == @response
+      end
     end
 
   end

@@ -60,7 +60,8 @@ module Fission
           command = "#{vmrun_cmd} deleteSnapshot "
           command << "#{conf_file_response.data} \"#{name}\" 2>&1"
 
-          Response.from_command(`#{command}`)
+          command_exec = Fission::Action::ShellExecutor.new command
+          Response.from_shell_executor command_exec.execute
         end
 
         private

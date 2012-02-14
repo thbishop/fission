@@ -40,35 +40,31 @@ describe Fission::Action::VM::Starter do
 
     context 'when the fusion gui is not running' do
       before do
+        @executor_mock = mock 'executor'
+        @response      = stub
+        @executor_mock.should_receive(:execute).and_return(@executor_mock)
         Fission::Fusion.stub(:running?).and_return(false)
+        Fission::Response.should_receive(:from_shell_executor).
+                          with(@executor_mock).
+                          and_return(@response)
       end
 
-      it 'should start the VM and return a successful response' do
-        $?.should_receive(:exitstatus).and_return(0)
-        @starter.should_receive(:`).
-                 with("#{@vmrun_cmd} start #{@conf_file_path.gsub(' ', '\ ')} gui 2>&1").
-                 and_return("it's all good")
-
-        @starter.start.should be_a_successful_response
+      it 'should return a response when starting the vm' do
+        cmd = "#{@vmrun_cmd} start #{@conf_file_path.gsub(' ', '\ ')} gui 2>&1"
+        Fission::Action::ShellExecutor.should_receive(:new).
+                                       with(cmd).
+                                       and_return(@executor_mock)
+        @starter.start.should == @response
       end
 
-      it 'should successfully start the vm headless' do
-        $?.should_receive(:exitstatus).and_return(0)
-        @starter.should_receive(:`).
-                 with("#{@vmrun_cmd} start #{@conf_file_path.gsub(' ', '\ ')} nogui 2>&1").
-                 and_return("it's all good")
-
-        @starter.start(:headless => true).should be_a_successful_response
+      it 'should return a response when starting the vm headless' do
+        cmd = "#{@vmrun_cmd} start #{@conf_file_path.gsub(' ', '\ ')} nogui 2>&1"
+        Fission::Action::ShellExecutor.should_receive(:new).
+                                       with(cmd).
+                                       and_return(@executor_mock)
+        @starter.start(:headless => true).should == @response
       end
 
-      it 'should return an unsuccessful response if there was an error starting the VM' do
-        $?.should_receive(:exitstatus).and_return(1)
-        @starter.should_receive(:`).
-                 with("#{@vmrun_cmd} start #{@conf_file_path.gsub(' ', '\ ')} gui 2>&1").
-                 and_return("it blew up")
-
-        @starter.start.should be_an_unsuccessful_response
-      end
     end
 
     context 'when the fusion gui is running' do

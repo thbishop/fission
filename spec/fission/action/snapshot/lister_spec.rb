@@ -21,29 +21,47 @@ describe Fission::Action::Snapshot::Lister do
       @lister.snapshots.should be_an_unsuccessful_response 'VM does not exist'
     end
 
-    it 'should return a successful response with the list of snapshots' do
-      $?.should_receive(:exitstatus).and_return(0)
-      @lister.should_receive(:`).
-              with("#{@vmrun_cmd} listSnapshots #{@conf_file_path.gsub ' ', '\ '} 2>&1").
-              and_return("Total snapshots: 3\nsnap foo\nsnap bar\nsnap baz\n")
+    it 'should return an unsuccessful response if unable to figure out the conf file' do
+      @conf_file_response_mock.stub_as_unsuccessful
+      @lister.snapshots.should be_an_unsuccessful_response
+    end
+
+    it 'should return a response when listing the snapshots' do
+      executor_mock = mock 'executor'
+      process_mock  = stub :exitstatus => 0
+      cmd           = "#{@vmrun_cmd} listSnapshots "
+      cmd           << "#{@conf_file_path.gsub ' ', '\ '} 2>&1"
+
+      output_text = "Total snapshots: 3\nsnap foo\nsnap bar\nsnap baz\n"
+      executor_mock.should_receive(:execute).
+                    and_return({'output'         => output_text,
+                                'process_status' => process_mock})
+
+      Fission::Action::ShellExecutor.should_receive(:new).
+                                     with(cmd).
+                                     and_return(executor_mock)
 
       response = @lister.snapshots
       response.should be_a_successful_response
       response.data.should == ['snap foo', 'snap bar', 'snap baz']
     end
 
-    it 'should return an unsuccessful response if unable to figure out the conf file' do
-      @conf_file_response_mock.stub_as_unsuccessful
-      @lister.snapshots.should be_an_unsuccessful_response
-    end
+    it 'should return an unsuccessful response if there was a problem listing the snapshots' do
+      executor_mock = mock 'executor'
+      process_mock  = stub :exitstatus => 1
+      cmd           = "#{@vmrun_cmd} listSnapshots "
+      cmd           << "#{@conf_file_path.gsub ' ', '\ '} 2>&1"
 
-    it 'should return an unsuccessful response if there was a problem getting the list of snapshots' do
-      $?.should_receive(:exitstatus).and_return(1)
-      @lister.should_receive(:`).
-              with("#{@vmrun_cmd} listSnapshots #{@conf_file_path.gsub ' ', '\ '} 2>&1").
-              and_return("it blew up")
+      executor_mock.should_receive(:execute).
+                    and_return({'output'         => 'it blew up',
+                                'process_status' => process_mock})
+
+      Fission::Action::ShellExecutor.should_receive(:new).
+                                     with(cmd).
+                                     and_return(executor_mock)
 
       @lister.snapshots.should be_an_unsuccessful_response
     end
   end
+
 end

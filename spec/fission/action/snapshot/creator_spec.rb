@@ -44,13 +44,21 @@ describe Fission::Action::Snapshot::Creator do
       @creator.create_snapshot('snap_1').should be_an_unsuccessful_response
     end
 
-    it 'should return a successful response and create a snapshot' do
-      $?.should_receive(:exitstatus).and_return(0)
-      @creator.should_receive(:`).
-               with("#{@vmrun_cmd} snapshot #{@conf_file_path.gsub ' ', '\ '} \"bar\" 2>&1").
-               and_return("")
+    it 'should return a response when creating the snapshot' do
+      executor_mock = mock 'executor'
+      response      = stub
+      cmd           = "#{@vmrun_cmd} snapshot "
+      cmd           << "#{@conf_file_path.gsub ' ', '\ '} \"bar\" 2>&1"
 
-      @creator.create_snapshot('bar').should be_a_successful_response
+      executor_mock.should_receive(:execute).and_return(executor_mock)
+      Fission::Action::ShellExecutor.should_receive(:new).
+                                     with(cmd).
+                                     and_return(executor_mock)
+      Fission::Response.should_receive(:from_shell_executor).
+                        with(executor_mock).
+                        and_return(response)
+
+      @creator.create_snapshot('bar').should == response
     end
 
     it 'should return an unsuccessful response if the snapshot name is a duplicate' do
@@ -64,14 +72,6 @@ describe Fission::Action::Snapshot::Creator do
       @creator.create_snapshot('snap_1').should be_an_unsuccessful_response
     end
 
-    it 'should return and unsuccessful response if there was a problem creating the snapshot' do
-      $?.should_receive(:exitstatus).and_return(1)
-      @creator.should_receive(:`).
-               with("#{@vmrun_cmd} snapshot #{@conf_file_path.gsub ' ', '\ '} \"bar\" 2>&1").
-               and_return("it blew up")
-
-      @creator.create_snapshot('bar').should be_an_unsuccessful_response
-    end
   end
 
 end

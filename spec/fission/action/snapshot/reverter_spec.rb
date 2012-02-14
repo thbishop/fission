@@ -43,13 +43,21 @@ describe Fission::Action::Snapshot::Reverter do
       @reverter.revert_to_snapshot('snap_1').should be_an_unsuccessful_response
     end
 
-    it 'should return a successful response and revert to the provided snapshot' do
-      $?.should_receive(:exitstatus).and_return(0)
-      @reverter.should_receive(:`).
-                with("#{@vmrun_cmd} revertToSnapshot #{@conf_file_path.gsub ' ', '\ '} \"snap_1\" 2>&1").
-                and_return("")
+    it 'should return a response when reverting to the snapshot' do
+      executor_mock = mock 'executor'
+      response      = stub
+      cmd           = "#{@vmrun_cmd} revertToSnapshot "
+      cmd           << "#{@conf_file_path.gsub ' ', '\ '} \"snap_1\" 2>&1"
 
-      @reverter.revert_to_snapshot('snap_1').should be_a_successful_response
+      executor_mock.should_receive(:execute).and_return(executor_mock)
+      Fission::Action::ShellExecutor.should_receive(:new).
+                                     with(cmd).
+                                     and_return(executor_mock)
+      Fission::Response.should_receive(:from_shell_executor).
+                        with(executor_mock).
+                        and_return(response)
+
+      @reverter.revert_to_snapshot('snap_1').should == response
     end
 
     it 'should return an unsuccessful response if the snapshot cannot be found' do
@@ -60,15 +68,6 @@ describe Fission::Action::Snapshot::Reverter do
 
     it 'should return an unsuccessful response if unable to list the existing snapshots' do
       @snapshots_response_mock.stub_as_unsuccessful
-      @reverter.revert_to_snapshot('snap_1').should be_an_unsuccessful_response
-    end
-
-    it 'should return and unsuccessful response if unable to revert to the snapshot' do
-      $?.should_receive(:exitstatus).and_return(1)
-      @reverter.should_receive(:`).
-                with("#{@vmrun_cmd} revertToSnapshot #{@conf_file_path.gsub ' ', '\ '} \"snap_1\" 2>&1").
-                and_return("it blew up")
-
       @reverter.revert_to_snapshot('snap_1').should be_an_unsuccessful_response
     end
 

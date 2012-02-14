@@ -44,22 +44,21 @@ describe Fission::Action::Snapshot::Deleter do
       @deleter.delete_snapshot('snap_1').should be_an_unsuccessful_response
     end
 
-    it 'should return a successful response and delete the snapshot' do
-      $?.should_receive(:exitstatus).and_return(0)
-      @deleter.should_receive(:`).
-               with("#{@vmrun_cmd} deleteSnapshot #{@conf_file_path.gsub ' ', '\ '} \"snap_1\" 2>&1").
-               and_return('')
+    it 'should return a response when deleting the snapshot' do
+      executor_mock = mock 'executor'
+      response      = stub
+      cmd           = "#{@vmrun_cmd} deleteSnapshot "
+      cmd           << "#{@conf_file_path.gsub ' ', '\ '} \"snap_1\" 2>&1"
 
-      @deleter.delete_snapshot('snap_1').should be_a_successful_response
-    end
+      executor_mock.should_receive(:execute).and_return(executor_mock)
+      Fission::Action::ShellExecutor.should_receive(:new).
+                                     with(cmd).
+                                     and_return(executor_mock)
+      Fission::Response.should_receive(:from_shell_executor).
+                        with(executor_mock).
+                        and_return(response)
 
-    it 'should return an unsuccessful response if there was a problem deleting the snapshot' do
-      $?.should_receive(:exitstatus).and_return(1)
-      @deleter.should_receive(:`).
-               with("#{@vmrun_cmd} deleteSnapshot #{@conf_file_path.gsub ' ', '\ '} \"snap_1\" 2>&1").
-               and_return('it blew up')
-
-      @deleter.delete_snapshot('snap_1').should be_an_unsuccessful_response
+      @deleter.delete_snapshot('snap_1').should == response
     end
 
     context 'when the gui is running' do

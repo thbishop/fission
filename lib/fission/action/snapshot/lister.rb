@@ -39,14 +39,16 @@ module Fission
 
           command = "#{vmrun_cmd} listSnapshots "
           command << "#{conf_file_response.data} 2>&1"
-          output = `#{command}`
 
-          response = Response.new :code => $?.exitstatus
+          command_exec = Fission::Action::ShellExecutor.new command
+          result = command_exec.execute
+
+          response = Response.new :code => result['process_status'].exitstatus
 
           if response.successful?
-            response.data = parse_snapshot_names_from_output output
+            response.data = parse_snapshot_names_from_output result['output']
           else
-            response.message = output
+            response.message = result['output']
           end
 
           response
