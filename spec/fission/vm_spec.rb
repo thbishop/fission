@@ -19,18 +19,16 @@ describe Fission::VM do
       @vm_deleter           = mock 'vm deleter'
       @delete_response_mock = mock 'vm delete response'
       Fission::Action::VM::Deleter.stub(:new).and_return(@vm_deleter)
+      @vm_deleter.should_receive(:delete).
+                  and_return(@delete_response_mock)
     end
 
     it 'should return an unsuccessful response when unable to delete the vm' do
-      @vm_deleter.should_receive(:delete).
-                  and_return(@delete_response_mock)
       @delete_response_mock.stub_as_unsuccessful
       @vm.delete.should be_an_unsuccessful_response
     end
 
     it 'should return a successful response when deleting' do
-      @vm_deleter.should_receive(:delete).
-                  and_return(@delete_response_mock)
       @delete_response_mock.stub_as_successful
       @vm.delete.should be_a_successful_response
     end
@@ -101,18 +99,16 @@ describe Fission::VM do
       @vm_suspender          = mock 'vm suspender'
       @suspend_response_mock = mock 'vm suspend response'
       Fission::Action::VM::Suspender.stub(:new).and_return(@vm_suspender)
+      @vm_suspender.should_receive(:suspend).
+                    and_return(@suspend_response_mock)
     end
 
     it 'should return a successful response when suspending' do
-      @vm_suspender.should_receive(:suspend).
-                    and_return(@suspend_response_mock)
       @suspend_response_mock.stub_as_successful
       @vm.suspend.should be_a_successful_response
     end
 
     it 'should return an unsuccessful response when unable to suspend the vm' do
-      @vm_suspender.should_receive(:suspend).
-                    and_return(@suspend_response_mock)
       @suspend_response_mock.stub_as_unsuccessful
       @vm.suspend.should be_an_unsuccessful_response
     end
