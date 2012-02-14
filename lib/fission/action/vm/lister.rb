@@ -45,21 +45,15 @@ module Fission
         # If there is an error, an unsuccessful Response will be returned.
         def all_running
           command = "#{Fission.config['vmrun_cmd']} list"
+          command_executor = Fission::Action::ShellExecutor.new command
+          result = command_executor.execute
 
-          output = `#{command}`
-
-          response = Response.new :code => $?.exitstatus
+          response = Response.new :code => result['process_status'].exitstatus
 
           if response.successful?
-            vms = output.split("\n").select do |vm|
-              vm.include?('.vmx') && File.exists?(vm) && File.extname(vm) == '.vmx'
-            end
-
-            response.data = vms.collect do |vm|
-              Fission::VM.new File.basename(File.dirname(vm), '.vmwarevm')
-            end
+            response.data = get_vm_objects_from_list_output result['output']
           else
-            response.message = output
+            response.message = result['output']
           end
 
           response
@@ -100,7 +94,7 @@ module Fission
         private
         # Internal: Helper to determines the status of a VM.
         #
-        # vm - The VM object
+        # vm - The VM object.
         #
         # Examples:
         #
@@ -112,6 +106,29 @@ module Fission
           return 'running' if @all_running_vm_names.include? vm.name
           return 'suspended' if vm.suspend_file_exists?
           return 'not running'
+        end
+
+        # Internal: Helper to get VM objects from the output of running VMs.
+        #
+        # output - output from the list command.
+        #
+        # Examples:
+        #
+        #   @lister.get_vm_objects_from_list_output my_output
+        #   # => [<Fission::VM:0x007fd6fa24c5d8 @name="foo">,
+        #         <Fission::VM:0x007fd6fa23c5e8 @name="bar">]
+        #
+        # Returns an Array of VM objects.
+        def get_vm_objects_from_list_output(output)
+          vms = output.split("\n").select do |vm|
+            vm.include?('.vmx') &&
+            File.exists?(vm) &&
+            File.extname(vm) == '.vmx'
+          end
+
+          vms.collect do |vm|
+            Fission::VM.new File.basename(File.dirname(vm), '.vmwarevm')
+          end
         end
 
       end

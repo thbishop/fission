@@ -62,16 +62,21 @@ describe Fission::Action::VM::Lister do
     before do
       @vmrun_cmd         = Fission.config['vmrun_cmd']
       @vm_names_and_objs = { 'foo' => @vm_1, 'bar' => @vm_2, 'baz' => @vm_3 }
+      @executor          = mock 'executor'
+      @process_status    = mock 'process status'
     end
 
     it 'should return a successful response with the list of running vms' do
       list_output = "Total running VMs: 2\n/vm/foo.vmwarevm/foo.vmx\n"
       list_output << "/vm/bar.vmwarevm/bar.vmx\n/vm/baz.vmwarevm/baz.vmx\n"
+      Fission::Action::ShellExecutor.should_receive(:new).
+                                     with("#{@vmrun_cmd} list").
+                                     and_return(@executor)
+      @process_status.should_receive(:exitstatus).and_return(0)
+      @executor.should_receive(:execute).
+                and_return({'process_status' => @process_status,
+                            'output'  => list_output})
 
-      $?.should_receive(:exitstatus).and_return(0)
-      @lister.should_receive(:`).
-              with("#{@vmrun_cmd} list").
-              and_return(list_output)
       [ 'foo', 'bar', 'baz'].each do |vm|
         File.should_receive(:exists?).with("/vm/#{vm}.vmwarevm/#{vm}.vmx").
                                       and_return(true)
@@ -96,10 +101,13 @@ describe Fission::Action::VM::Lister do
                                          and_return(@vm_names_and_objs[dir])
       end
 
-      $?.should_receive(:exitstatus).and_return(0)
-      @lister.should_receive(:`).
-              with("#{@vmrun_cmd} list").
-              and_return(list_output)
+      Fission::Action::ShellExecutor.should_receive(:new).
+                                     with("#{@vmrun_cmd} list").
+                                     and_return(@executor)
+      @process_status.should_receive(:exitstatus).and_return(0)
+      @executor.should_receive(:execute).
+                and_return({'process_status' => @process_status,
+                            'output'  => list_output})
 
       response = @lister.all_running
       response.should be_a_successful_response
@@ -107,10 +115,13 @@ describe Fission::Action::VM::Lister do
     end
 
     it 'should return an unsuccessful response if unable to get the list of running vms' do
-      $?.should_receive(:exitstatus).and_return(1)
-      @lister.should_receive(:`).
-              with("#{@vmrun_cmd} list").
-              and_return("it blew up")
+      Fission::Action::ShellExecutor.should_receive(:new).
+                                     with("#{@vmrun_cmd} list").
+                                     and_return(@executor)
+      @process_status.should_receive(:exitstatus).and_return(1)
+      @executor.should_receive(:execute).
+                and_return({'process_status' => @process_status,
+                            'output'  => 'it blew up'})
       @lister.all_running.should be_an_unsuccessful_response
     end
 
