@@ -87,24 +87,31 @@ module Fission
 
           response = Response.new :code => 0
 
-          all_running_vm_names = running_response.data.collect { |v| v.name }
+          @all_running_vm_names = running_response.data.collect { |v| v.name }
 
           response.data = all_vms.inject({}) do |result, vm|
-            if all_running_vm_names.include? vm.name
-              status = 'running'
-            else
-              if vm.suspend_file_exists?
-                status = 'suspended'
-              else
-                status = 'not running'
-              end
-            end
-
-            result[vm.name] = status
+            result[vm.name] = determine_status vm
             result
           end
 
           response
+        end
+
+        private
+        # Internal: Helper to determines the status of a VM.
+        #
+        # vm - The VM object
+        #
+        # Examples:
+        #
+        #   @lister.determine_status my_vm
+        #   # => 'suspended'
+        #
+        # Returns a String of the status.
+        def determine_status(vm)
+          return 'running' if @all_running_vm_names.include? vm.name
+          return 'suspended' if vm.suspend_file_exists?
+          return 'not running'
         end
 
       end

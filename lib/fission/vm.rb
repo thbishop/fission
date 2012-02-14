@@ -510,14 +510,7 @@ module Fission
     # empty Array.
     # If there is an error, an unsuccessful Response will be returned.
     def self.all
-      vm_dirs = Dir[File.join Fission.config['vm_dir'], '*.vmwarevm'].select do |d|
-        File.directory? d
-      end
-
-      response = Response.new :code => 0
-      response.data = vm_dirs.collect { |d| new(File.basename d, '.vmwarevm') }
-
-      response
+      Fission::Action::VM::Lister.new.all
     end
 
     # Public: Provides all of the VMs which are currently running.
@@ -534,25 +527,7 @@ module Fission
     # attribute will be an empty Array.
     # If there is an error, an unsuccessful Response will be returned.
     def self.all_running
-      command = "#{Fission.config['vmrun_cmd']} list"
-
-      output = `#{command}`
-
-      response = Response.new :code => $?.exitstatus
-
-      if response.successful?
-        vms = output.split("\n").select do |vm|
-          vm.include?('.vmx') && File.exists?(vm) && File.extname(vm) == '.vmx'
-        end
-
-        response.data = vms.collect do |vm|
-          new File.basename(File.dirname(vm), '.vmwarevm')
-        end
-      else
-        response.message = output
-      end
-
-      response
+      Fission::Action::VM::Lister.new.all_running
     end
 
     # Public: Provides a list of all of the VMs and their associated status
@@ -567,34 +542,7 @@ module Fission
     # names as keys and their status as the values.
     # If there is an error, an unsuccessful Repsonse will be returned.
     def self.all_with_status
-      all_response = all
-      return all_response unless all_response.successful?
-
-      all_vms = all_response.data
-
-      running_response = all_running
-      return running_response unless running_response.successful?
-
-      response = Response.new :code => 0
-
-      all_running_vm_names = running_response.data.collect { |v| v.name }
-
-      response.data = all_vms.inject({}) do |result, vm|
-        if all_running_vm_names.include? vm.name
-          status = 'running'
-        else
-          if vm.suspend_file_exists?
-            status = 'suspended'
-          else
-            status = 'not running'
-          end
-        end
-
-        result[vm.name] = status
-        result
-      end
-
-      response
+      Fission::Action::VM::Lister.new.all_with_status
     end
 
     # Public: Creates a new VM which is a clone of an existing VM.  As Fusion

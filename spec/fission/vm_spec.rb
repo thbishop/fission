@@ -744,114 +744,41 @@ describe Fission::VM do
 
   describe "self.all" do
     before do
-      @vm_1_mock = mock('vm_1')
-      @vm_2_mock = mock('vm_2')
+      @lister            = mock 'lister'
+      @all_response_mock = mock 'all response'
+      Fission::Action::VM::Lister.stub(:new).and_return(@lister)
+      @lister.should_receive(:all).
+              and_return(@all_response_mock)
     end
 
-    it "should return a successful object with the list of VM objects" do
-      vm_root = Fission.config['vm_dir']
-      Dir.should_receive(:[]).
-          and_return(["#{File.join vm_root, 'foo.vmwarevm' }", "#{File.join vm_root, 'bar.vmwarevm' }"])
-
-      vm_root = Fission.config['vm_dir']
-      File.should_receive(:directory?).with("#{File.join vm_root, 'foo.vmwarevm'}").
-                                       and_return(true)
-      File.should_receive(:directory?).with("#{File.join vm_root, 'bar.vmwarevm'}").
-                                       and_return(true)
-
-      Fission::VM.should_receive(:new).with('foo').and_return(@vm_1_mock)
-      Fission::VM.should_receive(:new).with('bar').and_return(@vm_2_mock)
-
-      response = Fission::VM.all
-      response.should be_a_successful_response
-      response.data.should == [@vm_1_mock, @vm_2_mock]
+    it 'should return an unsuccessful response when unable to delete the vm' do
+      @all_response_mock.stub_as_unsuccessful
+      Fission::VM.all.should be_an_unsuccessful_response
     end
 
-    it "should return a successful object and not return an item in the list if it isn't a directory" do
-      vm_root = Fission.config['vm_dir']
-      Dir.should_receive(:[]).
-          and_return((['foo', 'bar', 'baz'].map { |i| File.join vm_root, "#{i}.vmwarevm"}))
-      File.should_receive(:directory?).
-           with("#{File.join vm_root, 'foo.vmwarevm'}").and_return(true)
-      File.should_receive(:directory?).
-           with("#{File.join vm_root, 'bar.vmwarevm'}").and_return(true)
-      File.should_receive(:directory?).
-           with("#{File.join vm_root, 'baz.vmwarevm'}").and_return(false)
-
-      Fission::VM.should_receive(:new).with('foo').and_return(@vm_1_mock)
-      Fission::VM.should_receive(:new).with('bar').and_return(@vm_2_mock)
-
-      response = Fission::VM.all
-      response.should be_a_successful_response
-      response.data.should == [@vm_1_mock, @vm_2_mock]
-    end
-
-    it "should only query for items with an extension of .vmwarevm" do
-      dir_arg = File.join Fission.config['vm_dir'], '*.vmwarevm'
-      Dir.should_receive(:[]).with(dir_arg).
-                              and_return(['foo.vmwarevm', 'bar.vmwarevm'])
-      Fission::VM.all
+    it 'should return a successful response when deleting' do
+      @all_response_mock.stub_as_successful
+      Fission::VM.all.should be_a_successful_response
     end
   end
 
   describe 'self.all_running' do
     before do
-      @vm_1 = Fission::VM.new 'foo'
-      @vm_2 = Fission::VM.new 'bar'
-      @vm_3 = Fission::VM.new 'baz'
-      @vm_names_and_objs = { 'foo' => @vm_1, 'bar' => @vm_2, 'baz' => @vm_3 }
+      @lister                    = mock 'lister'
+      @all_running_response_mock = mock 'all running response'
+      Fission::Action::VM::Lister.stub(:new).and_return(@lister)
+      @lister.should_receive(:all_running).
+              and_return(@all_running_response_mock)
     end
 
-    it 'should return a successful response with the list of running vms' do
-      list_output = "Total running VMs: 2\n/vm/foo.vmwarevm/foo.vmx\n"
-      list_output << "/vm/bar.vmwarevm/bar.vmx\n/vm/baz.vmwarevm/baz.vmx\n"
-
-      $?.should_receive(:exitstatus).and_return(0)
-      Fission::VM.should_receive(:`).
-                  with("#{@vmrun_cmd} list").
-                  and_return(list_output)
-      [ 'foo', 'bar', 'baz'].each do |vm|
-        File.should_receive(:exists?).with("/vm/#{vm}.vmwarevm/#{vm}.vmx").
-                                      and_return(true)
-
-        Fission::VM.should_receive(:new).with(vm).
-                                         and_return(@vm_names_and_objs[vm])
-      end
-
-      response = Fission::VM.all_running
-      response.should be_a_successful_response
-      response.data.should == [@vm_1, @vm_2, @vm_3]
-    end
-
-    it 'should return a successful response with the VM dir name if it differs from the .vmx file name' do
-      vm_dir_file = { 'foo' => 'foo', 'bar' => 'diff', 'baz' => 'baz'}
-      list_output = "Total running VMs: 3\n"
-      vm_dir_file.each_pair do |dir, file|
-        list_output << "/vm/#{dir}.vmwarevm/#{file}.vmx\n"
-        File.should_receive(:exists?).with("/vm/#{dir}.vmwarevm/#{file}.vmx").
-                                      and_return(true)
-        Fission::VM.should_receive(:new).with(dir).
-                                         and_return(@vm_names_and_objs[dir])
-      end
-
-      $?.should_receive(:exitstatus).and_return(0)
-      Fission::VM.should_receive(:`).
-                  with("#{@vmrun_cmd} list").
-                  and_return(list_output)
-
-      response = Fission::VM.all_running
-      response.should be_a_successful_response
-      response.data.should == [@vm_1, @vm_2, @vm_3]
-    end
-
-    it 'should return an unsuccessful response if unable to get the list of running vms' do
-      $?.should_receive(:exitstatus).and_return(1)
-      Fission::VM.should_receive(:`).
-                  with("#{@vmrun_cmd} list").
-                  and_return("it blew up")
-      Fission.stub!(:ui).and_return(Fission::UI.new(@string_io))
-
+    it 'should return an unsuccessful response when unable to delete the vm' do
+      @all_running_response_mock.stub_as_unsuccessful
       Fission::VM.all_running.should be_an_unsuccessful_response
+    end
+
+    it 'should return a successful response when deleting' do
+      @all_running_response_mock.stub_as_successful
+      Fission::VM.all_running.should be_a_successful_response
     end
   end
 
@@ -883,38 +810,21 @@ describe Fission::VM do
 
   describe 'self.all_with_status' do
     before do
-      @vm_1 = Fission::VM.new 'foo'
-      @vm_2 = Fission::VM.new 'bar'
-      @vm_2.stub(:suspend_file_exists?).and_return('true')
-      @vm_3 = Fission::VM.new 'baz'
-
-      @all_vms_response_mock = mock('all_vms_mock')
-      @all_vms_response_mock.stub_as_successful [@vm_1, @vm_2, @vm_3]
-
-      @all_running_response_mock = mock('all_running_mock')
-      @all_running_response_mock.stub_as_successful [@vm_1]
-
-      Fission::VM.stub(:all).and_return(@all_vms_response_mock)
-      Fission::VM.stub(:all_running).and_return(@all_running_response_mock)
+      @lister                   = mock 'lister'
+      @all_status_response_mock = mock 'all status response'
+      Fission::Action::VM::Lister.stub(:new).and_return(@lister)
+      @lister.should_receive(:all_with_status).
+              and_return(@all_status_response_mock)
     end
 
-    it 'should return a sucessful response with the VMs and their status' do
-      response = Fission::VM.all_with_status
-      response.should be_a_successful_response
-      response.data.should == { 'foo' => 'running',
-                                'bar' => 'suspended',
-                                'baz' => 'not running' }
-
-    end
-
-    it 'should return an unsuccessful response if unable to get all of the VMs' do
-      @all_vms_response_mock.stub_as_unsuccessful
+    it 'should return an unsuccessful response when unable to delete the vm' do
+      @all_status_response_mock.stub_as_unsuccessful
       Fission::VM.all_with_status.should be_an_unsuccessful_response
     end
 
-    it 'should return an unsuccessful repsonse if unable to get the running VMs' do
-      @all_running_response_mock.stub_as_unsuccessful
-      Fission::VM.all_with_status.should be_an_unsuccessful_response
+    it 'should return a successful response when deleting' do
+      @all_status_response_mock.stub_as_successful
+      Fission::VM.all_with_status.should be_a_successful_response
     end
 
   end
