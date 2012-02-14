@@ -58,23 +58,34 @@ describe Fission::Response do
     end
   end
 
-  describe 'self.from_command' do
+  describe 'self.from_shell_executor' do
+    before do
+      @process_status = mock 'process status'
+    end
+
     it 'should return a response object' do
-      Fission::Response.from_command('').should be_a Fission::Response
+      @process_status.stub(:exitstatus).and_return(0)
+      executor = {'process_status' => @process_status}
+      Fission::Response.from_shell_executor(executor).should be_a Fission::Response
     end
 
     it 'should set the code to the exit status' do
-      $?.should_receive(:exitstatus).and_return(55)
-      Fission::Response.from_command('').code.should == 55
+      @process_status.stub(:exitstatus).and_return(55)
+      executor = {'process_status' => @process_status}
+      Fission::Response.from_shell_executor(executor).code.should == 55
     end
 
     it 'should set the message if the command was unsuccessful' do
-      $?.should_receive(:exitstatus).and_return(55)
-      Fission::Response.from_command('foo').message.should == 'foo'
+      @process_status.stub(:exitstatus).and_return(55)
+      executor = {'process_status' => @process_status,
+                  'output'         => 'foo'}
+      Fission::Response.from_shell_executor(executor).message.should == 'foo'
     end
     it 'should not set the message if the command was successful' do
-      $?.should_receive(:exitstatus).and_return(0)
-      Fission::Response.from_command('foo').message.should == ''
+      @process_status.stub(:exitstatus).and_return(0)
+      executor = {'process_status' => @process_status,
+                  'output'         => 'foo'}
+      Fission::Response.from_shell_executor(executor).message.should == ''
     end
 
   end

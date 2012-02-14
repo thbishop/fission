@@ -57,23 +57,8 @@ module Fission
       @code == 0
     end
 
-    # Public: Helper method to create a new Response object when running a
-    # command line tool.
-    #
-    # cmd_output - This should be the output of the command.
-    #
-    # Returns a Response.
-    # The Response's code attribute will be set to the value of '$?'.  The
-    # Response's message attribute will be set to the provided command output
-    # if, and only if, the Response is unsuccessful.
-    def self.from_command(cmd_output)
-      response = new :code => $?.exitstatus
-      response.message = cmd_output unless response.successful?
-      response
-    end
-
-    # Public: Helper method to create a new Response object when using executing
-    # a command through Fission::Action::ShellExecutor.
+    # Internal: Helper method to create a new Response object when using
+    # executing a command through Fission::Action::ShellExecutor.
     #
     # shell_execute_result - This should be the result of running 'execute' on
     #                        a ShellExecutor object.
