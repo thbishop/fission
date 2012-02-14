@@ -63,6 +63,10 @@ module Fission
     # shell_execute_result - This should be the result of running 'execute' on
     #                        a ShellExecutor object.
     #
+    # Examples:
+    #
+    #   Response.from_shell_executor shell_execute_result
+    #
     # Returns a Response.
     # The code attribute of the Response will be set to the exit_status
     # attribute of the provided process_status data. The message attribute of
