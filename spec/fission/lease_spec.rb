@@ -6,6 +6,10 @@ describe Fission::Lease do
                       :mac_address  => '00:0c:29:2b:af:50',
                       :start        => '2011/10/11 01:50:58',
                       :end          => '2011/10/11 02:20:58' },
+                    { :ip_address   => '172.16.248.170',
+                      :mac_address  => '00:0c:29:b3:63:d0',
+                      :start        => '2010/03/01 00:54:52',
+                      :end          => '2010/03/01 01:24:52' },
                     { :ip_address   => '172.16.248.132',
                       :mac_address  => '00:0c:29:10:23:57',
                       :start        => '2010/07/12 21:31:28',
@@ -16,8 +20,8 @@ describe Fission::Lease do
                       :end          => '2010/05/27 01:24:52' },
                     { :ip_address   => '172.16.248.130',
                       :mac_address  => '00:0c:29:b3:63:d0',
-                      :start        => '2010/05/27 00:54:52',
-                      :end          => '2010/05/27 01:24:52' },
+                      :start        => '2010/04/15 00:54:52',
+                      :end          => '2010/04/15 01:24:52' },
                     { :ip_address   => '172.16.248.129',
                       :mac_address  => '00:0c:29:0a:e9:b3',
                       :start        => '2010/02/16 23:16:05',
@@ -30,6 +34,11 @@ lease 172.16.248.197 {
     ends 2 2011/10/11 02:20:58;
     hardware ethernet 00:0c:29:2b:af:50;
 }
+lease 172.16.248.170 {
+    starts 4 2010/03/01 00:54:52;
+    ends 4 2010/03/01 01:24:52;
+    hardware ethernet 00:0c:29:b3:63:d0;
+}
 lease 172.16.248.132 {
     starts 1 2010/07/12 21:31:28;
     ends 1 2010/07/12 22:01:28;
@@ -41,8 +50,8 @@ lease 172.16.248.150 {
     hardware ethernet 00:0c:29:b3:63:d0;
 }
 lease 172.16.248.130 {
-    starts 4 2010/05/27 00:54:52;
-    ends 4 2010/05/27 01:24:52;
+    starts 4 2010/04/15 00:54:52;
+    ends 4 2010/04/15 01:24:52;
     hardware ethernet 00:0c:29:b3:63:d0;
 }
 lease 172.16.248.129 {
@@ -147,12 +156,12 @@ lease 172.16.248.129 {
       end
 
       context 'when there are multiple leases for the mac address' do
-        it 'should return the last lease that was found' do
+        it 'should return the lease with the latest expiration' do
           response = Fission::Lease.find_by_mac_address '00:0c:29:b3:63:d0'
 
           response.should be_a_successful_response
 
-          response.data.ip_address.should == '172.16.248.130'
+          response.data.ip_address.should == '172.16.248.150'
           response.data.mac_address.should == '00:0c:29:b3:63:d0'
           response.data.start.should == DateTime.parse('2010/05/27 00:54:52')
           response.data.end.should == DateTime.parse('2010/05/27 01:24:52')
