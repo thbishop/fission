@@ -97,7 +97,7 @@ module Fission
 
       if all_response.successful?
         response = Response.new :code => 0
-        response.data = all_response.data.find_all { |l| l.mac_address == mac_address }.last
+        response.data = all_response.data.find_all { |l| l.mac_address == mac_address }.sort_by { |l| l.end }.last
       else
         response = all_response
       end
