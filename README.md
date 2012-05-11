@@ -1,7 +1,8 @@
 # Fission
 
 ## Intro
-Fission is a simple command line tool for managing VMware Fusion VMs.  Only Fusion 3.x is currently supported.
+Fission is a simple command line tool for managing VMware Fusion VMs.  Only Fusion 3.x is currently
+supported.  See [Fusion Version Support](#fusion-version-support) for more info.
 
 
 ## Install
@@ -108,16 +109,25 @@ or just
     fission
 
 
-## Config
+## Configuration
 By default, fission will use the default VMware Fusion VM directory
 (~/Documents/Virtual Machines.localized/) when cloning.  If you want to use a
 different directory, you can set this in a config file.
 
-The config file needs to be in yaml format and live at '~/.fissionrc'
+The config file needs to be in YAML format and live at '~/.fissionrc'
 
     $cat ~/.fissionrc
     ---
     vm_dir: "/vm"
+
+## Fusion Version Support
+As of now, only Fusion 3.x is supported (that's what I have available to test).
+It's my understanding that some folks are currently using fission with Fusion
+4.x as well.  In order to have fission work with Fusion 4.x, you will need to
+tell fission where the Fusion 4.x vmrun file is.  You can do so with the
+following item placed in your ~/.fissionrc (remember, YAML format):
+
+    vmrun_bin: /Applications/VMware Fusion.app/Contents/Library/vmrun
 
 
 ## Other Notable Info
