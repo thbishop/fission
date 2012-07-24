@@ -49,7 +49,7 @@ describe Fission::Config do
 
     it 'should set vmrun_cmd' do
       @config = Fission::Config.new
-      @config.attributes['vmrun_cmd'].should == '/Library/Application\ Support/VMware\ Fusion/vmrun -T fusion'
+      @config.attributes['vmrun_cmd'].should == "'/Library/Application Support/VMware Fusion/vmrun' -T fusion"
     end
 
     it 'should set the vmrun_cmd correctly if there is a user specified vmrun bin' do
@@ -58,7 +58,7 @@ describe Fission::Config do
       end
 
       @config = Fission::Config.new
-      @config.attributes['vmrun_cmd'].should == '/var/tmp/vmrun_bin -T fusion'
+      @config.attributes['vmrun_cmd'].should == "'/var/tmp/vmrun_bin' -T fusion"
     end
 
     it 'should use the fusion default lease file' do

@@ -50,7 +50,7 @@ describe Fission::Action::VM::Starter do
       end
 
       it 'should return a response when starting the vm' do
-        cmd = "#{@vmrun_cmd} start #{@conf_file_path.gsub(' ', '\ ')} gui 2>&1"
+        cmd = "#{@vmrun_cmd} start '#{@conf_file_path}' gui 2>&1"
         Fission::Action::ShellExecutor.should_receive(:new).
                                        with(cmd).
                                        and_return(@executor_mock)
@@ -58,7 +58,7 @@ describe Fission::Action::VM::Starter do
       end
 
       it 'should return a response when starting the vm headless' do
-        cmd = "#{@vmrun_cmd} start #{@conf_file_path.gsub(' ', '\ ')} nogui 2>&1"
+        cmd = "#{@vmrun_cmd} start '#{@conf_file_path}' nogui 2>&1"
         Fission::Action::ShellExecutor.should_receive(:new).
                                        with(cmd).
                                        and_return(@executor_mock)

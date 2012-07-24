@@ -48,7 +48,7 @@ describe Fission::Action::Snapshot::Deleter do
       executor_mock = mock 'executor'
       response      = stub
       cmd           = "#{@vmrun_cmd} deleteSnapshot "
-      cmd           << "#{@conf_file_path.gsub ' ', '\ '} \"snap_1\" 2>&1"
+      cmd           << "'#{@conf_file_path}' \"snap_1\" 2>&1"
 
       executor_mock.should_receive(:execute).and_return(executor_mock)
       Fission::Action::ShellExecutor.should_receive(:new).

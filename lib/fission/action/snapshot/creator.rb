@@ -55,7 +55,7 @@ module Fission
           end
 
           command = "#{vmrun_cmd} snapshot "
-          command << "#{conf_file_response.data} \"#{name}\" 2>&1"
+          command << "'#{conf_file_response.data}' \"#{name}\" 2>&1"
 
           command_exec = Fission::Action::ShellExecutor.new command
           Response.from_shell_executor command_exec.execute

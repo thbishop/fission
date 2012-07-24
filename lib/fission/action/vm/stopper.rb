@@ -51,7 +51,7 @@ module Fission
           return conf_file_response unless conf_file_response.successful?
 
           command = "#{vmrun_cmd} stop "
-          command << "#{conf_file_response.data} "
+          command << "'#{conf_file_response.data}' "
           command << 'hard ' unless options[:hard].blank?
           command << '2>&1'
 

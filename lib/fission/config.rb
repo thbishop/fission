@@ -27,7 +27,7 @@ module Fission
 
       load_from_file
 
-      @attributes['vmrun_cmd'] = "#{@attributes['vmrun_bin'].gsub(' ', '\ ')} -T fusion"
+      @attributes['vmrun_cmd'] = "'#{@attributes['vmrun_bin']}' -T fusion"
     end
 
     # Public: Helper method to access config atributes.  This is a shortcut for

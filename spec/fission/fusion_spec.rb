@@ -4,7 +4,7 @@ describe Fission::Fusion do
   describe 'self.running?' do
     before do
       @cmd = "ps -ef | grep -v grep | "
-      @cmd << "grep -c #{Fission.config['gui_bin'].gsub(' ', '\ ')} 2>&1"
+      @cmd << "grep -c '#{Fission.config['gui_bin']}' 2>&1"
       @executor = mock 'executor'
     end
 

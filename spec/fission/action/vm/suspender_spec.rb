@@ -42,7 +42,7 @@ describe Fission::Action::VM::Suspender do
       executor_mock = mock 'executor'
       response      = stub
       cmd           = "#{@vmrun_cmd} suspend "
-      cmd           << "#{@conf_file_path.gsub ' ', '\ '} 2>&1"
+      cmd           << "'#{@conf_file_path}' 2>&1"
 
       executor_mock.should_receive(:execute).and_return(executor_mock)
       Fission::Action::ShellExecutor.should_receive(:new).

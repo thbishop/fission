@@ -59,7 +59,7 @@ module Fission
           end
 
           command = "#{vmrun_cmd} start "
-          command << "#{conf_file_response.data} "
+          command << "'#{conf_file_response.data}' "
 
           command << (options[:headless].blank? ? 'gui ' : 'nogui ')
           command << '2>&1'
