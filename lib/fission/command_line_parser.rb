@@ -94,7 +94,7 @@ module Fission
 
       ui.output "\nCommands:"
 
-      @command_names_and_summaries.each_pair do |name, summary|
+      Hash[@command_names_and_summaries.sort].each_pair do |name, summary|
         ui.output_printf "%-#{longest_cmd.length}s      %s\n", name, summary
       end
     end
