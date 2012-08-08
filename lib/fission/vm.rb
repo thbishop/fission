@@ -476,8 +476,6 @@ module Fission
         end
       end
 
-      response.data.gsub! ' ', '\ ' if response.successful?
-
       response
     end
 

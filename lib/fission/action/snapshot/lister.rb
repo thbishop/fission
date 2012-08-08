@@ -38,7 +38,7 @@ module Fission
           return conf_file_response unless conf_file_response.successful?
 
           command = "#{vmrun_cmd} listSnapshots "
-          command << "#{conf_file_response.data} 2>&1"
+          command << "'#{conf_file_response.data}' 2>&1"
 
           command_exec = Fission::Action::ShellExecutor.new command
           result = command_exec.execute

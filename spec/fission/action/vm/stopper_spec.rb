@@ -50,7 +50,7 @@ describe Fission::Action::VM::Stopper do
       end
 
       it 'should return a response' do
-        cmd = "#{@vmrun_cmd} stop #{@conf_file_path.gsub ' ', '\ '} 2>&1"
+        cmd = "#{@vmrun_cmd} stop '#{@conf_file_path}' 2>&1"
         Fission::Action::ShellExecutor.should_receive(:new).
                                        with(cmd).
                                        and_return(@executor_mock)
@@ -58,7 +58,7 @@ describe Fission::Action::VM::Stopper do
       end
 
       it 'should return a response for a hard stop' do
-        cmd = "#{@vmrun_cmd} stop #{@conf_file_path.gsub ' ', '\ '} hard 2>&1"
+        cmd = "#{@vmrun_cmd} stop '#{@conf_file_path}' hard 2>&1"
         Fission::Action::ShellExecutor.should_receive(:new).
                                        with(cmd).
                                        and_return(@executor_mock)

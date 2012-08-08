@@ -30,7 +30,7 @@ describe Fission::Action::Snapshot::Lister do
       executor_mock = mock 'executor'
       process_mock  = stub :exitstatus => 0
       cmd           = "#{@vmrun_cmd} listSnapshots "
-      cmd           << "#{@conf_file_path.gsub ' ', '\ '} 2>&1"
+      cmd           << "'#{@conf_file_path}' 2>&1"
 
       output_text = "Total snapshots: 3\nsnap foo\nsnap bar\nsnap baz\n"
       executor_mock.should_receive(:execute).
@@ -50,7 +50,7 @@ describe Fission::Action::Snapshot::Lister do
       executor_mock = mock 'executor'
       process_mock  = stub :exitstatus => 1
       cmd           = "#{@vmrun_cmd} listSnapshots "
-      cmd           << "#{@conf_file_path.gsub ' ', '\ '} 2>&1"
+      cmd           << "'#{@conf_file_path}' 2>&1"
 
       executor_mock.should_receive(:execute).
                     and_return({'output'         => 'it blew up',

@@ -48,7 +48,7 @@ describe Fission::Action::Snapshot::Creator do
       executor_mock = mock 'executor'
       response      = stub
       cmd           = "#{@vmrun_cmd} snapshot "
-      cmd           << "#{@conf_file_path.gsub ' ', '\ '} \"bar\" 2>&1"
+      cmd           << "'#{@conf_file_path}' \"bar\" 2>&1"
 
       executor_mock.should_receive(:execute).and_return(executor_mock)
       Fission::Action::ShellExecutor.should_receive(:new).
