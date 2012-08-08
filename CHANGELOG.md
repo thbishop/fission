@@ -4,13 +4,14 @@
 * add 'info' command
 * add 'snapshot delete' command
 * add ability to get all VM config values (related to #14)
-* fix issue #16
+* fix issue #16 (returning incorrect mac address)
 * fix issue #18 (1.8.7 compatibility)
 * fix issue #19 (duplicate config entires when cloning)
+* internal cleanup of how command strings are handled (props to @patdowney)
 
 ## 0.4.0 (01/17/2012)
 * major internal refactoring for usage as a lib
-* add fix for loading a custom vmrun_bin in ~/.fissionrc (issue #8 )
+* add fix for loading a custom vmrun_bin in ~/.fissionrc (issue #8)
 * add guestos and uuid methods to VM (@ody)
 
 ## 0.3.0 (09/16/2011)
