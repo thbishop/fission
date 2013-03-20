@@ -85,7 +85,12 @@ module Fission
     #
     # Returns nothing.
     def delete_vm_favorite_entry(vm_path)
-      @content['VMFavoritesListDefaults2'].delete_if { |vm| vm['path'] == vm_path }
+      if @content.has_key?('VMFavoritesListDefaults2')
+        @content['VMFavoritesListDefaults2'].delete_if { |vm| vm['path'] == vm_path }
+      end
+      if @content.has_key?('fusionInitialSessions')
+        @content['fusionInitialSessions'].delete_if {|vm| vm['documentPath'] == vm_path}
+      end
     end
 
   end
