@@ -292,7 +292,7 @@ describe Fission::VM do
       response = @vm.mac_addresses
 
       response.should be_a_successful_response
-      response.data.should == ['00:0c:29:1d:6a:64', '00:0c:29:1d:6a:75']
+      response.data.should =~ ['00:0c:29:1d:6a:64', '00:0c:29:1d:6a:75']
     end
 
     it 'should return a successful response with an empty list if no mac addresses were found' do
