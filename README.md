@@ -1,5 +1,7 @@
 # Fission
 
+[![Build Status](https://secure.travis-ci.org/thbishop/fission.png)](http://travis-ci.org/thbishop/fission)
+
 ## Intro
 Fission is a simple command line tool for managing VMware Fusion VMs.  Only Fusion 3.x is currently
 supported.  See [Fusion Version Support](#fusion-version-support) for more info.
