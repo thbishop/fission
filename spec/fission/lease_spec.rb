@@ -162,11 +162,8 @@ lease 172.16.248.129 {
   describe 'self.find_by_mac_address' do
     describe 'when able to get all of the leases' do
       before do
-        File.should_receive(:file?).
-             with(Fission.config['lease_file']).
-             and_return(true)
-        File.should_receive(:read).with(Fission.config['lease_file']).
-                                   and_return(@lease_file_content)
+        File.stub(:file?).and_return(true)
+        File.stub(:read).and_return(@lease_file_content)
       end
 
       context 'when there are multiple leases for the mac address' do
@@ -183,11 +180,9 @@ lease 172.16.248.129 {
       end
 
       it 'should return a response with the lease associated with the provided mac address' do
-
         response = Fission::Lease.find_by_mac_address '00:0c:29:10:23:57'
 
         response.should be_a_successful_response
-
         response.data.ip_address.should == '172.16.248.132'
         response.data.mac_address.should == '00:0c:29:10:23:57'
         response.data.start.should == DateTime.parse('2010/07/12 21:31:28')
