@@ -111,7 +111,7 @@ describe Fission::Action::VM::Lister do
 
       response = @lister.all_running
       response.should be_a_successful_response
-      response.data.should == [@vm_1, @vm_2, @vm_3]
+      response.data.sort.should == [@vm_1, @vm_2, @vm_3].sort
     end
 
     it 'should return an unsuccessful response if unable to get the list of running vms' do
