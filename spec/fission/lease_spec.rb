@@ -102,8 +102,8 @@ lease 172.16.248.129 {
     context 'when the lease file exists' do
       before do
         File.should_receive(:file?).
-          with(Fission.config['lease_file']).
-          and_return(true)
+             with(Fission.config['lease_file']).
+             and_return(true)
       end
 
       it 'returns a response with the list of the found leases' do
@@ -162,6 +162,9 @@ lease 172.16.248.129 {
   describe 'self.find_by_mac_address' do
     describe 'when able to get all of the leases' do
       before do
+        File.should_receive(:file?).
+             with(Fission.config['lease_file']).
+             and_return(true)
         File.should_receive(:read).with(Fission.config['lease_file']).
                                    and_return(@lease_file_content)
       end
