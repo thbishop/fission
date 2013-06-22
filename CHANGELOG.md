@@ -1,6 +1,6 @@
-# changes
-
 ## head
+
+## 0.5.0.beta.1 (06/22/2013)
 * add 'info' command
 * add 'snapshot delete' command
 * add ability to get all VM config values (related to #14)
