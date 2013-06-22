@@ -8,6 +8,7 @@
 * fix issue #18 (1.8.7 compatibility)
 * fix issue #19 (duplicate config entires when cloning)
 * internal cleanup of how command strings are handled (props to @patdowney)
+* bump dependency on CFproperList to avoid libxml-ruby dependency (#24)
 
 ## 0.4.0 (01/17/2012)
 * major internal refactoring for usage as a lib
