@@ -98,52 +98,63 @@ lease 172.16.248.129 {
   end
 
   describe 'self.all' do
-    it 'should query the configured lease file' do
-      File.should_receive(:read).with(Fission.config['lease_file']).
-                                 and_return('')
 
-      Fission::Lease.all
-    end
-
-    it 'should return a successful response with the list of the found leases' do
-      File.should_receive(:read).with(Fission.config['lease_file']).
-                                 and_return(@lease_file_content)
-
-      example_leases = @lease_info.collect do |lease|
-        Fission::Lease.new :ip_address  => lease[:ip_address],
-                           :mac_address => lease[:mac_address],
-                           :start       => DateTime.parse(lease[:start]),
-                           :end         => DateTime.parse(lease[:end])
-
+    context 'when the lease file exists' do
+      before do
+        File.should_receive(:file?).
+          with(Fission.config['lease_file']).
+          and_return(true)
       end
 
-      response = Fission::Lease.all
-      response.should be_a_successful_response
+      it 'returns a response with the list of the found leases' do
+        File.should_receive(:read).
+             with(Fission.config['lease_file']).
+             and_return(@lease_file_content)
 
-      response.data.each do |lease|
-        example_lease = example_leases.select { |l| l.ip_address == lease.ip_address }
-
-        [:ip_address, :mac_address, :start, :end].each do |attrib|
-          lease.send(attrib).should == example_lease.first.send(attrib)
+        example_leases = @lease_info.collect do |lease|
+          Fission::Lease.new :ip_address  => lease[:ip_address],
+                             :mac_address => lease[:mac_address],
+                             :start       => DateTime.parse(lease[:start]),
+                             :end         => DateTime.parse(lease[:end])
         end
+
+        response = Fission::Lease.all
+        response.should be_a_successful_response
+
+        response.data.each do |lease|
+          example_lease = example_leases.select { |l| l.ip_address == lease.ip_address }
+
+          [:ip_address, :mac_address, :start, :end].each do |attrib|
+            lease.send(attrib).should == example_lease.first.send(attrib)
+          end
+        end
+
+      end
+
+      it 'a response with an empty list if there are no leases found' do
+        File.should_receive(:read).
+             with(Fission.config['lease_file']).
+             and_return('')
+        response = Fission::Lease.all
+        response.should be_a_successful_response
+        response.data.should == []
       end
 
     end
 
-    it 'should return a successful response with an empty list if there are no leases found' do
-      File.should_receive(:read).with(Fission.config['lease_file']).
-                                 and_return('')
-      response = Fission::Lease.all
-      response.should be_a_successful_response
-      response.data.should == []
-    end
+    context 'when the lease file does not exist' do
+      before do
+        File.should_receive(:file?).
+             with(Fission.config['lease_file']).
+             and_return(false)
+      end
 
-    it 'should return an unsuccessful response if the configured lease file does not exist' do
-      File.should_receive(:file?).with(Fission.config['lease_file']).
-                                  and_return(false)
-      response = Fission::Lease.all
-      error_string = "Unable to find the lease file '#{Fission.config['lease_file']}'"
-      response.should be_an_unsuccessful_response(error_string)
+      it 'should return an unsuccessful response if the configured lease file does not exist' do
+        response = Fission::Lease.all
+        error_string = "Unable to find the lease file '#{Fission.config['lease_file']}'"
+        response.should be_an_unsuccessful_response(error_string)
+      end
+
     end
 
   end
