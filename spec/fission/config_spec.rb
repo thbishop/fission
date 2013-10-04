@@ -32,14 +32,20 @@ describe Fission::Config do
     end
 
     it "should use the user specified dir in ~/.fissionrc" do
-      File.open('~/.fissionrc', 'w') { |f| f.puts YAML.dump({ 'vm_dir' => '/var/tmp/foo' })}
+      home = File.expand_path('~')
+      FileUtils.mkdir_p(home)
+      File.open("#{home}/.fissionrc", 'w') do |f|
+        f.puts YAML.dump({ 'vm_dir' => '/var/tmp/foo' })
+      end
 
       @config = Fission::Config.new
       @config.attributes['vm_dir'].should == '/var/tmp/foo'
     end
 
     it 'should use the user specified vmrun bin in ~/.fissionrc' do
-      File.open('~/.fissionrc', 'w') do |f|
+      home = File.expand_path('~')
+      FileUtils.mkdir_p(home)
+      File.open("#{home}/.fissionrc", 'w') do |f|
         f.puts YAML.dump({ 'vmrun_bin' => '/var/tmp/vmrun_bin' })
       end
 
@@ -53,7 +59,9 @@ describe Fission::Config do
     end
 
     it 'should set the vmrun_cmd correctly if there is a user specified vmrun bin' do
-      File.open('~/.fissionrc', 'w') do |f|
+      home = File.expand_path('~')
+      FileUtils.mkdir_p(home)
+      File.open("#{home}/.fissionrc", 'w') do |f|
         f.puts YAML.dump({ 'vmrun_bin' => '/var/tmp/vmrun_bin' })
       end
 
