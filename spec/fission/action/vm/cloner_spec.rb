@@ -184,7 +184,6 @@ ethernet1.generatedAddressenable = "TRUE"'
 
     context 'when a sparse disk is found' do
       it "should update the vmdk" do
-        File.rspec_reset
         File.stub(:binary?).and_return(false)
 
         @cloner.clone
