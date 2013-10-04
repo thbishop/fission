@@ -7,7 +7,7 @@ describe Fission::Command::SnapshotRevert do
     @target_vm = ['foo']
     Fission::VM.stub(:new).and_return(@vm_mock)
 
-    @snap_revert_response_mock = mock('snap_revert_response')
+    @snap_revert_response_mock = double('snap_revert_response')
 
     @vm_mock.stub(:name).and_return(@target_vm.first)
   end

@@ -60,7 +60,7 @@ describe Fission::CommandLineParser do
 
     context 'with a valid sub command' do
       before do
-        @cmd_mock = mock 'command', :summary => ''
+        @cmd_mock = double('command', :summary => '')
       end
 
       [ ['clone'],

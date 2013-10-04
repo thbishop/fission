@@ -5,11 +5,11 @@ describe Fission::Command::Clone do
 
   before do
     @vm_info = ['foo', 'bar']
-    @source_vm_mock = mock('source_vm')
-    @target_vm_mock = mock('target_vm')
+    @source_vm_mock = double('source_vm')
+    @target_vm_mock = double('target_vm')
 
-    @clone_response_mock = mock('clone_reponse')
-    @start_response_mock = mock('start_reponse')
+    @clone_response_mock = double('clone_reponse')
+    @start_response_mock = double('start_reponse')
 
     @source_vm_mock.stub(:name).and_return('foo')
     @target_vm_mock.stub(:name).and_return('bar')

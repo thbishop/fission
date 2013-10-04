@@ -7,7 +7,7 @@ describe Fission::Command::Suspend do
     @target_vm = ['foo']
     Fission::VM.stub(:new).and_return(@vm_mock)
 
-    @suspend_response_mock = mock('suspend_response')
+    @suspend_response_mock = double('suspend_response')
 
     @vm_mock.stub(:name).and_return(@target_vm.first)
   end
@@ -51,8 +51,8 @@ describe Fission::Command::Suspend do
 
     describe 'with --all' do
       before do
-        @vm_mock_1 = mock('vm_mock_1')
-        @vm_mock_2 = mock('vm_mock_2')
+        @vm_mock_1 = double('vm_mock_1')
+        @vm_mock_2 = double('vm_mock_2')
 
         @vm_mock_1.stub(:name).and_return('vm_1')
         @vm_mock_2.stub(:name).and_return('vm_2')

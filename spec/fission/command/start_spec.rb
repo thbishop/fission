@@ -7,7 +7,7 @@ describe Fission::Command::Start do
     @target_vm = ['foo']
     Fission::VM.stub(:new).and_return(@vm_mock)
 
-    @start_response_mock = mock('start_response')
+    @start_response_mock = double('start_response')
 
     @vm_mock.stub(:name).and_return(@target_vm.first)
   end

@@ -7,8 +7,8 @@ describe Fission::Action::VM::Suspender do
       @vm                      = Fission::VM.new 'foo'
       @vmrun_cmd               = Fission.config['vmrun_cmd']
       @conf_file_path          = File.join @vm.path, 'foo.vmx'
-      @conf_file_response_mock = mock 'conf_file_response'
-      @running_response_mock   = mock 'running?'
+      @conf_file_response_mock = double('conf_file_response')
+      @running_response_mock   = double('running?')
 
       @vm.stub(:exists?).and_return(true)
       @vm.stub(:running?).and_return(@running_response_mock)
@@ -39,7 +39,7 @@ describe Fission::Action::VM::Suspender do
     end
 
     it 'should return a response' do
-      executor_mock = mock 'executor'
+      executor_mock = double('executor')
       response      = stub
       cmd           = "#{@vmrun_cmd} suspend "
       cmd           << "'#{@conf_file_path}' 2>&1"

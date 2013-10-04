@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Fission::Metadata do
   before do
-    @plist_mock = mock('plist_mock')
+    @plist_mock = double('plist_mock')
     @plist_file_path = Fission.config['plist_file']
     @metadata = Fission::Metadata.new
   end
@@ -85,7 +85,7 @@ describe Fission::Metadata do
 
   describe 'self.delete_vm_info' do
     before do
-      @md_mock = mock('metadata_mock')
+      @md_mock = double('metadata_mock')
       @md_mock.should_receive(:load)
       @md_mock.should_receive(:save)
       Fission::Metadata.stub(:new).and_return(@md_mock)

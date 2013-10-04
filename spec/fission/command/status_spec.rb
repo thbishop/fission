@@ -7,7 +7,7 @@ describe Fission::Command::Status do
     @vms_status = { 'foo' => 'running',
                     'bar' => 'suspended',
                     'baz' => 'not running' }
-    @all_status_response_mock = mock('response')
+    @all_status_response_mock = double('response')
   end
 
   describe 'command_name' do

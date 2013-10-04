@@ -9,7 +9,7 @@ describe Fission::Action::VM::Cloner do
       @source_path = @source_vm.path
       @target_path = @target_vm.path
 
-      @clone_response_mock = mock('clone_response')
+      @clone_response_mock = double('clone_response')
       @vm_files = ['.vmx', '.vmxf', '.vmdk', '-s001.vmdk', '-s002.vmdk', '.vmsd']
 
       FakeFS.activate!

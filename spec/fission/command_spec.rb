@@ -22,7 +22,7 @@ describe Fission::Command do
 
   describe 'help' do
     it 'should call option_parser on a new instance' do
-      @new_instance_mock = mock('new_instance')
+      @new_instance_mock = double('new_instance')
       @new_instance_mock.should_receive(:option_parser).and_return('foo')
       Fission::Command.should_receive(:new).and_return(@new_instance_mock)
       Fission::Command.help.should == 'foo'
@@ -44,7 +44,7 @@ describe Fission::Command do
 
     [:output, :output_and_exit, :output_printf].each do |item|
       it "should delegate '#{item.to_s}' to the ui instance" do
-        @ui_mock = mock('ui')
+        @ui_mock = double('ui')
         @ui_mock.should_receive(item)
 
         Fission::UI.stub(:new).and_return(@ui_mock)

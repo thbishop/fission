@@ -7,8 +7,8 @@ describe Fission::Command::Delete do
     @target_vm = ['foo']
     Fission::VM.stub(:new).and_return(@vm_mock)
 
-    @delete_response_mock = mock('delete_response')
-    @running_response_mock = mock('running?')
+    @delete_response_mock = double('delete_response')
+    @running_response_mock = double('running?')
 
     @vm_mock.stub(:name).and_return(@target_vm.first)
     @vm_mock.stub(:running?).and_return(@running_response_mock)
@@ -90,7 +90,7 @@ describe Fission::Command::Delete do
       end
 
       it "should stop the VM if it's running and then delete it" do
-        @stop_cmd_mock = mock('stop_cmd')
+        @stop_cmd_mock = double('stop_cmd')
 
         @stop_cmd_mock.should_receive(:execute)
         @running_response_mock.stub_as_successful true

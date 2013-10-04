@@ -7,8 +7,8 @@ describe Fission::Action::VM::Starter do
       @vm                      = Fission::VM.new 'foo'
       @vmrun_cmd               = Fission.config['vmrun_cmd']
       @conf_file_path          = File.join @vm.path, 'foo.vmx'
-      @conf_file_response_mock = mock 'conf_file_response'
-      @running_response_mock   = mock 'running?'
+      @conf_file_response_mock = double('conf_file_response')
+      @running_response_mock   = double('running?')
 
       @vm.stub(:exists?).and_return(true)
       @vm.stub(:running?).and_return(@running_response_mock)
@@ -40,7 +40,7 @@ describe Fission::Action::VM::Starter do
 
     context 'when the fusion gui is not running' do
       before do
-        @executor_mock = mock 'executor'
+        @executor_mock = double('executor')
         @response      = stub
         @executor_mock.should_receive(:execute).and_return(@executor_mock)
         Fission::Fusion.stub(:running?).and_return(false)

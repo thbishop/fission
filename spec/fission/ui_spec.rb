@@ -14,7 +14,7 @@ describe Fission::UI do
 
   describe 'output_printf' do
     it 'should pass the arguments to printf' do
-      @output = mock('output')
+      @output = double('output')
       @output.should_receive(:printf).with('foo', 'bar', 'baz')
       Fission::UI.new(@output).output_printf('foo', 'bar', 'baz')
     end
