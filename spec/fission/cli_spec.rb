@@ -4,7 +4,7 @@ describe Fission::CLI do
   before do
     @string_io = StringIO.new
     Fission::CLI.any_instance.stub(:ui).and_return(Fission::UI.new(@string_io))
-    @parser = mock 'parser'
+    @parser = double('parser')
     @parser.stub :parse
     @parser.stub :command
   end
@@ -39,7 +39,7 @@ describe Fission::CLI do
 
   describe 'execute' do
     it 'should execute the parsed command' do
-      @cmd_mock = mock ('cmd')
+      @cmd_mock = double('cmd')
       @cmd_mock.should_receive :execute
       @parser.stub(:new).and_return(@parser)
       @parser.stub(:command).and_return(@cmd_mock)

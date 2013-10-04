@@ -6,9 +6,9 @@ describe Fission::Action::Snapshot::Creator do
       @vm                      = Fission::VM.new 'foo'
       @conf_file_path          = File.join @vm.path, 'foo.vmx'
       @vmrun_cmd               = Fission.config['vmrun_cmd']
-      @conf_file_response_mock = mock 'conf_file_response'
-      @snapshots_response_mock = mock 'snapshots'
-      @running_response_mock   = mock 'running?'
+      @conf_file_response_mock = double('conf_file_response')
+      @snapshots_response_mock = double('snapshots')
+      @running_response_mock   = double('running?')
 
       @running_response_mock.stub_as_successful true
       @conf_file_response_mock.stub_as_successful @conf_file_path
@@ -45,8 +45,8 @@ describe Fission::Action::Snapshot::Creator do
     end
 
     it 'should return a response when creating the snapshot' do
-      executor_mock = mock 'executor'
-      response      = stub
+      executor_mock = double('executor')
+      response      = double
       cmd           = "#{@vmrun_cmd} snapshot "
       cmd           << "'#{@conf_file_path}' \"bar\" 2>&1"
 

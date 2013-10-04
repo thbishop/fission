@@ -198,7 +198,7 @@ lease 172.16.248.129 {
     end
 
     it 'should return an unsuccessful response if there was an error getting all of the leases' do
-      @all_response_mock = mock('all_response')
+      @all_response_mock = double('all_response')
       @all_response_mock.stub_as_unsuccessful
 
       Fission::Lease.stub(:all).and_return(@all_response_mock)

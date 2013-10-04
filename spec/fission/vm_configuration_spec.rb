@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Fission::VMConfiguration do
   before do
     @vm = Fission::VM.new 'foo'
-    @conf_file_response_mock = mock 'conf_file_response'
+    @conf_file_response_mock = double('conf_file_response')
     @conf_file_response_mock.stub_as_successful @conf_file_path
   end
 

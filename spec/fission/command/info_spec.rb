@@ -5,11 +5,11 @@ describe Fission::Command::Info do
 
   before do
     @target_vm = ['foo']
-    Fission::VM.stub!(:new).and_return(@vm_mock)
+    Fission::VM.stub(:new).and_return(@vm_mock)
 
-    @network_info_response_mock = mock('network_info_response')
-    @hardware_info_response_mock = mock('hardware_info_response')
-    @guest_os_response_mock = mock('guest_os_response')
+    @network_info_response_mock = double('network_info_response')
+    @hardware_info_response_mock = double('hardware_info_response')
+    @guest_os_response_mock = double('guest_os_response')
 
     @vm_mock.stub(:name).and_return(@target_vm.first)
   end

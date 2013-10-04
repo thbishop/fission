@@ -7,8 +7,8 @@ describe Fission::Action::Snapshot::Reverter do
       @vm                      = Fission::VM.new 'foo'
       @conf_file_path          = File.join @vm.path, 'foo.vmx'
       @vmrun_cmd               = Fission.config['vmrun_cmd']
-      @conf_file_response_mock = mock 'conf_file_response'
-      @snapshots_response_mock = mock 'snapshots'
+      @conf_file_response_mock = double('conf_file_response')
+      @snapshots_response_mock = double('snapshots')
 
       @conf_file_response_mock.stub_as_successful @conf_file_path
       @snapshots_response_mock.stub_as_successful []
@@ -44,8 +44,8 @@ describe Fission::Action::Snapshot::Reverter do
     end
 
     it 'should return a response when reverting to the snapshot' do
-      executor_mock = mock 'executor'
-      response      = stub
+      executor_mock = double('executor')
+      response      = double
       cmd           = "#{@vmrun_cmd} revertToSnapshot "
       cmd           << "'#{@conf_file_path}' \"snap_1\" 2>&1"
 

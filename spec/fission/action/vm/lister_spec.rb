@@ -10,8 +10,8 @@ describe Fission::Action::VM::Lister do
 
   describe 'all' do
     before do
-      @vm_1_mock = mock('vm_1')
-      @vm_2_mock = mock('vm_2')
+      @vm_1_mock = double('vm_1')
+      @vm_2_mock = double('vm_2')
       @vm_root   = Fission.config['vm_dir']
       @vm_dirs   = ['foo.vmwarevm', 'bar.vmwarevm'].map do |d|
         File.join(@vm_root, d)
@@ -62,8 +62,8 @@ describe Fission::Action::VM::Lister do
     before do
       @vmrun_cmd         = Fission.config['vmrun_cmd']
       @vm_names_and_objs = { 'foo' => @vm_1, 'bar' => @vm_2, 'baz' => @vm_3 }
-      @executor          = mock 'executor'
-      @process_status    = mock 'process status'
+      @executor          = double('executor')
+      @process_status    = double('process status')
     end
 
     it 'should return a successful response with the list of running vms' do
@@ -129,8 +129,8 @@ describe Fission::Action::VM::Lister do
 
   describe 'all_with_status' do
     before do
-      @all_running_response_mock = mock('all_running_mock')
-      @all_vms_response_mock     = mock('all_vms_mock')
+      @all_running_response_mock = double('all_running_mock')
+      @all_vms_response_mock     = double('all_vms_mock')
 
       @all_vms_response_mock.stub_as_successful [@vm_1, @vm_2, @vm_3]
       @all_running_response_mock.stub_as_successful [@vm_1]

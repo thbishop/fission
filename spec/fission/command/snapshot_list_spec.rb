@@ -5,9 +5,9 @@ describe Fission::Command::SnapshotList do
 
   before do
     @target_vm = ['foo']
-    Fission::VM.stub!(:new).and_return(@vm_mock)
+    Fission::VM.stub(:new).and_return(@vm_mock)
 
-    @snap_list_response_mock = mock('snap_list_response')
+    @snap_list_response_mock = double('snap_list_response')
 
     @vm_mock.stub(:name).and_return(@target_vm.first)
   end

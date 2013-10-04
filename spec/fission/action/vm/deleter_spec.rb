@@ -7,8 +7,8 @@ describe Fission::Action::VM::Deleter do
       @vm                      = Fission::VM.new 'foo'
       @vmrun_cmd               = Fission.config['vmrun_cmd']
       @conf_file_path          = File.join @vm.path, 'foo.vmx'
-      @conf_file_response_mock = mock 'conf_file_response'
-      @running_response_mock   = mock 'running?'
+      @conf_file_response_mock = double('conf_file_response')
+      @running_response_mock   = double('running?')
       @vm_files                = %w{ .vmx .vmxf .vmdk -s001.vmdk -s002.vmdk .vmsd }
 
       @vm.stub(:exists?).and_return(true)
@@ -53,7 +53,7 @@ describe Fission::Action::VM::Deleter do
     end
 
     it "should delete the target vm files" do
-      Fission::Metadata.stub!(:delete_vm_info)
+      Fission::Metadata.stub(:delete_vm_info)
 
       @deleter.delete
 
@@ -71,7 +71,7 @@ describe Fission::Action::VM::Deleter do
     end
 
     it 'should return a successful reponse object' do
-      Fission::Metadata.stub!(:delete_vm_info)
+      Fission::Metadata.stub(:delete_vm_info)
       @deleter.delete.should be_a_successful_response
     end
 

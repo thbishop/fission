@@ -7,8 +7,8 @@ describe Fission::Action::VM::Stopper do
       @vm                      = Fission::VM.new 'foo'
       @vmrun_cmd               = Fission.config['vmrun_cmd']
       @conf_file_path          = File.join @vm.path, 'foo.vmx'
-      @conf_file_response_mock = mock 'conf_file_response'
-      @running_response_mock   = mock 'running?'
+      @conf_file_response_mock = double('conf_file_response')
+      @running_response_mock   = double('running?')
 
       @vm.stub(:exists?).and_return(true)
       @vm.stub(:running?).and_return(@running_response_mock)
@@ -40,8 +40,8 @@ describe Fission::Action::VM::Stopper do
 
     context 'when stopping the vm' do
       before do
-        @executor_mock = mock 'executor'
-        @response      = stub
+        @executor_mock = double('executor')
+        @response      = double
         @executor_mock.should_receive(:execute).and_return(@executor_mock)
         Fission::Fusion.stub(:running?).and_return(false)
         Fission::Response.should_receive(:from_shell_executor).

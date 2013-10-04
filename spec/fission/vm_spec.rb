@@ -5,7 +5,7 @@ describe Fission::VM do
     @vm = Fission::VM.new('foo')
     @conf_file_path = File.join(@vm.path, 'foo.vmx')
     @vmrun_cmd = Fission.config['vmrun_cmd']
-    @conf_file_response_mock = mock('conf_file_response')
+    @conf_file_response_mock = double('conf_file_response')
   end
 
   describe 'new' do
@@ -16,8 +16,8 @@ describe Fission::VM do
 
   describe 'delete' do
     before do
-      @vm_deleter           = mock 'vm deleter'
-      @delete_response_mock = mock 'vm delete response'
+      @vm_deleter           = double('vm deleter')
+      @delete_response_mock = double('vm delete response')
       Fission::Action::VM::Deleter.stub(:new).and_return(@vm_deleter)
       @vm_deleter.should_receive(:delete).
                   and_return(@delete_response_mock)
@@ -36,8 +36,8 @@ describe Fission::VM do
 
   describe 'start' do
     before do
-      @vm_starter          = mock 'vm starter'
-      @start_response_mock = mock 'vm start response'
+      @vm_starter          = double('vm starter')
+      @start_response_mock = double('vm start response')
       Fission::Action::VM::Starter.stub(:new).and_return(@vm_starter)
     end
 
@@ -66,8 +66,8 @@ describe Fission::VM do
 
   describe 'stop' do
     before do
-      @vm_stopper         = mock 'vm stopper'
-      @stop_response_mock = mock 'vm stop response'
+      @vm_stopper         = double('vm stopper')
+      @stop_response_mock = double('vm stop response')
       Fission::Action::VM::Stopper.stub(:new).and_return(@vm_stopper)
     end
 
@@ -96,8 +96,8 @@ describe Fission::VM do
 
   describe 'suspend' do
     before do
-      @vm_suspender          = mock 'vm suspender'
-      @suspend_response_mock = mock 'vm suspend response'
+      @vm_suspender          = double('vm suspender')
+      @suspend_response_mock = double('vm suspend response')
       Fission::Action::VM::Suspender.stub(:new).and_return(@vm_suspender)
       @vm_suspender.should_receive(:suspend).
                     and_return(@suspend_response_mock)
@@ -116,8 +116,8 @@ describe Fission::VM do
 
   describe 'snapshots' do
     before do
-      @snapshot_lister_mock = mock 'snapshot lister'
-      @snapshots_response_mock = mock 'snapshots mock'
+      @snapshot_lister_mock = double('snapshot lister')
+      @snapshots_response_mock = double('snapshots mock')
       Fission::Action::Snapshot::Lister.stub(:new).and_return(@snapshot_lister_mock)
       @snapshot_lister_mock.should_receive(:snapshots).
                             and_return(@snapshots_response_mock)
@@ -138,8 +138,8 @@ describe Fission::VM do
 
   describe 'create_snapshot' do
     before do
-      @snapshot_creator_mock         = mock 'snapshot creator'
-      @snapshot_create_response_mock = mock 'snapshot create response'
+      @snapshot_creator_mock         = double('snapshot creator')
+      @snapshot_create_response_mock = double('snapshot create response')
       Fission::Action::Snapshot::Creator.stub(:new).and_return(@snapshot_creator_mock)
       @snapshot_creator_mock.should_receive(:create_snapshot).
                              with('snap_1').
@@ -159,8 +159,8 @@ describe Fission::VM do
 
   describe 'delete_snapshot' do
     before do
-      @snapshot_deleter_mock         = mock 'snapshot deleter'
-      @snapshot_delete_response_mock = mock 'snapshot delete response'
+      @snapshot_deleter_mock         = double('snapshot deleter')
+      @snapshot_delete_response_mock = double('snapshot delete response')
 
       Fission::Action::Snapshot::Deleter.stub(:new).
                                        and_return(@snapshot_deleter_mock)
@@ -182,7 +182,7 @@ describe Fission::VM do
 
   describe 'revert_to_snapshot' do
     before do
-      @snapshot_reverter_mock       = mock 'snapshot reverter'
+      @snapshot_reverter_mock       = double('snapshot reverter')
       @snapshot_revert_response_mock = 'snapshot revert response'
 
       Fission::Action::Snapshot::Reverter.stub(:new).
@@ -205,7 +205,7 @@ describe Fission::VM do
 
   describe 'exists?' do
     before do
-      @conf_file_response = mock('exists')
+      @conf_file_response = double('exists')
       @vm.stub(:conf_file).and_return(@conf_file_response)
     end
 
@@ -222,7 +222,7 @@ describe Fission::VM do
 
   describe 'hardware_info' do
     before do
-      @vm_config_data_response_mock = mock 'vm config data response'
+      @vm_config_data_response_mock = double('vm config data response')
       @vm.stub(:conf_file_data).and_return(@vm_config_data_response_mock)
       @config_data = { 'numvcpus'         => '2',
                        'replay.supported' => "TRUE",
@@ -278,7 +278,7 @@ describe Fission::VM do
 
   describe 'mac_addresses' do
     before do
-      @network_info_mock = mock('network_info')
+      @network_info_mock = double('network_info')
       @vm.should_receive(:network_info).and_return(@network_info_mock)
     end
 
@@ -317,9 +317,9 @@ describe Fission::VM do
 
   describe 'network_info' do
     before do
-      @lease_1_response_mock = mock('lease_1_response')
-      @lease_2_response_mock = mock('lease_1_response')
-      @vm_config_data_response_mock = mock 'vm config data response'
+      @lease_1_response_mock = double('lease_1_response')
+      @lease_2_response_mock = double('lease_1_response')
+      @vm_config_data_response_mock = double('vm config data response')
 
       @vm.stub(:conf_file_data).and_return(@vm_config_data_response_mock)
       @config_data = { 'ide1:0.deviceType'                   => 'cdrom-image',
@@ -421,7 +421,7 @@ describe Fission::VM do
 
   describe 'guestos' do
     before do
-      @vm_config_data_response_mock = mock 'vm config data response'
+      @vm_config_data_response_mock = double('vm config data response')
       @vm.stub(:conf_file_data).and_return(@vm_config_data_response_mock)
       @config_data = { 'cleanShutdown'   => 'TRUE',
                        'guestOS'         => 'debian5',
@@ -458,7 +458,7 @@ describe Fission::VM do
 
   describe 'uuids' do
     before do
-      @vm_config_data_response_mock = mock 'vm config data response'
+      @vm_config_data_response_mock = double('vm config data response')
       @vm.stub(:conf_file_data).and_return(@vm_config_data_response_mock)
       @config_data = { 'uuid.location' => '56 4d d8 9c f8 ec 95 73-2e ea a0 f3 7a 1d 6f c8',
                        'uuid.bios' => '56 4d d8 9c f8 ec 95 73-2e ea a0 f3 7a 1d 6f c8',
@@ -510,8 +510,8 @@ describe Fission::VM do
       @vm_1 = Fission::VM.new 'foo'
       @vm_2 = Fission::VM.new 'bar'
 
-      @all_running_response_mock = mock('all_running')
-      @suspended_response_mock = mock('suspended')
+      @all_running_response_mock = double('all_running')
+      @suspended_response_mock = double('suspended')
 
       Fission::VM.stub(:all_running).and_return(@all_running_response_mock)
       @all_running_response_mock.stub_as_successful [@vm_2]
@@ -555,7 +555,7 @@ describe Fission::VM do
 
   describe 'running?' do
     before do
-      @all_running_response_mock = mock('all_running')
+      @all_running_response_mock = double('all_running')
 
       Fission::VM.stub(:all_running).and_return(@all_running_response_mock)
     end
@@ -606,7 +606,7 @@ describe Fission::VM do
 
   describe 'suspended?' do
     before do
-      @running_response_mock = mock('running?')
+      @running_response_mock = double('running?')
       @vm.stub(:running?).and_return(@running_response_mock)
     end
 
@@ -649,8 +649,8 @@ describe Fission::VM do
 
   describe 'conf_file_data' do
     before do
-      @vm_config_mock          = mock 'vm config'
-      @vm_config_response_mock = mock 'vm config response'
+      @vm_config_mock          = double('vm config')
+      @vm_config_response_mock = double('vm config response')
 
       Fission::VMConfiguration.should_receive(:new).with(@vm).
                                                     and_return(@vm_config_mock)
@@ -740,8 +740,8 @@ describe Fission::VM do
 
   describe "self.all" do
     before do
-      @lister            = mock 'lister'
-      @all_response_mock = mock 'all response'
+      @lister            = double('lister')
+      @all_response_mock = double('all response')
       Fission::Action::VM::Lister.stub(:new).and_return(@lister)
       @lister.should_receive(:all).
               and_return(@all_response_mock)
@@ -760,8 +760,8 @@ describe Fission::VM do
 
   describe 'self.all_running' do
     before do
-      @lister                    = mock 'lister'
-      @all_running_response_mock = mock 'all running response'
+      @lister                    = double('lister')
+      @all_running_response_mock = double('all running response')
       Fission::Action::VM::Lister.stub(:new).and_return(@lister)
       @lister.should_receive(:all_running).
               and_return(@all_running_response_mock)
@@ -780,10 +780,10 @@ describe Fission::VM do
 
   describe "self.clone" do
     before do
-      @vm_1                = mock 'vm 1'
-      @vm_2                = mock 'vm 2'
-      @vm_cloner           = mock 'vm cloner'
-      @clone_response_mock = mock 'vm clone response'
+      @vm_1                = double('vm 1')
+      @vm_2                = double('vm 2')
+      @vm_cloner           = double('vm cloner')
+      @clone_response_mock = double('vm clone response')
       Fission::Action::VM::Cloner.should_receive(:new).
                                 with(@vm_1, @vm_2).
                                 and_return(@vm_cloner)
@@ -806,8 +806,8 @@ describe Fission::VM do
 
   describe 'self.all_with_status' do
     before do
-      @lister                   = mock 'lister'
-      @all_status_response_mock = mock 'all status response'
+      @lister                   = double('lister')
+      @all_status_response_mock = double('all status response')
       Fission::Action::VM::Lister.stub(:new).and_return(@lister)
       @lister.should_receive(:all_with_status).
               and_return(@all_status_response_mock)

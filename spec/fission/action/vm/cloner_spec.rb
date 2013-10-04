@@ -9,7 +9,7 @@ describe Fission::Action::VM::Cloner do
       @source_path = @source_vm.path
       @target_path = @target_vm.path
 
-      @clone_response_mock = mock('clone_response')
+      @clone_response_mock = double('clone_response')
       @vm_files = ['.vmx', '.vmxf', '.vmdk', '-s001.vmdk', '-s002.vmdk', '.vmsd']
 
       FakeFS.activate!
@@ -184,7 +184,6 @@ ethernet1.generatedAddressenable = "TRUE"'
 
     context 'when a sparse disk is found' do
       it "should update the vmdk" do
-        File.rspec_reset
         File.stub(:binary?).and_return(false)
 
         @cloner.clone

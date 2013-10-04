@@ -7,7 +7,7 @@ describe Fission::Command::Stop do
     @target_vm = ['foo']
     Fission::VM.stub(:new).and_return(@vm_mock)
 
-    @stop_response_mock = mock('stop_response')
+    @stop_response_mock = double('stop_response')
 
     @vm_mock.stub(:name).and_return(@target_vm.first)
   end

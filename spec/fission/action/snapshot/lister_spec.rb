@@ -5,7 +5,7 @@ describe Fission::Action::Snapshot::Lister do
     @vm                      = Fission::VM.new 'foo'
     @conf_file_path          = File.join @vm.path, 'foo.vmx'
     @vmrun_cmd               = Fission.config['vmrun_cmd']
-    @conf_file_response_mock = mock 'conf_file_response'
+    @conf_file_response_mock = double('conf_file_response')
     @vm.stub(:conf_file).and_return(@conf_file_response_mock)
   end
 
@@ -27,8 +27,8 @@ describe Fission::Action::Snapshot::Lister do
     end
 
     it 'should return a response when listing the snapshots' do
-      executor_mock = mock 'executor'
-      process_mock  = stub :exitstatus => 0
+      executor_mock = double('executor')
+      process_mock  = double(:exitstatus => 0)
       cmd           = "#{@vmrun_cmd} listSnapshots "
       cmd           << "'#{@conf_file_path}' 2>&1"
 
@@ -47,8 +47,8 @@ describe Fission::Action::Snapshot::Lister do
     end
 
     it 'should return an unsuccessful response if there was a problem listing the snapshots' do
-      executor_mock = mock 'executor'
-      process_mock  = stub :exitstatus => 1
+      executor_mock = double('executor')
+      process_mock  = double(:exitstatus => 1)
       cmd           = "#{@vmrun_cmd} listSnapshots "
       cmd           << "'#{@conf_file_path}' 2>&1"
 

@@ -60,7 +60,7 @@ describe Fission::Response do
 
   describe 'self.from_shell_executor' do
     before do
-      @process_status = mock 'process status'
+      @process_status = double('process status')
     end
 
     it 'should return a response object' do
