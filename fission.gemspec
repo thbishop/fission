@@ -21,5 +21,5 @@ Gem::Specification.new do |s|
   s.add_dependency 'CFPropertyList', '~> 2.1.1'
   s.add_development_dependency 'rake'
   s.add_development_dependency 'rspec', '~> 2.8.0'
-  s.add_development_dependency 'fakefs', '~> 0.3.2'
+  s.add_development_dependency 'fakefs', '~> 0.4.3'
 end
