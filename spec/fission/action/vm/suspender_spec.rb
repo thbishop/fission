@@ -40,7 +40,7 @@ describe Fission::Action::VM::Suspender do
 
     it 'should return a response' do
       executor_mock = double('executor')
-      response      = stub
+      response      = double
       cmd           = "#{@vmrun_cmd} suspend "
       cmd           << "'#{@conf_file_path}' 2>&1"
 

@@ -46,7 +46,7 @@ describe Fission::Action::Snapshot::Deleter do
 
     it 'should return a response when deleting the snapshot' do
       executor_mock = double('executor')
-      response      = stub
+      response      = double
       cmd           = "#{@vmrun_cmd} deleteSnapshot "
       cmd           << "'#{@conf_file_path}' \"snap_1\" 2>&1"
 

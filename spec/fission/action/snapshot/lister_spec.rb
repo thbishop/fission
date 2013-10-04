@@ -28,7 +28,7 @@ describe Fission::Action::Snapshot::Lister do
 
     it 'should return a response when listing the snapshots' do
       executor_mock = double('executor')
-      process_mock  = stub :exitstatus => 0
+      process_mock  = double(:exitstatus => 0)
       cmd           = "#{@vmrun_cmd} listSnapshots "
       cmd           << "'#{@conf_file_path}' 2>&1"
 
@@ -48,7 +48,7 @@ describe Fission::Action::Snapshot::Lister do
 
     it 'should return an unsuccessful response if there was a problem listing the snapshots' do
       executor_mock = double('executor')
-      process_mock  = stub :exitstatus => 1
+      process_mock  = double(:exitstatus => 1)
       cmd           = "#{@vmrun_cmd} listSnapshots "
       cmd           << "'#{@conf_file_path}' 2>&1"
 

@@ -46,7 +46,7 @@ describe Fission::Action::Snapshot::Creator do
 
     it 'should return a response when creating the snapshot' do
       executor_mock = double('executor')
-      response      = stub
+      response      = double
       cmd           = "#{@vmrun_cmd} snapshot "
       cmd           << "'#{@conf_file_path}' \"bar\" 2>&1"
 

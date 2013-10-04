@@ -41,7 +41,7 @@ describe Fission::Action::VM::Stopper do
     context 'when stopping the vm' do
       before do
         @executor_mock = double('executor')
-        @response      = stub
+        @response      = double
         @executor_mock.should_receive(:execute).and_return(@executor_mock)
         Fission::Fusion.stub(:running?).and_return(false)
         Fission::Response.should_receive(:from_shell_executor).
