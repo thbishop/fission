@@ -13,7 +13,7 @@ describe Fission::Metadata do
       CFPropertyList::List.should_receive(:new).
                            with(:file => @plist_file_path).
                            and_return(@plist_mock)
-      @plist_mock.stub!(:value).and_return(plist)
+      @plist_mock.stub(:value).and_return(plist)
       CFPropertyList.should_receive(:native_types).with(plist).
                                                    and_return([1, 2, 3])
       @metadata.load
@@ -88,20 +88,20 @@ describe Fission::Metadata do
       @md_mock = mock('metadata_mock')
       @md_mock.should_receive(:load)
       @md_mock.should_receive(:save)
-      Fission::Metadata.stub!(:new).and_return(@md_mock)
+      Fission::Metadata.stub(:new).and_return(@md_mock)
 
       @foo_vm_dir = File.join Fission.config['vm_dir'], 'foo.vmwarevm'
     end
 
     it 'should remove the vm from the restart document list' do
       @md_mock.should_receive(:delete_vm_restart_document).with(@foo_vm_dir)
-      @md_mock.stub!(:delete_vm_favorite_entry)
+      @md_mock.stub(:delete_vm_favorite_entry)
       Fission::Metadata.delete_vm_info(Fission::VM.new('foo').path)
     end
 
     it 'should remove the vm from the favorite list' do
       @md_mock.should_receive(:delete_vm_favorite_entry).with(@foo_vm_dir)
-      @md_mock.stub!(:delete_vm_restart_document)
+      @md_mock.stub(:delete_vm_restart_document)
       Fission::Metadata.delete_vm_info(Fission::VM.new('foo').path)
     end
   end

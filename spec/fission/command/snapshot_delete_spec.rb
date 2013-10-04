@@ -5,7 +5,7 @@ describe Fission::Command::SnapshotDelete do
 
   before do
     @target_vm = ['foo']
-    Fission::VM.stub!(:new).and_return(@vm_mock)
+    Fission::VM.stub(:new).and_return(@vm_mock)
 
     @snap_delete_response_mock = mock('snap_delete_response')
 

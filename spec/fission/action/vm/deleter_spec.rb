@@ -53,7 +53,7 @@ describe Fission::Action::VM::Deleter do
     end
 
     it "should delete the target vm files" do
-      Fission::Metadata.stub!(:delete_vm_info)
+      Fission::Metadata.stub(:delete_vm_info)
 
       @deleter.delete
 
@@ -71,7 +71,7 @@ describe Fission::Action::VM::Deleter do
     end
 
     it 'should return a successful reponse object' do
-      Fission::Metadata.stub!(:delete_vm_info)
+      Fission::Metadata.stub(:delete_vm_info)
       @deleter.delete.should be_a_successful_response
     end
 

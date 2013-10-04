@@ -5,7 +5,7 @@ describe Fission::Command::SnapshotCreate do
 
   before do
     @target_vm = ['foo']
-    Fission::VM.stub!(:new).and_return(@vm_mock)
+    Fission::VM.stub(:new).and_return(@vm_mock)
 
     @snap_create_response_mock = mock('snap_create_response')
 

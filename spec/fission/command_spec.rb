@@ -47,7 +47,7 @@ describe Fission::Command do
         @ui_mock = mock('ui')
         @ui_mock.should_receive(item)
 
-        Fission::UI.stub!(:new).and_return(@ui_mock)
+        Fission::UI.stub(:new).and_return(@ui_mock)
 
         @cmd_instance = Fission::Command.new
         @cmd_instance.send item, 'foo'

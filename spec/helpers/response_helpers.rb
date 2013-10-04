@@ -1,7 +1,7 @@
 module ResponseHelpers
   def stub_response_mock_with(args={})
     args.each_pair do |method, data|
-      stub!(method).and_return(data)
+      stub(method).and_return(data)
     end
   end
 
