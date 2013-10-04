@@ -1,22 +1,19 @@
 # Fission
-
 [![Build Status](https://secure.travis-ci.org/thbishop/fission.png)](http://travis-ci.org/thbishop/fission)
+[![Dependency Status](https://gemnasium.com/thbishop/fission.png)](https://gemnasium.com/thbishop/fission)
 
 ## Intro
 Fission is a simple command line tool for managing VMware Fusion VMs.  Only Fusion 3.x is currently
 supported.  See [Fusion Version Support](#fusion-version-support) for more info.
 
-
 ## Install
     gem install fission
-
 
 ## Usage
 ### Clone
     fission clone existing_vm new_vm [--start]
 
 If you provide '--start', then the new VM will be powered on after cloning
-
 
 ### Delete
     fission delete my_vm [--force]
@@ -33,12 +30,10 @@ Providing '--force' will:
 * Stop the VM if it's running
 * Delete the VM even if the Fusion GUI is running
 
-
 ### Info
     fission info my_vm
 
 Outputs information about the VM
-
 
 ### Snapshot Create
     fission snapshot create my_vm snapshot_name
@@ -50,7 +45,6 @@ In order to create the snapshot:
 * The VM must be running
 * The snapshot name must be unique
 
-
 ### Snapshot Delete
     fission snapshot delete my_vm snapshot_name
 
@@ -58,12 +52,10 @@ Deletes a snapshot for the VM
 
 If you have the Fusion GUI running, the VM must be running in order to delete the snapshot.
 
-
 ### Snapshot List
     fission snapshot list my_vm
 
 Lists the snapshots for the VM
-
 
 ### Snapshot Revert
     fission snapshot revert my_vm existing_snapshot
@@ -74,7 +66,6 @@ In order to revert to the snapshot:
 
 * The Fusion GUI cannot be running
 
-
 ### Start
     fission start my_vm [--headless]
 
@@ -84,24 +75,20 @@ Providng '--headless' will start the VM without a Fusion GUI console
 
 Note that the Fusion GUI cannot be running to start a VM with '--headless'
 
-
 ### Status
     fission status
 
 Displays the status (running or not) of all of the VMs found
-
 
 ### Stop
     fission stop my_vm
 
 Stops the VM
 
-
 ### Suspend
     fission suspend [my_vm | --all]
 
 Suspends the VM or all running VMs
-
 
 ### Help
     fission -h
@@ -109,7 +96,6 @@ Suspends the VM or all running VMs
 or just
 
     fission
-
 
 ## Configuration
 By default, fission will use the default VMware Fusion VM directory
@@ -131,10 +117,9 @@ following item placed in your ~/.fissionrc (remember, YAML format):
 
     vmrun_bin: /Applications/VMware Fusion.app/Contents/Library/vmrun
 
-
 ## Other Notable Info
-The name of the VM used in the previous examples should be the directory name 
-of the VM minus the '.vmwarevm' extension.  Typically the VM name and the 
+The name of the VM used in the previous examples should be the directory name
+of the VM minus the '.vmwarevm' extension.  Typically the VM name and the
 directory name are the same.
 
 As of now, VMware Fusion doesn't provide an easy, out of
@@ -144,11 +129,11 @@ hostname, ip address, etc.).  Most likely, this isn't what you want.
 
 One approach is to create a VM which will act as a template.  Create the VM with
 the desired install method (ideally with easy install) and settings, but do not
-power on the VM.  You can then create clones from this VM 'template'.  When you 
+power on the VM.  You can then create clones from this VM 'template'.  When you
 power on the clone, it will start the OS install process (and assign a new ip, etc.).
 
 ## Fission with RVM
-Please see the following gist for a walkthrough of making fission available 
+Please see the following gist for a walkthrough of making fission available
 regardless of ruby environment when using RVM https://gist.github.com/1203167
 
 ## Contribute
@@ -156,7 +141,6 @@ regardless of ruby environment when using RVM https://gist.github.com/1203167
 * Make your feature addition or bug fix (with tests and docs) in a topic branch
 * Bonus points for not mucking with the gemspec or version
 * Send a pull request and I'll get it integrated
-
 
 ## License
 See LICENSE
