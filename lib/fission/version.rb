@@ -1,3 +1,3 @@
 module Fission
-  VERSION = "0.5.0.beta.1"
+  VERSION = "0.5.0"
 end
